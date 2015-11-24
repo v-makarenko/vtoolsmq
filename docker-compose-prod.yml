@@ -1,0 +1,8 @@
+jhipster-prod-mongodb:
+  container_name: vtools-prod-mongodb
+  image: mongo:3.0.7
+  # volumes:
+  # - ~/volumes/jhipster/vtools/prod-mongodb/:/data/db/
+  ports:
+  - "27017:27017"
+

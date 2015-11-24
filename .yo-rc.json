@@ -1,0 +1,22 @@
+{
+  "generator-jhipster": {
+    "baseName": "vtools",
+    "packageName": "com.fiveamsolutions.vtools",
+    "packageFolder": "com/fiveamsolutions/vtools",
+    "authenticationType": "session",
+    "hibernateCache": "no",
+    "clusteredHttpSession": "no",
+    "websocket": "no",
+    "databaseType": "mongodb",
+    "devDatabaseType": "mongodb",
+    "prodDatabaseType": "mongodb",
+    "searchEngine": "no",
+    "useSass": true,
+    "buildTool": "gradle",
+    "frontendBuilder": "grunt",
+    "enableTranslation": false,
+    "enableSocialSignIn": false,
+    "rememberMeKey": "31bf0be0b9bae92bfd4bd289a66e507d85da9470",
+    "testFrameworks": []
+  }
+}

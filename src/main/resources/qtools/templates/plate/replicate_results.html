@@ -1,0 +1,53 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${boot.css()}
+	<style type="text/css">
+		#results {
+			font-size: 11px;
+		}
+		#results thead th,
+		#results thead td {
+			vertical-align: bottom;
+		}
+	</style>
+</%def>
+
+<%def name="pagetitle()">Replicate Analysis: Results</%def>
+<%def name="selected_page()">replicates</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+<table id="results" class="condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th rowspan="2">Replicate</th>
+			<th rowspan="2"># Wells</th>
+			% for col in c.well_metric_cols + c.channel_metric_cols:
+			<th colspan="2">${col}</th>
+			% endfor
+		</tr>
+		<tr>
+			% for col in c.well_metric_cols + c.channel_metric_cols:
+			<td>Mean</td>
+			<td>Stdev</td>
+			% endfor
+		</tr>
+	</thead>
+	<tbody>
+	% for replicate, length, stats in c.replicate_data:
+		<tr>
+			% if c.technical_replicates:
+			<td>${replicate[0]} (${replicate[1][0]}, ${replicate[1][1]})</td>
+			% else:
+			<td>${replicate}</td>
+			% endif
+			<td>${length}</td>
+			% for mean, stdev in stats:
+			<td>${h.sig2(mean)}</td>
+			<td>${h.sig2(stdev)}</td>
+			% endfor
+		</tr>
+	% endfor
+</table>

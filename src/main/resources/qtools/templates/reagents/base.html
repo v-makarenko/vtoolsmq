@@ -1,0 +1,52 @@
+<%inherit file="/base/index.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    <style type="text/css" media="screen">
+        #subnav nav.metrics li#subnav_lines,
+        #subnav nav.metrics li#subnav_plates {
+            color: green;
+            list-style: disc outside;
+        }
+
+        #subnav nav.metrics li#subnav_lines a,
+        #subnav nav.metrics li#subnav_plates a {
+            font-weight: bold;
+        }
+
+        #content {
+            position: relative;
+        }
+
+        #content .upper_link {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            z-index: 2;
+        }
+
+        .actions .btn {
+            margin-right: 10px;
+        }
+    </style>
+</%def>
+<%def name="bodyclass()">reagents</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+<%def name="subnav_title()">Reagent Links</%def>
+<%def name="subnav()">
+    <ul>
+        <li id="subnav_plates"><a href="${url(controller='reagents', action='plates')}">Validation Plates</a></li>
+        <li id="subnav_lines"><a href="${url(controller='reagents', action='lines')}">Product Lines</a></li>
+    </ul>
+</%def>
+
+${next.body()}
+
+<div class="pagefooter">
+${self.pagefooter()}
+</div>
+
+<%def name="pagefooter()"></%def>

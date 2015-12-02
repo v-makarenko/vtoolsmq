@@ -1,0 +1,89 @@
+${c.form.field("name", "text",
+	label="Name",
+	required=True
+)}
+
+${c.form.field("gene", "text",
+	label="Gene"
+)}
+
+${c.form.field("owner_id", "dropdown",
+	label="Entered By"
+)}
+<tr><td colspan="2">
+<div id="tabs">
+<ul>
+	<li><a href="#tabs-primer">Enter By Primer</a></li>
+	<li><a href="#tabs-2">Enter By Location</a></li>
+	<li><a href="#tabs-3">Enter By SNP</a></li>
+</ul>
+<div id="tabs-primer">
+	<table>
+
+${c.form.field("primer_fwd", "text",
+    label="Forward Primer"
+)}
+
+${c.form.field("primer_rev", "text",
+    label="Reverse Primer"
+)}
+	</table>
+</div>
+<div id="tabs-2">
+	<table>
+
+${c.form.field("chromosome", "dropdown",
+    label="Chromosome"
+)}
+
+${c.form.field("probe_pos", "text",
+	label="Probe Location",
+	field_desc="Estimated probe location amplicon."
+)}
+
+${c.form.field("amplicon_width", "text",
+    label="Amplicon Width",
+    field_desc="Estimated maximum padding between probe and primer end"
+)}
+	</table>
+</div>
+<div id="tabs-3">
+	<table>
+
+${c.form.field("snp_rsid", "text",
+    label="SNP rsid"
+)}
+
+${c.form.field("amplicon_width", "text",
+    label="Amplicon Width"
+)}
+	</table>
+</div>
+</div>
+</td></tr>
+${c.form.field("probe_seq", "text",
+	label="Probe Sequence"
+)}
+${c.form.field("dye","dropdown",
+	label="Dye"
+)}
+${c.form.field("quencher","dropdown",
+	label="Quencher"
+)}
+${c.form.field("secondary_structure","dropdown",
+	label="Secondary Structure?",
+)}
+${c.form.field("optimal_anneal_temp","text",
+	label="Optimal Anneal Temp",
+	field_desc="in degrees Celsius"
+)}
+${c.form.field("reference_source","text",
+	label="Reference Source",
+	field_desc="URL or name of paper of assay, or 'internal'",
+	attributes=dict(style='width:300px')
+)}
+${c.form.field("notes","textarea",
+	label="Notes",
+	field_desc="Additional notes about this assay",
+	attributes=dict(cols=40,rows=5)
+)}

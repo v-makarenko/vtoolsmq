@@ -1,0 +1,24 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Carryover Event Counter</%def>
+<%def name="selected_page()">carryover</%def>
+<p>
+<strong>Start:</strong> ${c.start.name}<br/>
+<strong>End:</strong> ${c.end.name if c.end else 'None'}
+</p>
+
+<h5>Results</h5>
+<p>
+<strong>Number of Plates:</strong> ${len(c.plate_list)}<br/>
+<strong>Wells:</strong> ${c.well_sum}<br/>
+<strong>Events:</strong> ${h.commafy(c.event_sum)}
+</p>
+
+<h5>Plate List</h5>
+<p>
+% for p in c.plate_list:
+<a href="${url(controller='plate', action='view', id=p.id)}">${p.name}</a><br/>
+% endfor
+</p>
+
+<a href="${url(controller='product', action='carryover')}">&lt;&lt; Compare Different Plates</a>

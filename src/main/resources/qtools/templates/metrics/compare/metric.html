@@ -1,0 +1,151 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/metrics/helpers.html" name="mh" import="*" />
+
+<%def name="pagetitle()">Compare Algorithms: ${c.group.name}</%def>
+<%def name="selected_page()">compare</%def>
+<%def name="css()">
+	${parent.css()}
+	<link rel="stylesheet" href="${url('/css/tw/bootstrap.btn.min.css')}" />
+	<style type="text/css">
+		.datagrid {
+			font-size: 11px;
+		}
+		table.gridfield {
+			margin-bottom: 5px;
+		}
+		select {
+			width: 250px;
+		}
+		label {
+			white-space: nowrap;
+		}
+
+		.primary {
+			margin-top: 10px;
+		}
+
+		#canvas {
+			margin-bottom: 20px;
+		}
+		table.datagrid {
+			width: 960px !important;
+		}
+
+		.nowrap {
+			white-space: nowrap;
+		}
+
+		tr.divider td {
+			border-bottom: 3px double #f00;
+		}
+
+		#aggregate_stats {
+			margin-top: 20px;
+			font-size: 12px;
+			background: #eee;
+			padding: 5px;
+			width: 950px;
+		}
+	</style>
+</%def>
+<%def name="js()">
+${parent.js()}
+<!--[if lt IE 9]>
+<noscript>
+<![endif]-->
+<script type="text/javascript" src="${url('/js/processing-1.3.5.min.js')}"></script>
+<!--[if lt IE 9]>
+</noscript>
+<![endif]-->
+</%def>
+
+<%def name="explanation()">
+<p>
+	<strong>Original Algorithm:</strong>&nbsp;${c.left_config_name}<br/>
+	<strong>Test Algorithm:</strong>&nbsp;${c.right_config_name}<br/>
+	<a href="${url(controller='metrics', action='compare', id=c.group.id)}">&lt;&lt; Select Other Algorithms</a>
+</p>
+</%def>
+
+<form action="${url(controller='metrics', action='compare_algs', id=c.group.id)}" method="get" class="formbuild">
+	<%include file="/metrics/compare/metric_range.html" />
+	<table class="gridfield">
+		<tr>
+			<td>
+			<input class="btn primary" type="submit" value="Compare" />
+			</td>
+		</tr>
+	</table>
+	<input type="hidden" name="left_config_id" value="${c.left_config_id}" />
+	<input type="hidden" name="right_config_id" value="${c.right_config_id}" />
+</form>
+
+<div id="aggregate_stats">
+	<strong>Mean:</strong>&nbsp;${h.sig2(c.stats_mean)}&nbsp;&nbsp;
+	<strong>Median:</strong>&nbsp;${h.sig2(c.stats_median)}&nbsp;&nbsp;
+	<strong>Stdev:</strong>&nbsp;${h.sig2(c.stats_stdev)}
+</div>
+
+<canvas id="canvas" width="960" height="72"></canvas>
+<!--[if lt IE 9]>
+<div id="canvas" style="width: 958px; border: 1px solid #eee;">
+<div style="padding: 20px; text-align:center">
+	Note: IE9 and higher (or Firefox/Safari/Chrome) required to view histograms.
+</div>
+</div>
+<![endif]-->
+
+${next.body()}
+
+<%def name="pagescript()">
+${parent.pagescript()}
+<!--[if lt IE 9]>
+<noscript>
+<![endif]-->
+<script type="text/javascript">
+	MetricHist = function(w, h) {
+		this.w = w;
+		this.h = h;
+	}
+	MetricHist.prototype.xFormArray = function(hist) {
+		var pointArr = []
+		var maxBin = Math.max.apply(Math, hist)
+		for(var i=0;i<hist.length;i++) {
+			pointArr.push((this.h*0.9)*(hist[i]*1.0/maxBin))
+		}
+		return pointArr;
+	}
+	MetricHist.prototype.sketch = function(hist, zero) {
+		this.bars = this.xFormArray(hist)
+		var self = this;
+		return function(pg) {
+			pg.setup = function() {
+				pg.size(self.w, self.h);
+				pg.background(100);
+				pg.stroke(255);
+				var lineWidth = ((self.w-30)/self.bars.length)-1
+				var yOffset = self.h-(self.h*.05)
+				pg.strokeWeight(lineWidth);
+				for(var i=0;i<self.bars.length;i++) {
+					var hpos = 15+(lineWidth+1)*i;
+					if(i == zero) {
+						pg.stroke(255, 0, 0)
+					}
+					pg.line(hpos, yOffset, hpos, yOffset-self.bars[i])
+					if(i == zero) {
+						pg.stroke(255)
+					}
+				}
+			}
+		}
+	}
+	var hist = [
+		${','.join([str(bin) for bin in c.hist])}
+	]
+	var plot = new MetricHist(960,72);
+	var p2d = new Processing($('#canvas')[0], plot.sketch(hist, ${c.zero_bin}))
+</script>
+<!--[if lt IE 9]>
+</noscript>
+<![endif]-->
+</%def>

@@ -1,0 +1,23 @@
+<%inherit file="/base/index.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="bodyclass()">map</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+
+<%def name="subnav_title()">Map Links</%def>
+<%def name="subnav()">
+<p>None.</p>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.footer()}
+</div>
+
+<%def name="footer()"></%def>

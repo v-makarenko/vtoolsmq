@@ -1,0 +1,64 @@
+<%def name="sample_assay_cnv_list(cnvs, title=None, ctx='sample')">
+% if len(cnvs):
+<h2>${title or 'Confirmed CNVs'}</h2>
+<table class="datagrid" id="cnv_list">
+	<thead>
+		<tr>
+			<th class="cnv_col_name">
+			% if ctx == 'sample':
+				Assay
+			% else:
+				Sample
+			% endif
+			</th>
+			<th class="cnv_reference_assay">Reference</th>
+			<th class="cnv_col_cnv">CNV#</th>
+			<th class="cnv_col_plate">Evidence Plate</th>
+			<th class="cnv_col_evidence">Other Evidence</th>
+			<th class="cnv_col_reporter">Reporter</th>
+			<th class="cnv_col_actions">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, cnv in enumerate(cnvs):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td class="cnv_col_name">
+			% if ctx == 'sample':
+				<a href="${url(controller='assay', action='view', id=cnv.target_assay.id)}">${cnv.target_assay.name}</a>
+			% else:
+				<a href="${url(controller='sample', action='view', id=cnv.sample.id)}">${cnv.sample.name}</a>
+			% endif
+			</td>
+			<td class="cnv_reference_assay">
+				% if cnv.reference_assay:
+					<a href="${url(controller='assay', action='view', id=cnv.reference_assay.id)}">${cnv.reference_assay.name}</a>
+				% else:
+					&nbsp;
+				% endif
+			</td>
+			<td class="cnv_col_cnv">${cnv.cnv}</td>
+			<td class="cnv_col_plate">
+				% if cnv.plate:
+					<a href="${url(controller='plate',action='view', id=cnv.plate.id)}">View</a>
+				% else:
+					&nbsp;
+				% endif
+			</td>
+			<td class="cnv_col_evidence">
+				% if cnv.source_external_url:
+					Stored
+				% else:
+					&nbsp;
+				% endif
+			</td>
+			<td class="cnv_col_reporter">${cnv.reporter.name_code}</td>
+			<td class="cnv_col_actions">
+				<a href="${url(controller='sample', action='cnv_edit', id=cnv.id)}">Edit</a>
+				<!-- TODO delete action -->
+			</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+% endif
+</%def>

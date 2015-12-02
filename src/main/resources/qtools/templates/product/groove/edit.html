@@ -1,0 +1,63 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagetitle()">${c.title}</%def>
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+</%def>
+
+<form action="${c.submit_action}" method="post">
+	% if c.record_exists:
+		${boot.select('plate_type', c.plate_types, label='Plate Type', required=True, klass="span4", id="plate_type", disabled="disabled")}
+		${boot.select('droplet_type', c.droplet_types, label='Droplet Type', required=True, klass="span4", id="droplet_type", disabled="disabled")}
+		${boot.text('creation_date', label='Creation Date', autocomplete='off', klass="span4 disabled", id="creation_date", disabled="disabled")}
+		${boot.select('droplet_generator', c.droplet_generators, label='Droplet Generator', required=True, klass="span4", id="droplet_generator")}
+		${boot.select('droplet_maker', c.droplet_makers, label="Droplet Maker", klass="span4", id="droplet_maker", disabled="disabled")}
+		${boot.select('runs', c.plate_layouts, label="Plate Layout", klass="span4", id="quadrants", disabled="disabled")}
+	% else:
+		${boot.select('plate_type', c.plate_types, label='Plate Type', required=True, klass="span4", id="plate_type")}
+		${boot.select('droplet_type', c.droplet_types, label='Droplet Type', required=True, klass="span4", id="droplet_type")}
+		${boot.text('creation_date', label='Creation Date', autocomplete='off', klass="span4 datepicker", id="creation_date")}
+		${boot.select('droplet_generator', c.droplet_generators, label='Droplet Generator', required=True, klass="span4", id="droplet_generator")}
+		${boot.select('droplet_maker', c.droplet_makers, label="Droplet Maker", klass="span4", id="droplet_maker", required=True)}
+		${boot.select('runs', c.plate_layouts, label="Plate Layout", klass="span4", id="quadrants")}
+		${boot.text('identifier', label='Extra Identifier', help_block="An additional identifier for replicate plates; e.g., '#1','#2'", klass="span2")}
+	% endif
+	
+	
+	${boot.textarea('notes', label="Notes", autocomplete='off', rows="4", klass="span8", help_block='Add any additional details about the plate here.')}
+	<div class="actions">
+		${boot.submit(c.call_to_action)}
+		<a href="${url(controller='groove', action='list')}" class="btn">Cancel</a>
+		% if c.record_exists:
+		<a href="${url(controller='groove', action='plates', id=c.setup.id)}" class="btn">View Plates</a>
+		% if c.allow_delete:
+		<a href="${url(controller='groove', action='delete', id=c.setup.id)}" class="btn danger" id="groove_delete">Delete Plate</a>
+		% endif
+		% endif
+	</div>
+</form>
+
+<%def name="pagescript()">
+<script type="text/javascript">
+	$(function() {
+		$('input.datepicker').datepicker({dateFormat: 'yymmdd'});
+		$('#groove_delete').click(function() {
+			var form = $(this).parents('form')
+			form.attr('action', $(this).attr('href'))
+			if(confirm('Are you sure you want to delete this plate?')) {
+				form.submit()
+			}
+			return false;
+		});
+	});
+</script>
+</%def>

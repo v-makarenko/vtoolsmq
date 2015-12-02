@@ -1,0 +1,15 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">User Added!</%def>
+<%def name="selected_page()">useradded</%def>
+<%def name="css()">
+${parent.css()}
+${boot.css()}
+</%def>
+
+<%def name="contentclass()">omega grid_13 tw_bootstrap</%def>
+
+<p>New User added is:</p> <h2>${c.new_user_name}</h2>
+
+<h3><a href="${url(controller='users', action='index')}">&lt;&lt; Add Another User</a></h3>

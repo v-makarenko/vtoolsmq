@@ -1,0 +1,10 @@
+<%inherit file="/assay/base.html"/>
+<%def name="selected_page()">getseq</%def>
+
+${next.body()}
+
+<%def name="pagefooter()">
+<strong>Get Sequence Options:</strong>&nbsp; &nbsp; &nbsp;<a href="${url(controller='assay', action='primer')}">By Primer</a>&nbsp;|&nbsp;
+<a href="${url(controller='assay', action='location')}">By Location</a>&nbsp;|&nbsp;
+<a href="${url(controller='assay', action='snp')}">By SNP</a>
+</%def>

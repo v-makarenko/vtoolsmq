@@ -1,0 +1,41 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Lot Numbers: ${c.part.name}</%def>
+
+<div class="upper_link">
+    <a class="btn primary" href="${url(controller='reagents', action='lot_new', id=c.part.id)}">New Lot Number</a>
+</div>
+
+% if c.lot_numbers:
+<table class="condensed-table zebra-striped">
+    <thead>
+        <tr>
+            <th>Lot Number/Tests</th>
+            <th>Product Rev</th>
+            <th>Date Manufactured</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        % for lot in c.lot_numbers:
+        <tr>
+            <td><a href="${url(controller='reagents', action='lot_tests', id=lot.id)}">${lot.number}</a></td>
+            <td>${lot.product_rev}</td>
+            <td>${h.ymd(lot.date_manufactured)}</td>
+            <td><a href="${url(controller='reagents', action='lot_edit', id=lot.id)}">Edit</a>&nbsp;|&nbsp;<a href="${url(controller='reagents', action='lot_tests', id=lot.id)}">Tests</a>
+            </td>
+        </tr>
+        % endfor
+    </tbody>
+</table>
+% else:
+<div class="well">
+    There are no lot numbers for this part. <a href="${url(controller='reagents', action='lot_new', id=c.part.id)}">Click here to create a new lot number</a>,
+    or <a href="${url(controller='reagents', action='lot_many', id=c.part.id)}">click here to create multiple lots for this product.</a>
+</div>
+% endif
+<div class="actions">
+    <a class="btn" href="${url(controller='reagents', action='lines')}">Back to Product Lines</a>
+    <a class="btn" href="${url(controller='reagents', action='parts', id=c.part.product_line_id)}">Back to Parts</a>
+</div>

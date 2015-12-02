@@ -1,0 +1,71 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Concentration Bias Inspector</%def>
+<%def name="selected_page()">concbias</%def>
+<%def name="explanation()">
+% if c.eligible:
+	Select Well/Plate:
+	<select id="wellselect">
+		% for id, name in c.well_select:
+		<option value="${id}">${name}</option>
+		% endfor
+	</select>&nbsp;
+	<a href="#" rel="wellselect" class="selectprev">&lt; Prev</a>&nbsp;|
+	<a href="#" rel="wellselect" class="selectnext">Next &gt;</a>&nbsp;&nbsp;&nbsp;
+	Select Algorithm:
+	<select id="algselect">
+		% for id, name in c.rp_select:
+		<option value="${id}">${name}</option>
+		% endfor
+	</select>&nbsp;
+	<a href="#" rel="algselect" class="selectprev">&lt; Prev</a>&nbsp;|
+	<a href="#" rel="algselect" class="selectnext">Next &gt;</a>&nbsp;&nbsp;&nbsp;
+% endif
+</%def>
+% if c.eligible:
+<div>
+	<img id="display" src="${url(controller='plate', action='concbias', id=c.plate.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.reprocess_config_id)}">
+</div>
+% else:
+	The bias inspector currently only works on select analysis groups.  This plate is not in
+	one of them.
+% endif
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+		var plateBaseUrl = "${url(controller='plate', action='concbias', id=c.plate.id, analysis_group_id=c.analysis_group_id)}";
+		var wellBaseUrl = "${url(controller='well', action='conc_trend')}";
+
+		$(function() {
+			$('#wellselect, #algselect').change(function() {
+				var plateWell = $('#wellselect').val()
+				var rp = $('#algselect').val()
+				if(plateWell == '') {
+					var url = plateBaseUrl + "&reprocess_config_id="+rp
+				}
+				else {
+					var url = wellBaseUrl + '/'+plateWell+"?analysis_group_id=${c.analysis_group_id}&reprocess_config_id="+rp
+				}
+				$('#display').attr('src',url)
+			})
+
+			$('.selectprev').click(function() {
+				var target = $('#'+$(this).attr('rel')).get(0);
+				if(target.selectedIndex > 0) {
+					target.selectedIndex--;
+					$(target).change()
+				}
+				return false;
+			});
+
+			$('.selectnext').click(function() {
+				var target = $('#'+$(this).attr('rel')).get(0);
+				if(target.selectedIndex < target.length-1) {
+					target.selectedIndex++;
+					$(target).change()
+				}
+				return false;
+			});
+		});
+	</script>
+</%def>

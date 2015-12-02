@@ -1,0 +1,63 @@
+<%inherit file="/assay/base.html"/>
+
+<%def name="pagetitle()">Sample List</%def>
+<%def name="selected_page()">sample</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		th.col_name, td.col_name {
+			width: 20%;
+		}
+		
+		th.col_owner, td.col_owner {
+			width: 15%;
+		}
+
+		th.col_date, td.col_date {
+			width: 15%;
+		}
+		
+		th.col_sex, td.col_sex {
+			width: 10%;
+		}
+		
+		th.col_ethnicity, td.col_ethnicity {
+			width: 25%;
+		}
+		
+		table.datagrid th.col_actions, table.datagrid td.col_actions {
+			width: 15%;
+			text-align: right;
+			white-space: nowrap;
+		} 
+	</style>
+</%def>
+
+<p>
+<a href="${url(controller='sample', action='new')}">Enter New Sample</a>
+</p>
+<table class="datagrid" id="samples">
+	<thead>
+		<tr>
+			<th class="col_name">Sample Name</th>
+			<th class="col_owner">Entered By</th>
+			<th class="col_date">Created</th>
+			<th class="col_sex">Sex</th>
+			<th class="col_probe">Ethnicity</th>
+			<th class="col_actions">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+% for idx, s in enumerate(c.samples):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name"><a href="${url(controller='sample', action='view', id=s.id)}">${s.name}</a></td>
+		<td class="col_owner">${s.owner.name_code if s.owner else h.literal('&nbsp;')}</td>
+		<td class="col_date">${h.ymd(s.time_created)}</td>
+		<td class="col_sex">${h.fl.field_get(h.fl.sex_field, s.sex)}</td>
+		<td class="col_ethnicity">${h.fl.field_get(h.fl.ethnicity_field, s.ethnicity)}</td>
+		<td class="col_actions"><a href="${url(controller='sample', action='view', id=s.id)}">View</a>&nbsp;|&nbsp;
+			                    <a href="${url(controller='sample', action='edit', id=s.id)}">Edit/Delete</a></td>
+	</tr>
+% endfor
+	</tbody>
+</table>

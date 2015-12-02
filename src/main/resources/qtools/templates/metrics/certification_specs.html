@@ -1,0 +1,336 @@
+<%def name="ec_certification()">
+        <% values = c.metrics.test_event_count_mean %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>Event Count Mean (Events Plate)</td>
+            <td>${values[1]}</td>
+            <td class="testresult">${values[0]}</td>
+            % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_event_count_mean %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+            % endif
+            <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+        </tr>
+
+        <% values = c.metrics.test_event_count_low %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>Event Count &lt; ${values[3]} ${'(Non-ColorComp)' if c.mode != 'plate' else ''}</td>
+            <td>${values[1]}</td>
+            <td class="testresult">${values[0]}</td>
+            % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_event_count_low %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+            % endif
+            <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+        </tr>
+</%def>
+
+<%def name="carryover_ec_certification()">
+        <% values = c.metrics.test_carryover_event_count_mean %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>Event Count Mean${' (Carryover)' if c.mode != 'plate' else ''}</td>
+            <td>${values[1]}</td>
+            <td class="testresult">${values[0]}</td>
+            % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_event_count_mean %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+            % endif
+            <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+        </tr>
+
+        <% values = c.metrics.test_carryover_event_count_low %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>Event Count &lt; ${values[3]}${' (Carryover)' if c.mode != 'plate' else ''}</td>
+            <td>${values[1]}</td>
+            <td class="testresult">${values[0]}</td>
+            % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_event_count_low %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+            % endif
+            <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+
+</%def>
+
+<%def name="colorcal_ec_certification()">
+        <% values = c.metrics.test_event_count_mean %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>Event Count Mean (ColorComp) </td>
+            <td>${values[1]}</td>
+            <td class="testresult">${values[0]}</td>
+            % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_event_count_mean %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+            % endif
+            <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+        </tr>
+        <% values = c.metrics.test_colorcomp_event_count_low %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>Event Count &lt; ${values[3]} (ColorComp)</td>
+            <td>${values[1]}</td>
+            <td class="testresult">${values[0]}</td>
+            % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_colorcomp_event_count_low %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+            % endif
+            <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+        </tr>
+
+</%def>
+
+<%def name="probeec_ec_certification()">
+    <% values = c.metrics.test_probe_event_count_mean %>
+    <tr class="${'pass' if values[2] else 'fail'}">
+        <td>Event Count Mean (Probe)</td>
+        <td>${values[1]}</td>
+        <td class="testresult">${values[0]}</td>
+        % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_event_count_mean %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+        % endif
+        <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+    </tr>
+    <% values = c.metrics.test_probe_event_count_low %>
+    <tr class="${'pass' if values[2] else 'fail'}">
+        <td>Event Count &lt; ${values[3]} (Probe)</td>
+        <td>${values[1]}</td>
+        <td class="testresult">${values[0]}</td>
+        % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_probe_event_count_low %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+        % endif
+        <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+    </tr>
+</%def>
+
+<%def name="evaec_ec_certification()">
+    <% values = c.metrics.test_eva_event_count_mean %>
+    <tr class="${'pass' if values[2] else 'fail'}">
+        <td>Event Count Mean (Eva)</td>
+        <td>${values[1]}</td>
+        <td class="testresult">${values[0]}</td>
+        % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_event_count_mean %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+        % endif
+        <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+    </tr>
+    <% values = c.metrics.test_eva_event_count_low %>
+    <tr class="${'pass' if values[2] else 'fail'}">
+        <td>Event Count &lt; ${values[3]} (Eva)</td>
+        <td>${values[1]}</td>
+        <td class="testresult">${values[0]}</td>
+        % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_probe_event_count_low %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+        % endif
+        <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+    </tr>
+</%def>
+
+<%def name="carryover_quality_cert()">
+    <% values = c.metrics.test_quality_low %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>Event Quality &lt; 0.85</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${values[0]}</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_quality_low %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+		% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+	<% values = c.metrics.test_singleplex_uniformity %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>Singleplex Uniformity</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig1(100*values[0])}%</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_singleplex_uniformity %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig1(100*qc_values[0])}%</td>
+		% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+</%def>
+
+<%def name="test_fam_colorcomp_amplitude_cert()">
+	<% values = c.metrics.test_fam350_amplitude(c.plate.plate_type.code if hasattr(c, 'plate') else None, qc_plate=hasattr(c, 'plate') and c.plate.is_mfg_qc_plate) %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>FAM 350nM Amplitude</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig0(values[0])}</td>
+    	% if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_fam350_amplitude(c.qc_plate.plate_type_code if c.qc_plate else None) %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig0(qc_values[0])}</td>
+	    % endif
+        <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+	<% values = c.metrics.test_fam350_cv(c.plate.plate_type.code if hasattr(c, 'plate') else None) %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>FAM 350nM CV</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig1(100*values[0])}%</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_fam350_cv(c.qc_plate.plate_type_code if c.qc_plate else None) %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig1(100*qc_values[0])}%</td>
+		% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+
+     % if c.mode == 'plate' and c.plate.is_mfg_qc_plate:
+        <% values = c.metrics.test_qc_fam_lo_amplitude(c.plate.plate_type.code) %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>FAM LO Amplitude</td>
+            <td>${values[1]}</td>
+            <td class="testresult">${h.sig0(values[0])}</td>
+        </tr>
+     % endif
+</%def>
+
+<%def name="test_vic_colorcomp_amplitude_cert()">
+    <% values = c.metrics.test_vic350_amplitude(c.plate.plate_type.code if hasattr(c, 'plate') else None, qc_plate=hasattr(c, 'plate') and c.plate.is_mfg_qc_plate) %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>VIC 350nM Amplitude</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig0(values[0])}</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_vic350_amplitude(c.qc_plate.plate_type_code if c.qc_plate else None) %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig0(qc_values[0])}</td>
+		% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+	<% values = c.metrics.test_vic350_cv(c.plate.plate_type.code if hasattr(c, 'plate') else None) %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>VIC 350nM CV</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig1(100*values[0])}%</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_vic350_cv(c.qc_plate.plate_type_code if c.qc_plate else None) %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig1(100*qc_values[0])}%</td>
+		% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+
+    % if c.mode == 'plate' and c.plate.is_mfg_qc_plate:
+        <% values = c.metrics.test_qc_vic_lo_amplitude(c.plate.plate_type.code) %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>VIC LO Amplitude</td>
+            <td>${values[1]}</td>
+            <td class="testresult">${h.sig0(values[0])}</td>
+        </tr>
+    % endif
+</%def>
+
+<%def name ="test_hex_colorcomp_amplitude_cert()">
+	<% values = c.metrics.test_hex350_amplitude(c.plate.plate_type.code if hasattr(c, 'plate') else None, qc_plate=hasattr(c, 'plate') and c.plate.is_mfg_qc_plate) %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>HEX 350nM Amplitude</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig0(values[0])}</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_hex350_amplitude(c.qc_plate.plate_type.code if c.qc_plate else None, qc_plate=True) %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig0(qc_values[0])}</td>
+		% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+	<% values = c.metrics.test_hex350_cv(c.plate.plate_type.code if hasattr(c, 'plate') else None) %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>HEX 350nM CV</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig1(100*values[0])}%</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_hex350_cv(c.qc_plate.plate_type.code if c.qc_plate else None) %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig1(100*qc_values[0])}%</td>
+		% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+
+    % if c.mode == 'plate' and c.plate.is_mfg_qc_plate:
+        <% values = c.metrics.test_qc_hex_lo_amplitude(c.plate.plate_type.code) %>
+        <tr class="${'pass' if values[2] else 'fail'}">
+            <td>HEX LO Amplitude</td>
+            <td>${values[1]}</td>
+            <td class="testresult">${h.sig0(values[0])}</td>
+        </tr>
+    % endif
+</%def>
+
+<%def name='test_colorcal_identity_metric()'>
+% if h.wowo('show_identity_matrix_metric'):
+    % if c.mode != 'plate' or c.plate.plate_type.code in ('bcc','mfgcc', 'scc'):
+		<% values = c.metrics.test_colorcomp_identity %>
+		<tr class="${'pass' if values[2] else 'fail'}">
+			<td>ColorCals w/Identity Matrix?</td>
+			<td>${values[1]}</td>
+			<td class="testresult">${values[0]}</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_colorcomp_identity %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${qc_values[0]}</td>
+		% endif
+			<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+		</tr>
+	% endif
+% endif
+</%def>
+
+<%def name='test_carryover()'>
+	<% values = c.metrics.test_carryover %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>Carryover
+		% if c.mode == 'dr' and c.carryover_plates:
+			(<a href="${h.dr_url(c.carryover_plates[0].box2, controller='plate', action='carryover', id=c.carryover_plates[0].id, channel_num=0, reprocess_config_id=c.rp_id or '')}">Plot</a>&nbsp;|&nbsp;<a href="${h.dr_url(c.carryover_plates[0].box2, controller='plate', action='carryover', id=c.carryover_plates[0].id, channel_num=0, quality_gate=1, reprocess_config_id=c.rp_id or '')}">Plot, no VS</a>)
+		% elif c.mode == 'plate' and c.plate.plate_type.code in ('bcarry','mfgco'):
+			(<a href="${h.dr_url(c.plate.box2, controller='plate', action='carryover', id=c.plate.id, channel_num=0, reprocess_config_id=c.rp_id or '')}">Plot</a>&nbsp;|&nbsp;<a href="${h.dr_url(c.plate.box2, controller='plate', action='carryover', id=c.plate.id, channel_num=0, quality_gate=1, reprocess_config_id=c.rp_id or '')}">Plot, no VS</a>)
+		% endif
+		</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig2(values[0])}</td>
+		% if c.qc_metrics:
+			<% qc_values = c.qc_metrics.test_carryover %>
+			<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig2(qc_values[0])}</td>
+		% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+</%def>
+
+<%def name='test_widths()'>
+    <% values = c.metrics.test_widths %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>Width</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig2(values[0])}</td>
+	% if c.qc_metrics:
+		<% qc_values = c.qc_metrics.test_widths %>
+		<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig2(qc_values[0])}</td>
+	% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+</%def>
+
+<%def name='test_delta_widths()'>
+    <% values = c.metrics.test_delta_widths( qc_plate=hasattr(c, 'plate') and c.plate.is_mfg_qc_plate ) %>
+    <tr class="${'pass' if values[2] else 'fail'}">
+        <td>HI Delta Width</td>
+        <td>${values[1]}</td>
+        <td class="testresult">${h.sig2(values[0])}</td>
+        % if c.qc_metrics:
+            <% qc_values = c.qc_metrics.test_delta_widths(qc_plate=True) %>
+            <td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig2(qc_values[0])}</td>
+        % endif
+        <td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+    </tr>
+</%def>
+
+<%def name='test_polydispersity()'>
+	<% values = c.metrics.test_polydispersity_fam %>
+	<tr class="${'pass' if values[2] else 'fail'}">
+		<td>Carryover FAM Polydispersity %</td>
+		<td>${values[1]}</td>
+		<td class="testresult">${h.sig2(values[0]) if values[0] is not None else 'N/A'}%</td>
+	% if c.qc_metrics:
+		<% qc_values = c.qc_metrics.test_polydispersity_fam %>
+		<td class="qc_${'pass' if qc_values[2] else 'fail'}testresult">${h.sig2(qc_values[0]) if qc_values[0] is not None else 'N/A'}%</td>
+	% endif
+		<td class="text_testresult">${'Pass' if values[2] else 'Fail'}</td>
+	</tr>
+</%def>
+
+

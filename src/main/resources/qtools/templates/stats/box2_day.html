@@ -1,0 +1,120 @@
+<%inherit file="/stats/boxes.html"/>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		th.hour {
+			width: 29px;
+		}
+		.detail_start, .detail_end, .detail_elapsed {
+			width: 70px;
+		}
+		
+		.detail_operator {
+			width: 90px;
+		}
+		
+		.detail_name {
+			width: 480px;
+		}
+		
+		td.util_graph {
+			background-image: -webkit-gradient(linear, left top, right top,
+				color-stop(.33, rgba(240,240,255,1)),
+				color-stop(.33, white),
+				color-stop(.75, white),
+				color-stop(.75, rgba(240,240,255,1)),
+				color-stop(1, rgba(240,240,255,1)));
+			
+			background-image: -moz-linear-gradient(0deg top left,
+				rgba(240,240,255,1) 33.3%,
+				rgba(255,255,255,1) 33.3%,
+				rgba(255,255,255,1) 75%,
+				rgba(240,240,255,1) 75%,
+				rgba(240,240,255,1) 100%
+			);
+			
+		}
+	</style>
+</%def>
+
+<%def name="date_header()">
+	<tr>
+		<td class="prev_date"><a href="${url(controller='stats', action='boxes_by_day', year=c.yesterday.year, month=c.yesterday.month, day=c.yesterday.day)}">&lt;&lt; Previous Day</a></td>
+		<td class="date_display">${h.ymd(c.today)} | <a href="${url(controller='stats', action='boxes_by_week', weeks_ago=c.weeks_ago)}">See Week</a></td>
+		<td class="next_date"><a href="${url(controller='stats', action='boxes_by_day', year=c.tomorrow.year, month=c.tomorrow.month, day=c.tomorrow.day)}">Next Day &gt;&gt;</a></td>
+	</tr>
+</%def>
+<%def name="utilization_table()">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th class="hour">12a</th>
+			<th class="hour">1a</th>
+			<th class="hour">2a</th>
+			<th class="hour">3a</th>
+			<th class="hour">4a</th>
+			<th class="hour">5a</th>
+			<th class="hour">6a</th>
+			<th class="hour">7a</th>
+			<th class="hour">8a</th>
+			<th class="hour">9a</th>
+			<th class="hour">10a</th>
+			<th class="hour">11a</th>
+			<th class="hour">12p</th>
+			<th class="hour">1p</th>
+			<th class="hour">2p</th>
+			<th class="hour">3p</th>
+			<th class="hour">4p</th>
+			<th class="hour">5p</th>
+			<th class="hour">6p</th>
+			<th class="hour">7p</th>
+			<th class="hour">8p</th>
+			<th class="hour">9p</th>
+			<th class="hour">10p</th>
+			<th class="hour">11p</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for machine, util_list in c.run_histories:
+		<tr>
+			<td class="util_machine">${machine}</td>
+			<td class="util_graph" colspan="24">
+				<div class="util_event_container">
+				% for event, start, end, left, width in util_list:
+				<a href="${url(controller='plate', action='view', id=event.plate.id)}" title="${event.plate.name}" class="util_event" style="left: ${left}px; width: ${width}px"></a>
+				% endfor
+				</div>
+			</td>
+		</tr>
+		% endfor
+	</tbody>
+</%def>
+% if c.run_histories:
+<h2>Details</h2>
+% for machine, util_list in c.run_histories:
+<h3>${machine}</h3>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th class="detail_start">Start</th>
+			<th class="detail_end">End</th>
+			<th class="detail_elapsed">Elapsed</th>
+			<th class="detail_name">Plate Name</th>
+			<th class="detail_operator">Operator</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, (event, start, end, left, width) in enumerate(util_list):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td class="detail_start">${h.hhmm(start)}</td>
+			<td class="detail_end">${h.hhmm(end)}</td>
+			<td class="detail_elapsed">${(end-start).seconds/3600}:${"%.2d" % (((end-start).seconds/60) % 60)}</td>
+			<td class="detail_name"><a href="${url(controller='plate', action='view', id=event.plate.id)}">${event.plate.name}</a></td>
+			<td class="detail_operator">${event.plate.operator.name_code if event.plate.operator else ''}</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+% endfor
+% endif

@@ -1,0 +1,16 @@
+<%inherit file="/auth/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Login</%def>
+<%def name="explanation()">
+    <p>Access to this page requires you to log in.  Use your Bio-Rad Global (Windows) username and password (e.g., jmellen) to log in.</p>
+</%def>
+
+<form action="${url(controller='auth', action='do_login')}" method="post">
+    ${boot.text('login', label='Username', autocomplete='off', required=True, klass="span5")}
+    ${boot.password('password', label='Password', required=True, klass="span5")}
+    <input type="hidden" name="came_from" value="" />
+    <div class="actions">
+        ${boot.submit('Login')}
+    </div>
+</form>

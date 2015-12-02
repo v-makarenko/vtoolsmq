@@ -1,0 +1,25 @@
+<%inherit file="/base/index.html"/>
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.welcome li#subnav_welcome {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav.welcome li#subnav_welcome a {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">home</%def>
+<%def name="subnav_title()">Top Links</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_welcome"><a href="${url('/')}">Welcome</a></li>
+	</ul>
+</%def>
+
+${next.body()}

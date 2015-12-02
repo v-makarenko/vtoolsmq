@@ -1,0 +1,743 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/metrics/helpers.html" name="mh" import="*" />
+<%namespace file="/metrics/stats_tables.html" name="st" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/metrics/certification_specs.html" name="specs" import="*" />
+
+<%def name="pagetitle()"> ${c.metrics.system_version} Certification: ${c.name} </br> Qtools version: ${h.config['version']}, Param version: ${h.config['Qtool.param']}</%def>
+<%def name="selected_page()">metrics</%def>
+<%def name="stats_prefix()"></%def>
+${self.stats_prefix()}
+
+<%def name="css()">
+${parent.css()}
+${boot.css()}
+<style type="text/css" media="screen">
+	#content.tw_bootstrap h1 {
+		font-size: 25px;
+		line-height: 32px;
+		margin-top: 3px;
+	}
+	p.plate_error {
+		padding: 10px;
+		background: #fee;
+		color: red;
+		font-weight: bold;
+	}
+
+	p.plate_warning {
+		padding: 10px;
+		background: #fdb;
+		color: #c93;
+		font-weight: bold;
+	}
+
+	tr.pass .testresult {
+		background: #090;
+		color: #fff;
+		font-weight: bold;
+	}
+
+	table.datagrid tr.fail td.qc_passtestresult,
+	td.qc_passtestresult {
+		background: #696;
+		color: #fff;
+		font-weight: bold;
+	}
+
+	tr.fail td.testresult {
+		background: #f33 !important;
+		color: #fff;
+		font-weight: bold;
+	}
+
+	table.datagrid tr.pass td.qc_failtestresult,
+	td.qc_failtestresult {
+		background: #c66 !important;
+		color: #fff;
+		font-weight: bold;
+	}
+
+	.text_testresult {
+		display: none;
+	}
+</style>
+<style type="text/css" media="print">
+	tr.fail td {
+		font-weight: bold;
+	}
+
+	p.nav_exp {
+		display: none;
+	}
+	p.plate_error {
+		color: red;
+		font-weight: bold;
+		border: 1px solid red;
+	}
+	p.plate_warning {
+		color: #930;
+		font-weight: bold;
+		border: 1px solid #930;
+	}
+</style>
+</%def>
+
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+% if not c.metrics.all_well_metrics:
+	<p>No wells found.</p>
+% else:
+<h2>Specifications</h2>
+<table class="datagrid condensed-table">
+	<thead>
+		<tr>
+			<th>Statistic</th>
+			<th>Specification</th>
+			<th>Observed Value</th>
+			% if c.qc_metrics:
+			<th><a href="${url(controller='metrics', action='per_plate', id=c.qc_plate.id)}">QC Plate Value</a></th>
+			% endif
+			<th class="text_testresult">&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+       % if c.mode != 'plate':
+            ${specs.carryover_ec_certification()}
+            ${specs.colorcal_ec_certification()}
+	    % if c.metrics.system_version == 'QX201L':
+                ${specs.probeec_ec_certification()}
+                ${specs.evaec_ec_certification()}
+            % endif
+            ${specs.test_fam_colorcomp_amplitude_cert()}
+            ${specs.test_vic_colorcomp_amplitude_cert()}
+            ${specs.test_hex_colorcomp_amplitude_cert()}
+            ${specs.carryover_quality_cert()}
+            ${specs.test_carryover()}
+            ${specs.test_widths()}
+            ${specs.test_polydispersity()}
+            ${specs.test_delta_widths()}
+            ${specs.test_colorcal_identity_metric()}
+
+        % elif c.metrics.singlewell_famhex_colorcomp_plate:
+            ${specs.colorcal_ec_certification()}
+            ${specs.test_fam_colorcomp_amplitude_cert()}
+            ${specs.test_hex_colorcomp_amplitude_cert()}
+            ${specs.test_widths()}
+            ${specs.test_delta_widths()}
+            ${specs.test_colorcal_identity_metric()}
+
+        % elif c.metrics.singlewell_famvic_colorcomp_plate:
+            ${specs.colorcal_ec_certification()}
+            ${specs.test_fam_colorcomp_amplitude_cert()}
+            ${specs.test_vic_colorcomp_amplitude_cert()}
+            ${specs.test_widths()}
+            ${specs.test_delta_widths()}
+            ${specs.test_colorcal_identity_metric()}
+
+        % elif c.plate.plate_type.code in ('bcc','mfgcc', 'fvtitr'):
+            ${specs.colorcal_ec_certification()}
+            ${specs.test_fam_colorcomp_amplitude_cert()}
+            ${specs.test_vic_colorcomp_amplitude_cert()}
+            ${specs.test_hex_colorcomp_amplitude_cert()}
+            ${specs.test_widths()}
+            ${specs.test_colorcal_identity_metric()}
+
+        % elif c.plate.plate_type.code in ('bcarry', 'mfgco'):
+            ${specs.carryover_ec_certification()}
+            ${specs.test_carryover()}
+            ${specs.carryover_quality_cert()}
+            ${specs.test_widths()}
+            ${specs.test_polydispersity()}
+            
+        % elif c.plate.plate_type.code == 'evaec':
+            ${specs.evaec_ec_certification()}
+            ${specs.test_widths()}
+
+        % elif c.plate.plate_type.code == 'probeec':
+            ${specs.probeec_ec_certification()}
+            ${specs.test_widths()}
+
+        % elif c.plate.plate_type.code == 'betaec':
+            ${specs.ec_certification()}
+            ${specs.test_widths()}
+
+		% endif
+	</tbody>
+</table>
+<h2>Basic Statistics</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Value</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>Number of Plates</td>
+		<td>${len(c.metrics.metric_plates)}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Number of Wells</td>
+		<td>${len(c.metrics.all_well_metrics)}</td>
+		<td><a href="${url(controller='metrics', action='wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='all_well_metrics', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">All Wells</a></td>
+	</tr>
+	<tr>
+		<td>Number of Wells &lt; 12000 (excl. Stealth)</td>
+        % if c.metrics.event_count_wells and len(c.metrics.event_count_wells) > 0:
+		<td>${len(c.metrics.event_count_undercount_wells)} (${h.sig1(100*float(len(c.metrics.event_count_undercount_wells))/len(c.metrics.event_count_wells))}%)</td>
+        % else:
+        <td>0 (0.0%)</td>
+        % endif
+		<td><a href="${url(controller='metrics', action='wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='event_count_undercount_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Bad Wells</a></td>
+	</tr>
+	% if c.mode != 'plate' or c.plate.plate_type.code in ('bcarry','mfgco'):
+	<tr>
+		<td># Low Data Quality Wells (&lt;0.85)</td>
+		% if len(c.metrics.quality_eligible_wells) > 0:
+		<td>${len(c.metrics.low_quality_wells)}/${len(c.metrics.quality_eligible_wells)} (${h.sig1(100*float(len(c.metrics.low_quality_wells))/len(c.metrics.quality_eligible_wells))}%)</td>
+		% else:
+		<td>0 (0.0%)</td>
+		% endif
+		<td><a href="${url(controller='metrics', action='wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='low_quality_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Low Quality Wells</a></td>
+	</tr>
+	<tr>
+		<td># QS 'Check' Wells (where threshold expected)</td>
+		% if len(c.metrics.quality_eligible_wells) > 0:
+		<td>${len(c.metrics.check_quality_wells)}/${len(c.metrics.quality_eligible_wells)} (${h.sig1(100*float(len(c.metrics.check_quality_wells))/len(c.metrics.quality_eligible_wells))}%)</td>
+		% else:
+		<td>0 (0.0%)</td>
+		% endif
+		<td><a href="${url(controller='metrics', action='wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='check_quality_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">'Check' Wells</a></td>
+		</td>
+	</tr>
+	% endif
+</tbody>
+</table>
+
+% if c.mode != 'plate' or c.plate.plate_type.code in ('bcarry','mfgco'):
+<h2>Singleplex</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean Conc.</th>
+		<th>95% CI</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>95% CI - All Singleplex</td>
+		<td>${h.sig1(c.metrics.all_singleplex_conc_ci95[0])}</td>
+		<td>${'-'.join([h.sig1(r) for r in c.metrics.all_singleplex_conc_ci95[1:]])}</td>
+		<td><a href="${url(controller='metrics', action='conc_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='singleplex_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Singleplex Wells</a></td>
+	</tr>
+	<tr>
+		<%
+			crr = c.metrics.singleplex_conc_rise_ratio_ci95
+		%>
+		<td>4th Quartile/1st Quartile Conc.</td>
+		<td>${h.sig2(crr[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in crr[1:]])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<%
+		pm = c.metrics.positive_mean_variance_ci95(c.metrics.singleplex_wells, 0)
+		nm = c.metrics.negative_mean_variance_ci95(c.metrics.singleplex_wells, 0)
+		sv = c.metrics.s_value_mean_variance_ci95(c.metrics.singleplex_wells, 0)
+	%>	
+	<tr>
+		<td>Positive Amplitude Mean</td>
+		<td>${h.sig0(pm[0])}</td>
+		<td>${'-'.join([h.sig0(r) for r in pm[2:]])}</td>
+		<td>&nbsp;</td>
+	</tr>	
+	<tr>
+		<td>Negative Amplitude Mean</td>
+		<td>${h.sig0(nm[0])}</td>
+		<td>${'-'.join([h.sig0(r) for r in nm[2:]])}</td>
+		<td>&nbsp;</td>
+	</tr>	
+	<tr>
+		<td>S Value</td>
+		<td>${h.sig2(sv[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in sv[2:]])}</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+%endif
+
+
+<h2>Event Count</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean</th>
+		<th>StdDev</th>
+		<th>95% Percentiles</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<% ec_stats = c.metrics.event_count_count_mean_variance_ci95 %>
+	<tr>
+		<td>Droplet Count</td>
+		<td>${h.sig0(ec_stats[0])}</td>
+		<td>${h.sig0(ec_stats[1])}</td>
+		<td>${h.sig0(ec_stats[2])}-${h.sig0(ec_stats[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Low Event Wells</td>
+        % if c.metrics.event_count_wells and len(c.metrics.event_count_wells) > 0 :
+		<td>${len(c.metrics.event_count_undercount_wells)}/${len(c.metrics.event_count_wells)}</td>
+        % else:
+        <td>0</td>
+        % endif
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><a href="${url(controller='metrics', action='wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='event_count_undercount_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Low Count Wells</a></td>
+	</tr>
+</tbody>
+</table>
+
+% if c.mode != 'plate' or c.plate.plate_type.code in ('bcarry','mfgco'):
+<h2>Carryover</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>#Plates</th>
+		<th>#Stealth Wells</th>
+		<th>Carryover/8 Wells</th>
+		<th>Gated Contaminants/8W</th>
+		<th>Contaminants/8W</th>
+		<th>Plates</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% cstats = c.metrics.total_carryover_stats %>
+		% if cstats[-1] > 0:
+		<td>${cstats[0]}</td>
+		<td>${cstats[-1]}</td>
+		<td>${h.sig1(cstats[1]*(8.0/cstats[-1]))}</td>
+		<td>${h.sig1(cstats[2]*(8.0/cstats[-1]))}</td>
+		<td>${h.sig1(cstats[3]*(8.0/cstats[-1]))}</td>
+		<td><a href="${url(controller='metrics', action='carryover_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Plates</a></td>
+		% else:
+		<td colspan="6">No carryover wells detected.</td>
+		% endif
+	</tr>
+</tbody>
+</table>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean</th>
+		<th>Stdev</th>
+		<th>95% Percentiles</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% cstats = c.metrics.carryover_eventful_rejected_peaks_ci95 %>
+		<td>Rejected Peaks/Well - Eventful Wells</td>
+		<td>${h.sig1(cstats[0])}</td>
+		<td>${h.sig1(cstats[1])}</td>
+		<td>${h.sig1(cstats[2])}-${h.sig1(cstats[3])}</td>
+		<td>${mh.drilldown_link('gated_wells', 'Wells', wells='carryover_eventful_wells')}</td>
+	</tr>
+	<tr>
+		<% cstats = c.metrics.carryover_stealth_rejected_peaks_ci95 %>
+		<td>Rejected Peaks/Well - Stealth Wells</td>
+		<td>${h.sig1(cstats[0])}</td>
+		<td>${h.sig1(cstats[1])}</td>
+		<td>${h.sig1(cstats[2])}-${h.sig1(cstats[3])}</td>
+		<td>${mh.drilldown_link('gated_wells', 'Wells', wells='carryover_stealth_wells')}</td>
+	</tr>
+	<tr>
+		<td>ColorComp FAM HI Carryover (Total)</td>
+		<td>${c.metrics.colorcomp_carryover_total}</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><a href="${url(controller='metrics', action='carryover_wells', wells='colorcomp_plate_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">ColorComp</a></td>
+	</tr>
+</tbody>
+</table>
+% elif c.plate.plate_type.code in ('bcc','mfgcc'):
+<h2>Carryover</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Number</th>
+		<th>Plates</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>ColorComp FAM HI Carryover (Total)</td>
+		<td>${c.metrics.colorcomp_carryover_total}</td>
+		<td><a href="${url(controller='metrics', action='carryover_wells', wells='colorcomp_plate_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">ColorComp</a></td>
+	</tr>
+</tbody>
+</table>
+% endif
+
+
+% if c.mode != 'plate' or c.plate.plate_type.code == 'scc':
+<h2>Single-Well Color Comp</h2>
+${st.singlewell_colorcomp_table()}
+% endif
+
+% if c.mode != 'plate' or c.plate.plate_type.code in ('bcc','mfgcc'):
+<h2>ColorComp</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Well</th>
+		<th>Amplitude Mean</th>
+		<th>Amplitude Stdev</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% fam350 = c.metrics.colorcomp_amplitude_stats(('FAM 350nM', 'FAM HI'), 0) %>
+		<td>FAM 350nM</td>
+		<td>${h.sig0(fam350[0])}</td>
+		<td>${h.sig0(fam350[1])}</td>
+		<td><a href="${url(controller='metrics', action='amp_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='colorcomp_sample_wells', sample='FAM 350nM', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Wells</a></td>
+	</tr>
+	<tr>
+		<% fam40 = c.metrics.colorcomp_amplitude_stats(('FAM 40nM', 'FAM LO'), 0) %>
+		<td>FAM 40nM</td>
+		<td>${h.sig0(fam40[0])}</td>
+		<td>${h.sig0(fam40[1])}</td>
+		<td><a href="${url(controller='metrics', action='amp_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='colorcomp_sample_wells', sample='FAM 40nM', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Wells</a></td>
+	</tr>
+	<tr>
+		<% vic350 = c.metrics.colorcomp_amplitude_stats(('VIC 350nM', 'VIC HI'), 1) %>
+		<td>VIC 350nM</td>
+		<td>${h.sig0(vic350[0])}</td>
+		<td>${h.sig0(vic350[1])}</td>
+		<td><a href="${url(controller='metrics', action='amp_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='colorcomp_sample_wells', sample='VIC 350nM', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Wells</a></td>
+	</tr>
+	<tr>
+		<% vic70 = c.metrics.colorcomp_amplitude_stats(('VIC 70nM', 'VIC LO'), 1) %>
+		<td>VIC 70nM</td>
+		<td>${h.sig0(vic70[0])}</td>
+		<td>${h.sig0(vic70[1])}</td>
+		<td><a href="${url(controller='metrics', action='amp_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='colorcomp_sample_wells', sample='VIC 70nM', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Wells</a></td>
+	</tr>
+</tbody>
+</table>
+% endif
+
+
+<h2>Widths (Events > 100)</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean</th>
+		<th>StdDev</th>
+		<th>95% Percentiles</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<% width_stats = c.metrics.mean_width_mean_variance_ci95 %>
+	<tr>
+		<td>Per-Well Mean Droplet Width</td>
+		<td>${h.sig2(width_stats[0])}</td>
+		<td>${h.sig2(width_stats[1])}</td>
+		<td>${h.sig2(width_stats[2])}-${h.sig2(width_stats[3])}</td>
+		<td><a href="${url(controller='metrics', action='width_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, wells='event_count_wells', gated_filter=c.gated_filter, channel=c.channel)}">Width Stats</a></td>
+	</tr>
+	<% width_stats = c.metrics.width_variance_mean_variance_ci95 %>
+	<tr>
+		<td>Per-Well Droplet Width StdDev</td>
+		<td>${h.sig2(width_stats[0])}</td>
+		<td>${h.sig2(width_stats[1])}</td>
+		<td>${h.sig2(width_stats[2])}-${h.sig2(width_stats[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<% nds = c.metrics.short_droplet_spacing_ci95 %>
+	<tr>
+		<td>% Droplet Spaces &lt; 2.5 Normalized Widths</td>
+		<td>${h.sig1(nds[0]*100)}%</td>
+		<td>${h.sig2(nds[1]*100)}%</td>
+		<td>${h.sig1(nds[2]*100)}%-${h.sig1(nds[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<% poly = c.metrics.polydispersity_all_fam_stats %>
+	<tr>
+		<td>% Polydisperse Drops, FAM Channel</td>
+		<td>${h.sig2(poly[0]*100)}%</td>
+		<td>${h.sig2(poly[1]*100)}%</td>
+		<td>${h.sig2(poly[2]*100)}%-${h.sig2(poly[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<% poly = c.metrics.polydispersity_all_vic_stats %>
+	<tr>
+		<td>% Polydisperse Drops, VIC Channel</td>
+		<td>${h.sig2(poly[0]*100)}%</td>
+		<td>${h.sig2(poly[1]*100)}%</td>
+		<td>${h.sig2(poly[2]*100)}%-${h.sig2(poly[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<% poly = c.metrics.extracluster_all_fam_stats %>
+	<tr>
+		<td>% Extracluster Drops, FAM Channel</td>
+		<td>${h.sig2(poly[0]*100)}%</td>
+		<td>${h.sig2(poly[1]*100)}%</td>
+		<td>${h.sig2(poly[2]*100)}%-${h.sig2(poly[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<% poly = c.metrics.extracluster_all_vic_stats %>
+	<tr>
+		<td>% Extracluster Drops, VIC Channel</td>
+		<td>${h.sig2(poly[0]*100)}%</td>
+		<td>${h.sig2(poly[1]*100)}%</td>
+		<td>${h.sig2(poly[2]*100)}%-${h.sig2(poly[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+
+<h2>Gating (Events > 1000)</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean/StdDev</th>
+		<th>95th Percentiles</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>Mean/Stdev % Width Gated</td>
+		<td>${', '.join([h.sig1(val) for val in c.metrics.width_gated_pct_mean_variance])}</td>
+		<td>${'-'.join([h.sig1(val) for val in c.metrics.width_gated_pct_95])}</td>
+		<td><a href="${url(controller='metrics', action='gated_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Gating Statistics</a></td>
+	</tr>
+	<tr>
+		<td>Mean/Stdev % Quality Gated</td>
+		<td>${', '.join([h.sig1(val) for val in c.metrics.quality_gated_pct_mean_variance])}</td>
+		<td>${'-'.join([h.sig1(val) for val in c.metrics.quality_gated_pct_95])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<% minamp = c.metrics.min_amplitude_gated_mean_variance_ci95 %>
+		<td>Mean/Stdev % Below Min Amplitude (Accepted Events > 1000)</td>
+		<td>${h.sig1(minamp[0])}, ${h.sig1(minamp[1])}</td>
+		<td>${h.sig1(minamp[2])}-${h.sig1(minamp[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Mean/Stdev % Vertical Streaks</td>
+		<td>${', '.join([h.sig1(val) for val in c.metrics.vertical_streak_pct_mean_variance])}</td>
+		<td>${'-'.join([h.sig1(val) for val in c.metrics.vertical_streak_pct_95])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Mean/Stdev Rejected Peaks/Total Events (%; # &gt; 100)</td>
+		<td>${', '.join([h.sig1(val) for val in c.metrics.rejected_peak_pct_mean_variance])}</td>
+		<td>${'-'.join([h.sig1(val) for val in c.metrics.rejected_peak_pct_95])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<% air_wells, all_wells = c.metrics.carryover_air_droplet_count_test %>
+	<tr>
+		<td>Carryover Air Droplet Count &gt; 0 (Accepted Gap Air Metric)</td>
+		% if all_wells > 0:
+		<td>${air_wells}/${all_wells} (${h.sig1(float(air_wells*100)/all_wells)}%)</td>
+		% else:
+		<td>0/0 (0.0%)</td>
+		% endif
+		<td>&nbsp;</td>
+		<td><a href="${url(controller='metrics', action='gated_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='ok_carryover_eventful_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Air Wells</a></td>
+	</tr>
+	<% stats = c.metrics.carryover_air_droplet_stats %>
+	<tr>
+		<td>Carryover Air Droplets Mean/Stdev</td>
+		<td>${h.sig1(stats[0])}, ${h.sig1(stats[1])}</td>
+		<td>${h.sig1(stats[2])}-${h.sig1(stats[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+
+<%doc>
+<h2>Rain (Carryover/ColorComp Only)</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistics</th>
+		<th>Threshold Drawn?</th>
+		<th>Mean</th>
+		<th>StdDev</th>
+		<th>95th Percentiles</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% mds = c.metrics.carryover_event_middle_rain_stats %>
+		<td>Middle Rain % (Singleplex Wells)</td>
+		<td>&nbsp;</td>
+		<td>${h.sig2(mds[0]*100)}%</td>
+		<td>${h.sig2(mds[1]*100)}%</td>
+		<td>${h.sig2(mds[2]*100)}%-${h.sig2(mds[3]*100)}%</td>
+		<td><a href="${url(controller='metrics', action='rain_wells', id=c.id, mode=c.mode,
+		reprocess_config_id=c.rp_code, wells='carryover_eventful_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel, channel_num=0)}">Singleplex Rain</a></td>
+	</tr>
+	<tr>
+		<% mds = c.metrics.carryover_event_negative_rain_stats %>
+		<td>Negative Rain % (Singleplex Wells)</td>
+		<td>&nbsp;</td>
+		<td>${h.sig2(mds[0]*100)}%</td>
+		<td>${h.sig2(mds[1]*100)}%</td>
+		<td>${h.sig2(mds[2]*100)}%-${h.sig2(mds[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<% stats = c.metrics.colorcomp_fam_rain_stats %>
+		<td>FAM 350nM Rain</td>
+		<td>${stats[1]}</td>
+		<td>${h.sig2(stats[0]*100)}%</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><a href="${url(controller='metrics', action='rain_wells', id=c.id, mode=c.mode,
+		reprocess_config_id=c.rp_code, wells='colorcomp_fam_high_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel, channel_num=0)}">ColorComp FAM Stats</a></td>
+	</tr>
+	<tr>
+		<% stats = c.metrics.colorcomp_vic_rain_stats %>
+		<td>VIC 350nM Rain</td>
+		<td>${stats[1]}</td>
+		<td>${h.sig2(stats[0]*100)}%</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td><a href="${url(controller='metrics', action='rain_wells', id=c.id, mode=c.mode,
+		reprocess_config_id=c.rp_code, wells='colorcomp_vic_high_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel, channel_num=1)}">ColorComp VIC Stats</a></td>
+	</tr>
+	<tr>
+		<% stats = c.metrics.gap_rain_all_fam_stats %>
+		<td>FAM Gap Rain Drops/Well (ColorComp/Events)</td>
+        % if ( stats[5] > 0):
+		<td>${stats[4]}/${stats[5]} &gt; 0</td>
+        % else:
+        <td>N\A</td>
+        % endif
+		<td>${h.sig1(stats[0])}</td>
+		<td>${h.sig1(stats[1])}</td>
+		<td>${h.sig1(stats[2])}-${h.sig1(stats[3])}</td>
+		<td><a href="${url(controller='metrics', action='rain_wells', id=c.id, mode=c.mode,
+		reprocess_config_id=c.rp_code, wells='fam_gap_rain_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel, channel_num=0)}">CC/Events FAM Stats</a></td>
+	</tr>
+	<tr>
+		<% stats = c.metrics.gap_rain_all_vic_stats %>
+		<td>VIC Gap Rain Drops/Well (ColorComp/Events)</td>
+        % if ( stats[5] > 0 ):
+		<td>${stats[4]}/${stats[5]} &gt; 0</td>
+        % else:
+        <td>N/A</td>
+        % endif
+		<td>${h.sig1(stats[0])}</td>
+		<td>${h.sig1(stats[1])}</td>
+		<td>${h.sig1(stats[2])}-${h.sig1(stats[3])}</td>
+		<td><a href="${url(controller='metrics', action='rain_wells', id=c.id, mode=c.mode,
+		reprocess_config_id=c.rp_code, wells='vic_gap_rain_wells', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel, channel_num=1)}">CC/Events VIC Stats</a></td>
+	</tr>
+
+</tbody>
+</table>
+</%doc>
+
+<h2>Baselines</h2>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean</th>
+		<th>StdDev</th>
+		<th>95th Percentiles</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<%
+			sbm = c.metrics.sum_baseline_mean_mean_variance_ci95
+		%>
+		<td>Sum Baseline Mean</td>
+		<td>${h.sig2(sbm[0])}</td>
+		<td>${h.sig2(sbm[1])}</td>
+		<td>${h.sig2(sbm[2])}-${h.sig2(sbm[3])}</td>
+		<td><a href="${url(controller='metrics', action='baseline_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Baseline Statistics</a></td>
+	</tr>
+	<tr>
+		<%
+			sbs = c.metrics.sum_baseline_stdev_mean_variance_ci95
+		%>
+		<td>Sum Baseline Stdev</td>
+		<td>${h.sig2(sbs[0])}</td>
+		<td>${h.sig2(sbs[1])}</td>
+		<td>${h.sig2(sbs[2])}-${h.sig2(sbs[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<%
+			fbm = c.metrics.fam_baseline_mean_mean_variance_ci95
+		%>
+		<td>FAM Baseline Mean</td>
+		<td>${h.sig2(fbm[0])}</td>
+		<td>${h.sig2(fbm[1])}</td>
+		<td>${h.sig2(fbm[2])}-${h.sig2(fbm[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<%
+			fbs = c.metrics.fam_baseline_stdev_mean_variance_ci95
+		%>
+		<td>FAM Baseline Stdev</td>
+		<td>${h.sig2(fbs[0])}</td>
+		<td>${h.sig2(fbs[1])}</td>
+		<td>${h.sig2(fbs[2])}-${h.sig2(fbs[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<%
+			vbm = c.metrics.vic_baseline_mean_mean_variance_ci95
+		%>
+		<td>VIC Baseline Mean</td>
+		<td>${h.sig2(vbm[0])}</td>
+		<td>${h.sig2(vbm[1])}</td>
+		<td>${h.sig2(vbm[2])}-${h.sig2(vbm[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<%
+			vbs = c.metrics.vic_baseline_stdev_mean_variance_ci95
+		%>
+		<td>VIC Baseline Stdev</td>
+		<td>${h.sig2(vbs[0])}</td>
+		<td>${h.sig2(vbs[1])}</td>
+		<td>${h.sig2(vbs[2])}-${h.sig2(fbs[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+% endif
+
+<%def name="stats_suffix()"></%def>
+${self.stats_suffix()}

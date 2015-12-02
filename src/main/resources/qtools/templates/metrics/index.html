@@ -1,0 +1,69 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    <style type="text/css">
+        #create_form label {
+            margin-right: 1em;
+        }
+        #create_form input {
+            margin-right: 1em;
+        }
+    </style>
+</%def>
+
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="pagetitle()">Plate Metrics: Analysis Groups</%def>
+<%def name="selected_page()">metrics</%def>
+<%def name="explanation()">
+<p>
+	Click on an analysis group below to look at metrics for that
+	particular set of plates.  By making a particular analysis group
+    active, you can add plates to the analysis group on the plate list
+    pages.
+</p>
+</%def>
+<h2>Groups</h2>
+<form action="${url(controller='metrics', action='agcreate')}" method="post" id="create_form">
+    <label>Create New Group: </label>${boot.text('name', klass='span5', inline=True, autocomplete='off')}${boot.submit('Create')}
+</form>
+<table class="condensed-table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Actions</th>
+        <th>For Plate Selection</th>
+    </tr>
+    </thead>
+    <tbody>
+    % for group in reversed(c.analysis_groups):
+    <tr>
+        <td>${group.name}</td>
+        <td><a href="${url(controller='metrics', action='overview', id=group.id)}">Metrics Overview</a>&nbsp;|&nbsp;<a href="${url(controller='plate', action='list_filter', analysis_group_id=group.id)}">Plates</a>&nbsp;|&nbsp;<a href="${url(controller='metrics', action='compare', id=group.id)}">Compare</a>&nbsp;|&nbsp;<a class="retire" href="${url(controller='metrics', action='agdisable', id=group.id)}">Retire</a></td>
+        <td>
+            % if not c.active_analysis_group_id:
+            <a href="${url(controller='metrics', action='agactivate', id=group.id)}">Make Active</a>
+            % elif c.active_analysis_group_id == group.id:
+            <a href="${url(controller='metrics', action='agdeactivate')}">Make Inactive</a>
+            % else:
+            &nbsp;
+            % endif
+        </td>
+    </tr>
+    % endfor
+    </tbody>
+</table>
+
+<%def name="pagescript()">
+    <script type="text/javascript">
+        $(function() {
+            // should really do a POST but whatever
+            $('a.retire').click(function() {
+                return confirm("This action is permanent. Do you want to continue?");
+            })
+        })
+    </script>
+</%def>

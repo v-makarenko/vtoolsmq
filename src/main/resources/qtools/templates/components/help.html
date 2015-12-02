@@ -1,0 +1,33 @@
+<%def name="col_definition_table_css()">
+<style type="text/css">
+    th.col_doc_name,
+    td.col_doc_name {
+        width: 200px;
+    }
+
+    td.col_db_name {
+        color: #999;
+        font-size: 90%;
+    }
+</style>
+</%def>
+
+<%def name="col_definition_table(cols)">
+<table class="zebra-striped table-col-definition">
+    <thead>
+        <tr>
+            <th class="col_doc_name">Metric</th>
+            <th>Definition</th>
+            <th>DB Attribute</th>
+        </tr>
+    </thead>
+    <tbody>
+    % for name, definition, attr in cols:
+        <tr>
+            <td class="col_doc_name">${name}</td>
+            <td>${definition}</td>
+            <td class="col_db_name">${attr if attr else h.literal('&nbsp;')}</td>
+        </tr>
+    % endfor
+</table>
+</%def>

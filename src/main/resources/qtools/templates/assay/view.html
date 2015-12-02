@@ -1,0 +1,229 @@
+<%inherit file="/assay/base.html"/>
+<%namespace file="/assay/components.html" name="comp" import="cut_action"/>
+<%namespace file="/components/cnv_list.html" name="cnv" import="*" />
+<%namespace file="/components/conc_list.html" name="conc" import="*" />
+
+<%def name="pagetitle()">${c.assay.name}</%def>
+<%def name="js()">
+<script type="text/javascript">
+isIE = false;
+</script>
+<!--[if IE]>
+<script type="text/javascript">
+isIE = true;
+</script>
+<![endif]-->
+
+${parent.js()}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("pre.positive_sequence, pre.negative_sequence").each(function() {
+			var segments = $(this).html().split('|')
+			if(segments.length == 3) {
+				$(this).html(segments[0]+"<b>"+segments[1]+"</b>"+segments[2])
+			}
+		})
+		
+		$('.sequence_match tbody td').mouseenter(function() {
+			var start = parseInt($($(this).parent().find('td').get(2)).text())
+			var end = parseInt($($(this).parent().find('td').get(3)).text())
+			var strand = $($(this).parent().find('td').get(4)).text()
+			showSNP($(this).parents('.sequence_match'), start, end, strand)
+		})
+		
+		$('.sequence_match table').mouseout(function() {
+			hideSNPs()
+		})
+	})
+	
+	var hideSNPs = function() {
+		$('.snp_highlight, .snp_highlight_insertion').each(function() {
+			$(this).replaceWith($(this).text())
+		})
+	}
+	
+	var showSNP = function(sequence_el, snp_start, snp_end, strand) {
+		hideSNPs()
+		var endpoints = $(sequence_el).data()
+		if(strand == '-') {
+			var target = $(sequence_el).find('.negative_sequence')
+		}
+		else {
+			var target = $(sequence_el).find('.positive_sequence')
+		}
+		var offset = 1+snp_start-endpoints.start
+		var len = snp_end-snp_start
+		var start = offset
+		var end = start+len
+		
+		var snpClass = "snp_highlight"
+		if(len == 0) {
+			snpClass = "snp_highlight_insertion"
+		}
+		
+		// this is a dumb algorithm, and assumes that there is only
+		// one bold (probe) tag in the sequence, and that the probe
+		// is preceded by bases.  If not, I don't think the 
+		// interleaving assumption will work.
+		var tagMatch = /\<[^\>]*\>/gm
+		var spaceMatch = /\s+/gm
+		var seq = $(target).find('.basestring').html()
+		var bases = seq.split(tagMatch)
+		var tags = seq.match(tagMatch)
+		
+		var index = 0
+		var found = false;
+		for(var i=0;i<bases.length;i++) {
+			var lines = bases[i].split(spaceMatch)
+			var spaces = bases[i].match(spaceMatch)
+			for(var j=0;j<lines.length;j++) {
+				var original_len = lines[j].length
+				if(start-index < original_len && start-index >= 0) {
+					if(end-index <= original_len) {
+						lines[j] = lines[j].substring(0, end-index) + '</span>' + lines[j].substring(end-index)
+					}
+					lines[j] = lines[j].substring(0, start-index) + '<span class="'+snpClass+'">' + lines[j].substring(start-index)
+					if(end-index <= original_len) {
+						found = true;
+						break;
+					}
+				}
+				else if(end-index < original_len) {
+					lines[j] = lines[j].substring(0, end-index) + '</span>' + lines[j].substring(end-index)
+					found = true;
+					break;
+				}
+				index += original_len
+			}
+			var base = ""
+			if(spaces) {
+				for(var j=0;j<spaces.length;j++) {
+					base += lines[j]
+					base += spaces[j]
+				}
+				base += lines[spaces.length]
+			}
+			else {
+				base = lines[0]
+			}
+			bases[i] = base
+			if(found) {
+				break;
+			}
+		}
+		var html = ""
+		if(tags) {
+		 	for(var i=0;i<tags.length;i++) {
+				html += bases[i]
+				html += tags[i]
+			}
+			html += bases[tags.length]
+		}
+		else {
+			html = bases[0]
+		}
+		
+		var baseEl = $(target).find('.basestring')
+		if(isIE) {
+			baseEl[0].outerHTML = '<span class="basestring">'+html+'</span>'
+		}
+		else {
+			baseEl.html(html)
+		}
+	}
+</script>
+</%def>
+
+<table class="record">
+	% if c.assay.rejected:
+	<tr>
+		<td colspan="2" style="color: #f00; font-weight: bold;">This assay has been marked as rejected.</td>
+	<tr>
+	% endif
+	<tr><td class="col_field">Entered By:</td>
+	    <td>
+	% if c.assay.owner:
+			${c.assay.owner.first_name} ${c.assay.owner.last_name} on ${h.ymd(c.assay.added)}
+	% else:
+			Unknown on ${h.ymd(c.assay.added)}
+	% endif
+		</td>
+	</tr>
+	% if c.assay.gene:
+	<tr><td class="col_field">Gene:</td><td>${c.assay.gene}</td></tr>
+	% endif
+	% if c.assay.primer_fwd:
+	<tr><td class="col_field">Forward Primer:</td><td>${c.assay.primer_fwd} ${h.gc_display(c.assay.primer_fwd)} ${h.tm_display(c.assay, "forward_primer")} ${h.dg_display(c.assay, "forward_primer")}</td></tr>
+	% endif
+	% if c.assay.primer_rev:
+	<tr><td class="col_field">Reverse Primer:</td><td>${c.assay.primer_rev} ${h.gc_display(c.assay.primer_rev)} ${h.tm_display(c.assay, "reverse_primer")} ${h.dg_display(c.assay, "reverse_primer")}</td></tr>
+	% endif
+	% if c.assay.probe_seq:
+	<tr><td class="col_field">Probe:</td><td>5'-${c.assay.dye or '???'}-${c.assay.probe_seq}-${c.assay.quencher or '???'}-3' ${h.gc_display(c.assay.probe_seq)} ${h.tm_display(c.assay, "probe")} ${h.dg_display(c.assay, "probe")}</td>
+	% endif
+	% if c.assay.chromosome:
+	<tr><td class="col_field">Chromosome:</td><td>${c.assay.chromosome}</td></tr>
+	% endif
+	% if c.assay.probe_pos:
+	<tr><td class="col_field">Start Pos (hg19):</td><td>${c.assay.probe_pos}</td></tr>
+	% endif
+	% if c.assay.amplicon_width:
+	<tr><td class="col_field">Amplicon Width:</td><td>${c.assay.amplicon_width}</td></tr>
+	% endif
+	% if c.assay.snp_rsid:
+	<tr><td class="col_field">SNP rsid:</td><td>${c.assay.snp_rsid}</td></tr>
+	% endif
+	<tr><td colspan="2">&nbsp;</td></tr>
+	% if c.assay.secondary_structure is not None:
+	<tr><td class="col_field">Secondary Structure:</td><td>${'Yes' if c.assay.secondary_structure else 'No'}</td></tr>
+	% endif
+	% if c.assay.optimal_anneal_temp is not None:
+	<tr><td class="col_field">Optimal Anneal Temp:</td><td>${c.assay.optimal_anneal_temp} &degC</td></tr>
+	% endif
+</table>
+
+% for idx, seq in enumerate(c.sequences):
+<div id="sequence${idx}" class="sequence_match">
+	<h2>Match #${idx+1}:</h2>
+	${comp.seq_result(seq)}
+	% if hasattr(seq, 'amplicon_snps'):
+		${comp.snp_results(seq.amplicon_snps)}
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('#sequence${idx}').data({start: ${seq.amplicon.start}, end: ${seq.amplicon.end}})
+			})
+		</script>
+	% endif
+</div>
+% endfor
+
+${cnv.sample_assay_cnv_list(c.assay.sample_cnvs, title='Confirmed Sample CNVs', ctx='assay')}
+${conc.enzyme_conc_list(c.assay.enzyme_concentrations)}
+
+% if c.assay.notes or c.assay.reference_source:
+<h2>Additional Information</h2>
+<table class="record">
+% if c.assay.reference_source:
+	<tr><td class="col_field">Assay Source:</td><td>${c.assay.reference_source}</td></tr>
+% endif
+% if c.assay.notes:
+	<tr><td class="col_field">Additional Notes:</td><td>${c.assay.notes}</td></tr>
+% endif
+</table>
+% endif
+
+<div class="action_bar">
+	<h3>Take Action:</h3>
+	${comp.edit_action(c.assay)}
+	${comp.cut_action(c.assay)}
+	${comp.re_pick_action(c.assay)}
+	${comp.delete_action(c.assay)}
+	${comp.cnv_action(c.assay)}
+	${comp.conc_action(c.assay)}
+	% if c.assay.rejected:
+		${comp.unreject_action(c.assay)}
+	% else:
+		${comp.reject_action(c.assay)}
+	% endif
+	<div class="cf"></div>
+</div>

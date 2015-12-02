@@ -1,0 +1,55 @@
+${c.form.field("author_id", "dropdown",
+	label="Reporter",
+	required=True
+)}
+
+${c.form.field("sample_id", "dropdown",
+	label="Sample",
+	required=True
+)}
+
+${c.form.field("target_assay_id", "dropdown",
+	label="Target Assay",
+	required=True
+)}
+
+${c.form.field('reference_assay_id', 'dropdown',
+	label='Reference Assay',
+	required=False
+)}
+
+${c.form.field('cnv', 'text',
+	label='CNV Number',
+	required=True,
+	attributes=dict(style='width: 40px')
+)}
+
+% if c.plate:
+<tr class="field">
+	<td class="label">
+		<span style="visibility:hidden">*</span>Evidence Plate:</td>
+	<td>
+		<input type="hidden" name="source_plate_id" value="${c.plate.id}" />
+		${c.plate.name}
+	</td>
+</tr>
+% else:
+${c.form.field('source_plate_id', 'text',
+	label='Evidence Plate ID',
+	required=False,
+	attributes=dict(style='width: 40px')
+)}
+% endif
+
+${c.form.field('source_external_url', 'text',
+	label='CNV Source',
+	field_desc='URL or example of paper that contains CNV evidence.',
+	required=False
+)}
+
+${c.form.field('notes', 'textarea',
+	label='Notes',
+	field_desc="Add additional information about the sample CNV record here.",
+	required=False,
+	attributes=dict(cols=40, rows=4)
+)}

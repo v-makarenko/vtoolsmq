@@ -1,0 +1,20 @@
+<%inherit file="/setup/steps.html"/>
+
+<%def name="pagetitle()">${c.setup.name}: Get QuantaSoft Name</%def>
+<%def name="stepclass()">reader</%def>
+
+<%def name="css()">
+${parent.css()}
+<style type="text/css" media="screen">
+	#setup_name {
+		font-size: 21px;
+		font-weight: bold;
+	}
+</style>
+</%def>
+
+<p>In order to link this setup data to a QLP, save your QLP with the name:</p>
+<p id="setup_name">${c.setup.prefix}</p>
+<p>Please copy and paste this into QuantaSoft to name your template or plate.</p>
+
+<%def name="action_bar()"></%def>

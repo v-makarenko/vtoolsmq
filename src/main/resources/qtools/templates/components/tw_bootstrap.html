@@ -1,0 +1,308 @@
+<%def name="css()">
+    <link rel="stylesheet" href="${url('/css/tw/bootstrap_1_4_context.css')}" />
+</%def>
+
+<%def name="htmlattrs(**kwargs)">
+	${h.literal(' '.join(['%s="%s"' % ('class' if k == 'klass' else k, v) for k, v in kwargs.items() if k not in ('help_block', 'help_text', 'required')]))}
+</%def>
+
+<%def name="field_start(name, label, **kwargs)">
+	<form:iferror name="${name}">
+	<div class="clearfix error"${h.literal(' id="%s"' % kwargs.get('div_id')) if kwargs.get('div_id') else ''}>
+	</form:iferror>
+	<form:iferror name="not ${name}">
+	<div class="clearfix"${h.literal(' id="%s"' % kwargs.pop('div_id')) if kwargs.get('div_id') else ''}>
+	</form:iferror>
+		<label for="${name}">${'*' if kwargs.get('required') else ''}${label}</label>
+		<div class="input">
+			<form:error name="${name}" formatter="bootstrap">
+</%def>
+
+<%def name="field_end(**kwargs)">
+	% if kwargs.get('help_inline'):
+			<span class="help-inline">${kwargs.get('help_inline')}</span>
+	% endif
+	% if kwargs.get('help_block'):
+			<span class="help-block">${kwargs.get('help_block')}</span>
+	% endif
+		</div>
+	</div>
+</%def>
+
+<%def name="span(name, content, label='', inline=False, **kwargs)">
+	% if not inline:
+	<div class="clearfix">
+		<label for="${name}">${label}</label>
+		<div class="input">
+	% endif
+	<label style="text-align: left;" ${htmlattrs(**kwargs)}>${content}</label>
+	% if not inline:
+		</div>
+	</div>
+	% endif
+</%def>
+
+<%def name="text(name, label='', inline=False, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+			<input type="text" name="${name}" ${htmlattrs(**kwargs)} />
+	% if not inline:
+	${field_end(**kwargs)}
+	% endif
+</%def>
+
+<%def name="password(name, label='', inline=False, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+			<input type="password" name="${name}" ${htmlattrs(**kwargs)} />
+	% if not inline:
+	${field_end(**kwargs)}
+	% endif
+</%def>
+
+<%def name="file(name, label='', inline=False, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+		<input type="file" name="${name}" ${htmlattrs(**kwargs)} />
+	% if not inline:
+	${field_end(**kwargs)}
+	% endif
+</%def>
+
+<%def name="select(name, options, label='', inline=False, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+			<select name="${name}" ${htmlattrs(**kwargs)}>
+			% for value, desc in options['options']:
+				<option value="${value}">${desc}</option>
+			% endfor
+			</select>
+	% if not inline:
+	${field_end(**kwargs)}
+	% endif
+</%def>
+
+<%def name="multi_select(name, options, label='', inline=False, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+			<select name="${name}" multiple="multiple" ${htmlattrs(**kwargs)}>
+			% for value, desc in options['options']:
+				<option value="${value}">${desc}</option>
+			% endfor
+			</select>
+	% if not inline:
+	${field_end(**kwargs)}
+	% endif
+</%def>
+
+<%def name="group_select(name, optgroups, label='', inline=False, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+		<select name="${name}" ${htmlattrs(**kwargs)}>
+			% for name, options in optgroups:
+				<optgroup label="${name}">
+				% for value, desc in options:
+					<option value="${value}">${desc}</option>
+				% endfor
+				</optgroup>
+			% endfor
+		</select>
+	% if not inline:
+	${field_end(**kwargs)}
+	% endif
+</%def>
+
+
+<%def name="checkbox(name, value, label='', inline=False, variable_decode=False, checked=True, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+   
+	% if variable_decode:
+		<input type="checkbox" name="${name}-${value}" ${htmlattrs(**kwargs)} ${checked}/>
+	% else:
+		<input type="checkbox" name="${name}" value="${value}" ${htmlattrs(**kwargs)} checked/>
+	% endif
+	% if not inline:
+	${field_end(**kwargs)}
+	% endif
+</%def>
+
+<!-- not yet tested -->
+<%def name="checkbox_group(name, options, label='', inline=False, variable_decode=False, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+	<ul class="inputs-list">
+	% for value, text in value_text:
+		<li>
+			<label>
+				% if variable_decode:
+				<input type="checkbox" name="${name}-${value}" />
+				% else:
+				<input type="checkbox" name="${name}" value="${value}" />
+				% endif
+				<span>${text}</span>
+			</label>
+		</li>
+	% endfor
+	</ul>
+	% if not inline:
+	${field_end(name, label, **kwargs)}
+	% endif
+</%def>
+
+<%def name="textarea(name, label='', inline=False, **kwargs)">
+	% if not inline:
+	${field_start(name, label, **kwargs)}
+	% endif
+	<textarea name="${name}" ${htmlattrs(**kwargs)}></textarea>
+	% if not inline:
+	${field_end(**kwargs)}
+	% endif
+</%def>
+
+<%def name="submit(text, klass='primary', **kwargs)">
+	<input type="submit" class="btn ${klass if klass else ''}" value="${text}" ${htmlattrs(**kwargs)} />
+</%def>
+
+<%def name="secondary_action(text, klass=None, **kwargs)">
+	<input type="submit" value="${text}" class="btn ${klass if klass else ''}" ${htmlattrs(**kwargs)} />
+</%def>
+
+<%def name="session_breadcrumbs(flow, milestones, **kwargs)">
+	<ul class="breadcrumb">
+		% for idx, (req, title, url) in enumerate(milestones):
+		<li>
+			% if not req:
+			<a href="${url}">${title}</a>
+			% elif session.get(flow, {}).get(req, None) is not None:
+			<a href="${url}">${title}</a>
+			% else:
+			${title}
+			% endif
+			% if idx+1 < len(milestones):
+			<span class="divider">&gt;</span>
+			% endif
+		</li>
+		% endfor
+	</ul>
+</%def>
+
+<%def name="pager_page_link(paginator, page, text=None, page_param='page', **pager_kwargs)">
+	<%
+		link_params = dict()
+		link_params[page_param] = page
+		link_params.update(pager_kwargs)
+	%>
+	<a href="${paginator.get_url_generator()(**link_params)}">${text if text else page}</a>
+</%def>
+
+<%def name="pager(paginator, radius=3, page_param='page', first_link=True, last_link=True, hide_if_single_page=True, single_page_content='', **pager_kwargs)">
+    % if paginator.page_count > 1 or not hide_if_single_page:
+	<div class="pagination">
+		<ul>
+			% if first_link:
+				<li class="prev">
+					${pager_page_link(paginator, 1, text=h.literal('&lArr; First'), **pager_kwargs)}
+				</li>
+			% endif
+			% if not paginator.previous_page:
+				<li class="prev disabled"><a href="#">&larr; Previous</a></li>
+			% else:
+				<li class="prev">${pager_page_link(paginator, paginator.previous_page, text=h.literal('&larr; Previous'), **pager_kwargs)}</li>
+			% endif
+			<%
+				start_page = paginator.page - radius
+				end_page = paginator.page + radius
+				if paginator.page <= radius:
+					end_page = end_page + (radius-paginator.page)+1
+				if paginator.page_count-paginator.page < radius:
+					start_page = start_page - (radius-(paginator.page_count-paginator.page))
+				
+				if start_page < 1:
+					start_page = 1
+				if end_page > paginator.page_count:
+					end_page = paginator.page_count
+			%>
+
+			% for page in range(start_page, end_page+1):
+				% if page == paginator.page:
+					<li class="active">${pager_page_link(paginator, page, **pager_kwargs)}</li>
+				% else:
+					<li>${pager_page_link(paginator, page, **pager_kwargs)}</li>
+				% endif
+			% endfor
+
+			% if not paginator.next_page:
+				<li class="${'next ' if not last_link else ''}disabled"><a href="#">&rarr; Next</a></li>
+			% else:
+				<li class="${'next' if not last_link else ''}">${pager_page_link(paginator, paginator.next_page, text=h.literal('Next &rarr;'), **pager_kwargs)}</li>
+			% endif
+			% if last_link:
+				<li class="next">
+					% if paginator.last_page:
+						${pager_page_link(paginator, paginator.page_count, text=h.literal('Last &rArr;'), **pager_kwargs)}
+					% else:
+						${pager_page_link(paginator, 1, text=h.literal('Last &rArr;'), **pager_kwargs)}
+					% endif
+				</li>
+			% endif
+		</ul>
+	</div>
+    % else:
+        ${single_page_content}
+    % endif
+</%def>
+
+<%def name="upload_submit_css()">
+	<style type="text/css">
+        #actions_done {
+            display: none;
+        }
+
+        #actions_done p {
+            line-height: 36px;
+            margin-bottom: 0px;
+        }
+
+        #actions_done p img {
+            margin-right: 12px;
+        }
+
+        #actions_done p img,
+        #actions_done p span {
+            vertical-align: middle;
+        }
+    </style>
+</%def>
+
+<%def name="upload_submit_js(target)">
+	<script type="text/javascript">
+        $(function() {
+            $("${target}").submit(function() {
+                $('#actions_todo').hide()
+                $('#actions_done').show()
+                return true;
+            })
+        })
+    </script>
+</%def>
+
+<%def name="upload_submit_html(label='Upload QLP', message='Uploading plate...')">
+	<div id="actions_todo" class="actions">
+        ${submit(label)}
+    </div>
+    <div class="actions" id="actions_done">
+        <p>
+            <img src="${url('/images/spinner.gif')}" />
+            <span>${message}</span>
+        </p>
+    </div>
+</%def>

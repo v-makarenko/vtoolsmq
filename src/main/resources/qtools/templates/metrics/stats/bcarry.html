@@ -1,0 +1,8 @@
+<%inherit file="/metrics/stats/base.html" />
+<%namespace file="/metrics/stats_tables.html" name="st" import="*" />
+
+<h5>Carryover</h5>
+${st.carryover_table()}
+
+<h5>Rejected Peaks</h5>
+${st.carryover_rejected_table()}

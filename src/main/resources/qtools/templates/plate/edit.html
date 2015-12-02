@@ -1,0 +1,102 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="fields.html" name="fields" import="*"/>
+<%namespace file="/base/includes.html" name="incl" import="*" />
+
+<%def name="pagetitle()">Edit ${c.plate.name}</%def>
+<%def name="selected_page()">newplate</%def>
+<%def name="css()">
+	${parent.css()}
+	${incl.jqueryui_css()}
+	<style type="text/css" media="screen">
+		input[type=text], select {
+			width: 200px;
+		}
+		
+		#tracked_fields td {
+			background: #eee;
+		}
+		
+		#tracked_fields tr.field td,
+		#tracked_fields tr.formbutton td {
+			padding-top: 10px;
+			padding-left: 10px;
+		}
+		
+		#tracked_fields tr.formbutton td {
+			padding-bottom: 10px;
+		}
+		
+		#tracked_fields tr.description td {
+			padding-left: 10px;
+		}
+		
+		#tracked_fields caption {
+			text-align: left;
+			font-size: 15px;
+			font-weight: bold;
+			color: #44494a;
+			background: #eee;
+			padding: 5px 10px;
+		}
+		
+	</style>
+	<noscript>
+		<style type="text/css" media="screen">
+			form .autoselect {
+				display: inline;
+			}
+		</style>
+	</noscript>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${incl.jqueryui_js()}
+	<script src="${url('/js/uitools.js')}"></script>
+</%def>
+
+${c.plate_form.start_with_layout(url(controller='plate', action='save', id=c.plate.id), method='post')}
+% if c.plate.qlbplate:
+<p>
+<strong>File name:</strong> ${c.plate.qlbplate.file.dirname}/${c.plate.qlbplate.file.basename}
+</p>
+% endif
+<p><a href="${url(controller='plate', action='view', id=c.plate.id)}">View Plate Detector Plots</a></p>
+
+${fields.body()}
+
+<tr class="formbutton">
+	<td>${c.plate_form.submit('submit', "Save Plate")}</td>
+</tr>
+${c.plate_form.end_with_layout()}
+
+<div class="action_bar">
+	<h3>More Actions:</h3>
+	<div class="action_button">
+		<form action="${url(controller='plate', action='delete', id=c.plate.id)}" method="post">
+			<input type="submit" value="Delete Plate!" id="delete_button" />
+			<script type="text/javascript">
+				$('#delete_button').click(function() {
+					return confirm("Are you sure you want to delete this plate?")
+				})
+			</script>
+		</form>
+	</div>
+	<div class="cf"></div>
+</div>
+
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("select.autoselect").each(function() {
+				$(this).autoselect({'toggleSelect': true, 'toggleMode': 'select', 'toggleInputText': 'Other'})
+			})
+			
+			// this is a weird way to invoke it -- improve
+			$("form").submit(function() {
+				$(this).submit_autoselect()
+			})
+		})
+	</script>
+</%def>

@@ -1,0 +1,155 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">View Spec: ${c.spec.name}</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    <style type="text/css">
+        #content .tabs {
+            margin-bottom: 5px;
+        }
+        #spec_table tr.first_row td {
+            border-top-width: 0px;
+        }
+        #spec_table td.col_header {
+            font-weight: bold;
+        }
+
+        #tab_plates {
+            padding-top: 14px;
+        }
+
+        #spec_table td.col_header {
+            text-align: right;
+            width: 90px;
+        }
+
+        .tab-content > div {
+            display: none;
+        }
+
+        .tab-content > div.active {
+            display: block;
+        }
+    </style>
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    <script type="text/javascript" src="${url('/js/tw/bootstrap-tabs.js')}"></script>
+</%def>
+
+<p><strong>Part Number:</strong>&nbsp;<a href="${url(controller='reagents', action='parts', id=c.spec.part.product_line.id)}">${c.spec.part.name}</a></p>
+<ul class="tabs">
+    <li class="${'active' if c.tab == 'plates' else ''}"><a href="#tab_plates">Plates</a></li>
+    <li class="${'active' if c.tab == 'spec' else ''}"><a href="#tab_spec">Test Info</a></li>
+</ul>
+<div class="tab-content">
+<div id="tab_plates" class="${'active' if c.tab == 'plates' else ''}">
+% if c.test_plates:
+<table class="condensed-table zebra-striped">
+    <tr>
+        <th>Plate</th>
+        <th>Control Lots</th>
+        <th>Test Lots</th>
+        <th>Date</th>
+        <th>Instrument</th>
+    </tr>
+% for validation_plate in c.test_plates:
+    <tr>
+        <td><a href="${url(controller='reagents', action='test_plate', id=validation_plate.id)}">${validation_plate.plate.name}</a></td>
+        <td>
+            % for num in sorted(set([test.lot.number for test in validation_plate.control_lot_tests])):
+                ${num}<br/>
+            % endfor
+        </td>
+        <td>
+            % for num in sorted(set([test.lot.number for test in validation_plate.test_lot_tests])):
+                ${num}<br/>
+            % endfor
+        </td>
+        <td>${h.ymd(validation_plate.plate.run_time)}</td>
+        <td>${validation_plate.plate.box2.name}</td>
+    </tr>
+% endfor
+</table>
+% else:
+<div class="well">
+    No plates run for this test.
+</div>
+% endif
+</div>
+<div id="tab_spec" class="${'active' if c.tab == 'spec' else ''}">
+<table id="spec_table">
+    <tr class="first_row">
+        <td class="col_header">Template Prefix</td>
+        <td><strong style="font-size: 125%;">${c.spec.part.name}__${c.spec.name}__</strong></td>
+    <tr>
+        <td class="col_header">Part Number</td>
+        <td>${c.spec.part.name} (${c.spec.part.product_line.name})</td>
+    </tr>
+    <tr>
+        <td class="col_header">Name</td>
+        <td>${c.spec.name}</td>
+    </tr>
+    <tr>
+        <td class="col_header">Negative Control Criteria</td>
+        <td>
+                % for item in c.negative_spec_items:
+                % if item['value2'] is not None:
+                    ${('%s ' % item['channel_display']) if item['channel_display'] else ''}${item['metric']} ${item['operator']} ${item['value1']} and ${item['value2']}
+                % else:
+                    ${('%s ' % item['channel_display']) if item['channel_display'] else ''}${item['metric']} ${item['operator']} ${item['value1']}
+                % endif
+                    <br/>
+                % endfor
+        </td>
+    </tr>
+    <tr>
+        <td class="col_header">Positive Control Criteria</td>
+        <td>
+            % for item in c.positive_spec_items:
+                % if item['value2'] is not None:
+                ${('%s ' % item['channel_display']) if item['channel_display'] else ''}${item['metric']} ${item['operator']} ${item['value1']} and ${item['value2']}
+                % else:
+                ${('%s ' % item['channel_display']) if item['channel_display'] else ''}${item['metric']} ${item['operator']} ${item['value1']}
+                % endif
+                <br/>
+            % endfor
+        </td>
+    </tr>
+    <tr>
+        <td class="col_header">Notes</td>
+        <td>${c.spec.notes}</td>
+    </tr>
+    <tr>
+        <td class="col_header">Time Active</td>
+        <td>
+            % if c.spec.next_spec:
+                ${h.ymd(c.spec.date)}&ndash;${h.ymd(c.spec.next_spec.date)}
+            % else:
+                <strong>${h.ymd(c.spec.date)}&ndash;Current (active)</strong>
+            % endif
+        </td>
+    </tr>
+</table>
+<div class="actions">
+    % if not c.spec.next_spec:
+    <a class="btn primary" href="${url(controller='reagents', action='spec_edit', id=c.spec.id)}">Edit Spec</a>
+    % endif
+    <a class="btn" href="${url(controller='reagents', action='specs', id=c.spec.part.id)}">Spec History</a>
+    <a class="btn" href="${url(controller='reagents', action='parts', id=c.spec.part.product_line_id)}">Back to ${c.spec.part.product_line.name}</a>
+</div>
+</div>
+
+</div>
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    <script type="text/javascript">
+        $(function() {
+            $('.tabs').tabs();
+        })
+    </script>
+</%def>

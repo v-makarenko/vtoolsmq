@@ -1,0 +1,29 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Register Algorithm Reprocessor</%def>
+<%def name="selected_page()">algorithm</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+<%def name="explanation()">
+    <p>The folders below indicate algorithms in \\USPLEWIP10\Shared\...\ReleaseCandidates that do not have corresponding
+        records in QTools.  If you select a folder below, the algorithm will be added to the list of reprocessors that
+        QTools recognizes.  Please specify a code to use as shorthand, and optionally, a version number.</p>
+    <p><strong>NOTE:</strong> To be picked up by QTools, a QuantaSoft folder must be in the standard ReleaseCandidates folder on \\Shared,
+       and it must contain QuantaSoft.exe (rather than setup.exe for the DVD)</p>
+</%def>
+
+<form action="${url(controller='product', action='register_algorithm')}" method="post">
+    ${boot.select('src_dir', c.folder_opts, label='Reprocessor', required=True, klass='span5')}
+    ${boot.text('code', label='Shorthand', required=True, klass='span3', help_block='You will use this later on the command line. NO spaces or non-alphanumeric chars please')}
+    ${boot.text('peak_detection_version', label='Peak Detection Algorithm', help_block='e.g., 0.47', klass='span3')}
+    ${boot.text('peak_quantitation_version', label='Peak Quantitation Algorithm', help_block='e.g., 0.207', klass='span3')}
+    <div class="actions">
+        ${boot.submit('Register')}
+    </div>
+</form>

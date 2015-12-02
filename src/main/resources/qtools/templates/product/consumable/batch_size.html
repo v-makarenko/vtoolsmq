@@ -1,0 +1,69 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Batch Size Upload: ${c.batch.lot_num}</%def>
+<%def name="selected_page()">consumable</%def>
+<%def name="explanation()">
+<p>
+	<a href="${url(controller='consumable', action='list')}">&lt;&lt; Back to Batch List</a>
+</p>
+</%def>
+
+<%def name="css()">
+${parent.css()}
+<style type="text/css">
+	#nomulti {
+		display: none;
+	}
+</style>
+</%def>
+
+<%def name="js()">
+${parent.js()}
+<script type="text/javascript" src="${url('/js/modernizr-inputattrs.js')}"></script>
+</%def>
+
+<%def name="explanation()">
+<p>
+<a href="${url(controller='consumable', action='details', id=c.batch.id)}">&lt;&lt; Back to Batch</a>&nbsp;|&nbsp;<a href="${url(controller='consumable', action='size', id=c.batch.id)}">Individual Sizes</a>
+</p>
+<p>
+	Use SHIFT or CTRL when the file dialog appears to select multiple files.  The
+	current batch sizes will be overwritten.  Also, it is assumed that the files
+	are numbered in chip/channel order.  (i.e., if you upload files named hist-9 to
+	hist-24, then '9' is channel 1 of the first chip, and '24' is channel 8 of the second chip.)
+</p>
+</%def>
+
+<p id="nomulti">
+	Sorry, you must use a browser which supports uploading multiple files natively
+	for this page to work.  Examples include Firefox 3.6+, Google Chrome, and Safari 4+.
+</p>
+${c.form.start_with_layout(url(controller='consumable', action='batch_size_upload', id=c.batch.id),
+                               method='post', enctype='multipart/form-data',
+                               attributes=dict(id='multi'))}
+${c.form.field('sizes', 'file',
+	label='Select Files',
+	required=True,
+	attributes=dict(multiple='multiple')
+)}
+${c.form.field('pixel_calibration', 'text',
+	label='Pixel Size',
+	required=True
+)}
+<tr>
+	<td class="formbutton">
+		${c.form.submit('submit', 'Upload Batch')}
+	</td>
+</tr>
+${c.form.end_with_layout()}
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+	$(function() {
+		if(!Modernizr.input.multiple) {
+			$('#multi').hide();
+			$('#nomulti').show();
+		}
+	});
+	</script>
+</%def>

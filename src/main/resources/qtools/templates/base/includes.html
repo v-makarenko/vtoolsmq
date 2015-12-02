@@ -1,0 +1,133 @@
+<%def name="default_css()">
+	<link rel="stylesheet" href="${url('/css/reset.css')}" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="${url('/css/960.css')}" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="${url('/css/text.css')}" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="${url('/css/qtools.css')}" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="${url('/css/qtools_print.css')}" type="text/css" media="print" charset="utf-8">
+	<link rel="stylesheet" href="${url('/css/form.css')}" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="${url('/css/tw/bootstrap.topbar.min.css')}" type="text/css" media="screen" charset="utf-8">
+	<link rel="stylesheet" href="${url('/css/tw/bootstrap.btn.min.css')}" type="text/css" media="screen" charset="utf-8">
+</%def>
+
+<%def name="jqueryui_css()">
+	<link rel="stylesheet" href="${url('/css/jqtheme/jquery-ui-1.8.14.custom.css')}" type="text/css" media="screen">
+</%def>
+
+<%def name="jqueryui_js()">
+	<script src="${url('/js/jquery-ui-1.8.14.custom.min.js')}"></script>
+</%def>
+
+<%def name="default_js()">
+	<script src="${url('/js/jquery-1.5.1.min.js')}"></script>
+	<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>-->
+	<!--[if lt IE 9]>
+	  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<script src="${url('/js/tw/bootstrap-dropdown.js')}"></script>
+	<script type="text/javascript">
+	$(function() {
+		$('#topnav').dropdown()
+		$('#csv_download').click(function() {
+			var url = window.location.href;
+			if(url.indexOf('?') != -1) {
+				var newUrl = url + "&output=csv";
+			}
+			else {
+				var newUrl = url + "?output=csv"
+			}
+			window.location.href = newUrl;
+			return false;
+		})
+	});
+	</script>
+</%def>
+
+<%def name="default_header()">
+	<header class="container_16">
+		<div>
+			<a href="${url(controller='home', action='index')}"><img id="logo" src="${url(config['images.logo'])}" alt="QTools" /></a>
+		</div>
+		<div id="topnav" class="topbar">
+			<div>
+				<ul class="nav">
+					<li id="nav_plate"><a href="${url(controller="plate", action="index")}">Plates</a></li>
+					<li id="nav_status" class="dropdown" data-dropdown="dropdown">
+						<a href="#" class="dropdown-toggle">Readers</a>
+						<ul class="dropdown-menu">
+							<li><a href="${url(controller="admin", action="readers", admin=False)}">Internal</a></li>
+							<li><a href="${url(controller="admin", action="prod", admin=True)}">Production</a></li>
+							<li><a href="${url(controller="admin", action="modules", admin=True)}">Fluidics Modules</a></li>
+                            <li><a href="${url(controller="admin", action="detectors", admin=True)}">Detector Modules</a></li>
+						</ul>
+					</li>
+					<li id="nav_product"><a href="${url(controller="product", action="index")}">PD</a></li>
+					% if h.wowo('show_digests'):
+					<li id="nav_cutter"><a href="${url(controller="cutter", action="pick")}">Digests</a></li>
+					% endif
+					% if h.wowo('show_assays'):
+					<li id="nav_assays"><a href="${url(controller="sequence", action="list")}">Assays</a></li>
+					% endif
+					<li id="nav_beta" class="dropdown" data-dropdown="dropdown">
+						<a href="#" class="dropdown-toggle">Validation</a>
+						<ul class="dropdown-menu">
+							<li><a href="${url(controller='plate', action='name', mode='validation')}">Beta Validation</a></li>
+							<li><a href="${url(controller='groove', action='list')}">Groove</a></li>
+						</ul>
+					</li>
+					<li id="nav_stats" class="dropdown" data-dropdown="dropdown">
+					<a href="#" class="dropdown-toggle">Stats</a>
+					<ul class="dropdown-menu">
+					    <li><a href="${url(controller="trend", action="category")}">Trends</a></li>
+					    <li><a href="${url(controller="stats", action="index")}">Usage</a></li>
+                        <li><a href="${url(controller="qc_chart", action="category")}">Control Charts</a></li>
+					</ul>
+					</li>
+					<li id="nav_stats" class="dropdown" data-dropdown="dropdown">
+					<a href="#" class="dropdown-toggle">Admin Tasks</a>
+					<ul class="dropdown-menu">
+					    <li><a href="${url(controller="users", action="index")}">Add New User</a></li>
+					</ul>
+					</li>
+                    % if hasattr(c, 'help_uri'):
+                    <li id="nav_help" class="dropdown" data-dropdown="dropdown">
+                        <a href="#" class="dropdown-toggle">Help</a>
+                        <ul class="dropdown-menu">
+                            <li>${h.help_link(c.help_uri)}</li>
+                            <li><a href="${url(controller='help', action='index')}">Help Center</a></li>
+                        </ul>
+                    </li>
+                    % else:
+                    <li id="nav_help">
+                        <a href="${url(controller='help', action='index')}">Help</a>
+                    </li>
+                    % endif
+					<li id="nav_csv"><a href="#" id="csv_download">Page as CSV</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="cf"></div>
+	</header>
+</%def>
+
+<%def name="flash()">
+	% if session.has_key('flash'):
+	<div id="flash" class="${session.get('flash_class','flash')}">
+		${session.get('flash')}
+	</div>
+	<%
+		del session['flash']
+		session.save()
+	%>
+	% if session.get('flash_class', 'flash') == 'flash':
+	<script type="text/javascript" charset="utf-8">
+		$('#flash').delay(2000).fadeOut(500)
+	</script>
+	% endif
+	% if session.has_key('flash_class'):
+	<%
+		del session['flash_class']
+		session.save()
+	%>
+	% endif
+	% endif
+</%def>

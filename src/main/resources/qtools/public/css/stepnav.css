@@ -1,0 +1,43 @@
+nav#expnav {
+	float: left;
+	border-bottom: 1px solid #ccc;
+	margin-bottom: 15px;
+	width: 100%;
+}
+
+nav#expnav ul {
+	float: left;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+nav#expnav ul li {
+	float: left;
+	display: inline;
+	margin-left: 0px;
+	margin-right: 0px;
+	padding: 5px 10px;
+	margin-bottom: 0;
+}
+
+nav#expnav ul li a {
+	text-align: center;
+	text-decoration: none;
+	color: #44494a;
+	font-weight: bold;
+	display: block;
+}
+
+nav.name ul li#step_name,
+nav.consumable ul li#step_consumable,
+nav.reagents ul li#step_reagents,
+nav.dg ul li#step_dg,
+nav.cycler ul li#step_cycler,
+nav.reader ul li#step_reader {
+	background-color: #eee;
+}
+
+nav ul li:hover {
+	background-color: #eef;
+}

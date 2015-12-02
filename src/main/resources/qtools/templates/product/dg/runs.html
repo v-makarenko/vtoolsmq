@@ -1,0 +1,45 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Droplet Generator Runs: ${c.dg.name}</%def>
+<%def name="selected_page()">dg</%def>
+<%def name="explanation()"><p>The following is a list of droplet generator runs with
+known associated wells, starting from May 16.  Roll your mouse over a particular
+total (and wait for 1 sec) to reveal the sample name of the well.</p></%def>
+
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Run#</th>
+			<!--<th>Details</th>-->
+			<th>Vacuum Time</th>
+			<th>Ch. 1</th>
+			<th>Ch. 2</th>
+			<th>Ch. 3</th>
+			<th>Ch. 4</th>
+			<th>Ch. 5</th>
+			<th>Ch. 6</th>
+			<th>Ch. 7</th>
+			<th>Ch. 8</th>
+			<th>Average</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, (run_id, run, channels) in enumerate(c.runs):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${run_id}</td>
+			<!--<td><a href="${url(controller='dg', action='run', dg_id=run.droplet_generator_id, run_id=run.run_number)}">View</a></td>-->
+			<td>${run.vacuum_time}</td>
+			% for i in range(channels[0][4]-1):
+				<td>&nbsp;</td>
+			% endfor
+			% for (wm, well_id, well_sample, run_num, channel_num) in channels:
+				<td><a title="${well_sample}" href="${url(controller='well', action='view', id=well_id)}">${wm.accepted_event_count}</a></td>
+			% endfor
+			% for i in range(8-(len(channels)+(channels[0][4]-1))):
+				<td>&nbsp;</td>
+			% endfor
+			<td>${h.sig0(float(sum([ch[0].accepted_event_count for ch in channels]))/len(channels))}</td>
+		</tr>
+	% endfor
+	</tbody>
+</table>

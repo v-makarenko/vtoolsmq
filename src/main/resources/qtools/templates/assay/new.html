@@ -1,0 +1,40 @@
+<%inherit file="/assay/base.html"/>
+<%namespace file="fields_new.html" name="fields" import="*"/>
+<%namespace file="components.html" name="comp" import="assay_edit_css,assay_edit_js" />
+
+<%def name="css()">
+	${parent.css()}
+	${comp.assay_edit_css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${comp.assay_edit_js()}
+	<script type="text/javascript">
+		$(function() {
+		  $('#new_assay').submit(function() {
+			$('#new_assay input, #new_assay select').each(function(i, e) {
+				if($(e).is(':hidden')) {
+					$(e).remove();
+				}
+			});
+			return true;
+		  })
+		});
+	</script>
+</%def>
+
+<%def name="pagetitle()">Enter New Assay</%def>
+<%def name="selected_page()">newassay</%def>
+<%def name="explanation()">
+Enter an assay below.  <strong>NOTE:</strong> When you save the assay, QTools will look up the sequence and SNPs within the amplicon, and out to 1000bp in either direction for CNV analysis.  This should take between 5-10 seconds to process.
+</%def>
+
+${c.form.start_with_layout(url(controller='assay', action='create'), method="post", attributes=dict(id='new_assay'))}
+	
+	${fields.body()}
+	
+	<tr><td>
+	${c.form.submit("submit","Save Assay")}
+	</td></tr>
+${c.form.end_with_layout()}

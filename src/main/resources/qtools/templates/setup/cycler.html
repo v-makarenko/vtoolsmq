@@ -1,0 +1,20 @@
+<%inherit file="/setup/steps.html"/>
+<%def name="stepclass()">cycler</%def>
+
+<%def name="pagesubtitle()">Thermal Cycler</%def>
+
+<p><strong>Cycling parameters are coming soon.</strong>  For now, just enter
+the thermal cycler used to heat this plate.</p>
+
+${c.form.start_with_layout(url(controller='setup', action='save_cycler', id=c.setup.id, beta=c.beta), method='post', attributes=dict(id='setupform'))}
+${c.form.field('thermal_cycler_id', 'dropdown',
+	label='Thermal Cycler',
+	required=True
+)}
+${c.form.end_with_layout()}
+
+<%def name="setupSaveHandler()">
+	function(evt) {
+		$('#setupform').submit();
+	}
+</%def>

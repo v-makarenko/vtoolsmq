@@ -1,0 +1,202 @@
+<%def name="well_tag_select(submit_url, reset_url)">
+<form action="${submit_url}" method="get" class="formbuild" id="well_tag_form">
+	<table class="gridfield">
+		<tr>
+		<td class="field_col">
+			<table>
+				${c.form.field('well_tag', 'dropdown',
+					label="Tag",
+					required=True,
+					attributes=dict(id="well_tag_select")
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.form.field('group_by_plate', 'checkbox_group',
+				    label="Group by Plate"
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<input type="Submit" value="Get Wells" />&nbsp;
+			<a href="${reset_url}">Reset</a>
+		</td>
+		</tr>
+	</table>
+</form>
+</%def>
+
+<%def name="well_plot_list_by_plate(well_groups, label_names, tag_id)">
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+	  $('a.untag').click(function() {
+		var self = $(this);
+		var id = $(this).attr('id').substring(6);
+		var url = "${url(controller='well', action='untag')}";
+		var serial = "well_id="+id+"&tag_id=${tag_id}";
+		$.post(url, serial, function(json) {
+			if(json.tag_id) {
+				var rowCount = self.parents('table.datagrid').find('tbody tr').length;
+				var cols = self.parents('table.datagrid tr').find('td');
+				var row = self.parents('table.datagrid tr');
+				var table = self.parents('table.datagrid');
+				if(rowCount == 1) {
+					table.fadeOut('slow', function() {
+						table.remove()
+					});
+				}
+				else {
+					cols.fadeOut('slow', function() {
+						row.remove()
+					});
+				}
+			}
+		}, 'json');
+		return false;
+	  });
+    });
+</script>
+<style type="text/css" media="screen">
+    /* TODO: put this in own CSS file, standardize */
+	img.chan0 {
+		background: #eef;
+		display: block;
+	}
+
+	img.chan1 {
+		background: #fee;
+		display: block;
+	}
+
+	img.chan01 {
+		background: #efe;
+		display: block;
+	}
+	
+	.col_plot {
+		width: 60px;
+	}
+	
+	.well_plot_results td {
+		vertical-align: middle;
+	}
+	
+	.well_plot_results caption {
+		text-align: left;
+		font-weight: bold;
+		color: #44494A;
+		font-size: 15px;
+		margin-bottom: 0.25em;
+	}
+	
+	.well_plot_results td {
+		border-bottom: 1px solid #ddd;
+	}
+	
+	.col_sample {
+		width: 30%;
+	}
+	
+	.col_targets {
+		width: 30%;
+	}
+</style>
+% for plate, wells in well_groups:
+% if len(wells) > 0:
+
+<table class="datagrid well_plot_results">
+	<caption>${plate.file.dirname}</caption>
+	<thead>
+		<tr>
+			<th class="col_plot">&nbsp;</th>
+			<th class="col_name">Well Name</th>
+			<th class="col_sample">Sample</th>
+			<th class="col_targets">Targets</th>
+			% for name in label_names:
+			<th class="col_val">${name}</th>
+			% endfor
+			<th class="col_link">Links</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, well in enumerate(wells):
+		<tr>
+			<td class="col_plot">
+				<a href="${url(controller='well', action='view', id=well.id)}">
+				% for num in range(len(well.channels)):
+					${h.literal(h.qlb_thumbnail(plate.id, well.well_name, num))}
+				% endfor
+				</a>
+			</td>
+			<td class="col_name">${well.well_name}</td>
+			<td class="col_sample">${well.sample_name}</td>
+			<td class="col_targets">${h.literal("<br/>".join([channel.target for channel in well.channels]))}</td>
+			% for name in label_names:
+			<td class="col_val">${getattr(well, name)}</td>
+			% endfor
+			<td class="col_link">
+				<a href="${url(controller='well', action='view', id=well.id)}">Well</a> | 
+				<a href="${url(controller='plate', action='view', id=well.plate.plate.id)}">Plate</a> |
+				<a class="untag" id="untag_${well.id}" href="#">Untag</a>
+			</td>
+		</tr>
+	% endfor
+	</tbody>
+</table>
+% endif
+% endfor
+</%def>
+
+<%def name="well_plot_list(wells, label_names)">
+<style type="text/css" media="screen">
+    /* TODO: put this in own CSS file, standardize */
+	img.chan0 {
+		background: #eef;
+		display: block;
+	}
+
+	img.chan1 {
+		background: #fee;
+		display: block;
+	}
+	
+	.col_plot {
+		width: 60px;
+	}
+	
+	.well_plot_results td {
+		vertical-align: middle;
+	}
+</style>
+% if len(wells) > 0:
+<table class="datagrid well_plot_results">
+	<thead>
+		<tr>
+			<th class="col_plot">&nbsp;</th>
+			<th class="col_plate">Plate</th>
+			<th class="col_name">Well Name</th>
+			% for name in label_names:
+			<th class="col_val">${name}</th>
+			% endfor
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, well in enumerate(wells):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td class="col_plot">
+				% for num in range(len(well.channels)):
+					${h.literal(h.qlb_thumbnail(well.plate.id, well.well_name, num))}
+				% endfor
+			</td>
+			<td class="col_plate"><a href="${url(controller='plate', action='view', id=well.plate.plate.id)}">${well.file.dirname}</a></td>
+			<td class="col_name"><a href="${url(controller='well', action='view', id=well.id)}">${well.well_name}</a></td>
+			% for name in label_names:
+			<td class="col_val">${getattr(well, name)}</td>
+			% endfor
+		</tr>
+	% endfor
+	</tbody>
+</table>
+% endif
+</%def>

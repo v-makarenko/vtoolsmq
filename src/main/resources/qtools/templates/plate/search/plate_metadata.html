@@ -1,0 +1,15 @@
+<%inherit file="/plate/search/form.html"/>
+<%namespace file="/components/query_form.html" import="column_field"/>
+
+<%def name="pagetitle()">Search for Plates: By Metadata</%def>
+
+${column_field(c.form, 0, 'box2_id', 'dropdown', 'Box 2')}
+${column_field(c.form, 1, 'droplet_generation_method', 'dropdown', 'Droplet Generation Method')}
+${column_field(c.form, 2, 'dg_oil', 'dropdown', 'Droplet Generator Oil')}
+${column_field(c.form, 3, 'dr_oil', 'dropdown', 'Droplet Reader Oil')}
+${column_field(c.form, 4, 'master_mix', 'dropdown', 'Master Mix')}
+${column_field(c.form, 5, 'physical_plate_id', 'dropdown', 'Physical Plate')}
+${column_field(c.form, 6, 'dg_used_id', 'dropdown', 'Droplet Generator Used')}
+
+<input type="hidden" name="order_by" value="run_time" />
+<input type="hidden" name="order_by_direction" value="desc" />

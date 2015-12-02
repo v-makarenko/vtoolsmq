@@ -1,0 +1,27 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">${c.sequence_group.name}: ${c.call_to_action}</%def>
+<%def name="explanation()">
+	<p>Record the operating conditions for the ${c.sequence_group.name} assay below.</p>
+</%def>
+
+<form action="${url(controller='sequence', action=c.action, id=c.target_id)}" method="post">
+	${boot.select('status', c.condition_status_field, label='Quality', required=True, klass="span4")}
+	${boot.select('author_id', c.person_field, label='Observer', required=True, klass="span4")}
+	<input name="plate_id" type="hidden" value="" />
+	% if c.plate:
+	${boot.span('plate', c.plate.name, label='Plate', klass="span10")}
+	${boot.text('wells', label='Evidence Wells', help_block="e.g., A1:B12,D1:E12")}
+	% endif
+	${boot.text('optimal_temp', label="Optimal Temp.", klass="span2", autocomplete='off')}
+	${boot.text('custom_thermal_protocol', label="Custom Thermal Protocol?", autocomplete='off', klass="span6")}
+	${boot.select('mmix_standard_status', c.mmix_standard_status_field, label='Works with Standard Master Mix?', klass="span2")}
+	${boot.select('mmix_afree_status', c.mmix_afree_status_field, label='Works with Analog-Free Master Mix?', klass="span2")}
+	${boot.select('mmix_1step_status', c.mmix_1step_status_field, label='Works with 1-Step Master Mix?', klass="span2")}
+	${boot.select('mmix_groove_status', c.mmix_groove_status_field, label='Works with Groove Master Mix?', klass="span2")}
+	${boot.textarea('notes', label='Notes', autocomplete='off', rows='4', klass="span8")}
+	<div class="actions">
+		${boot.submit(c.call_to_action)}
+	</div>
+</form>

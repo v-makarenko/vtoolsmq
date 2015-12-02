@@ -1,0 +1,55 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/components/datagrid.html" name="grid" import="comp_cell" />
+
+<%def name="pagetitle()">Reader Status Table</%def>
+<%def name="selected_page()">readers</%def>
+
+<%def name="css()">
+${parent.css()}
+<style type="text/css">
+	td.col_name {
+		width: 100px;
+	}
+
+	td.col_status {
+		width: 400px;
+	}
+
+	td.col_actions {
+		width: 280px;
+	}
+</style>
+</%def>
+
+<%def name="explanation()">
+<p>
+	<a href="${url(controller='admin', action='readers', admin=c.admin)}">&lt;&lt; Return to icon view</a>
+</p>
+</%def>
+
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Reader</th>
+			<th>Status</th>
+			% if c.admin != 'False':
+			<th>Actions</th>
+			% endif
+		</tr>
+	</thead>
+	<tbody>
+	% for reader in c.readers:
+		<tr class="status${reader.status}">
+			<td class="col_name">${reader.display_name}</td>
+			<td class="col_status"><a href="${url(controller='admin', action='reader_history', id=reader.code, admin=c.admin)}">${reader.status_comment}</a></td>
+			% if c.admin != "False":
+			<td class="col_actions">
+				<a href="${url(controller='admin', action='reader', id=reader.code)}">Edit Reader</a> &nbsp;|&nbsp;
+				<a href="${url(controller='admin', action='reader_status', id=reader.code)}">Change Status</a> &nbsp;|&nbsp;
+				<a href="${url(controller='admin', action='reader_fix', id=reader.code)}">Report Fix</a>
+			</td>
+			% endif
+		</tr>
+	% endfor
+	</tbody>
+</table>

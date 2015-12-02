@@ -1,0 +1,22 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Search for Plates</%def>
+<%def name="selected_page()">platesearch</%def>
+<%def name="explanation()">
+<p>Select the fields you want to search by below.  If you do not want to filter by a particular field, leave the field marked as 'Any'.</p>
+</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+
+${c.form.start_with_layout(url(controller='plate', action='search_results', id=c.search_id), method='get')}
+${next.body()}
+<tr class="formbutton">
+	<td style="padding-top: 1em">${c.form.submit('submit', "Search for Plates")}&nbsp; &nbsp; &nbsp;<a href="${url(controller='plate', action='search', id=c.search_id)}">Reset Search</a></td>
+</tr>
+${c.form.end_with_layout()}

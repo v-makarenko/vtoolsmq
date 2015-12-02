@@ -1,0 +1,38 @@
+<%inherit file="/stats/base.html"/>
+
+<%def name="pagetitle()">Lab Statistics</%def>
+<%def name="selected_page()">statshome</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#total_count {
+			font-size: 17px;
+		}
+	</style>
+</%def>
+
+<h2>Total Droplets By Week</h2>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Week</th>
+			<th>Total Droplet Count</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, (begin, end, count) in enumerate(c.events_by_week):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${h.ymd(begin)} - ${h.ymd(end)}</td>
+			<td>${count}</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+<p id="total_count"><strong>${h.commafy(c.total_events)}</strong> droplets counted since October 12, 2010<br/>
+                    <strong>${h.commafy(c.last_month_events)}</strong> droplets counted in the last 30 days</p>
+
+<h2>More Statistics</h2>
+<ul>
+	<li><a href="${url(controller='stats', action='boxes')}">DR Utilization</a></li>
+	<li><a href="${url(controller='stats', action='operators')}">Operator Rank</a></li>
+</ul>

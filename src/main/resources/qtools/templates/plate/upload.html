@@ -1,0 +1,43 @@
+<%inherit file="/plate/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+ 
+
+<%def name="pagetitle()">Upload Customer Plate: ${c.dr.name if hasattr(c, 'dr') else 'Unknown DR'}</%def>
+
+<%def name="selected_page()">upload</%def>
+<%def name="explanation()">
+<p>Use this form to upload a QLP from a production reader at a customer site.  Please select a type, if applicable.</p>
+</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    ${boot.upload_submit_css()}
+</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+% if hasattr(c, 'dr'):
+<form action="${url(controller='plate', action='onsite_upload', id=c.dr.code)}" method="post" enctype="multipart/form-data" id="upload">
+    ${boot.file('plate', label='Plate', klass='span4', required=True, help_block='This file will be uploaded to QLHyperV/'+c.dr.src_dir)}
+    ${boot.select('plate_type', c.plate_types, label='Plate Type', required=False)}
+    ${boot.select('plate_origin', c.plate_origins, label='Plate Origin', required=True)}
+    ${boot.select('project', c.project_field, label="Project", id="project", help_block='Project to assciate plate with', klass="span5 autoselect", required=False)}
+    <input type="hidden" name="box2_id" />
+    ${boot.upload_submit_html()}
+</form>
+% else:
+<form action="${url(controller='plate', action='unknown_upload')}" method="post" enctype="multipart/form-data" id="upload">
+    ${boot.file('plate', label='Plate', klass='span4', required=True, help_block='This file will be uploaded to QLHyperV/, in the DR associated in the plate')}
+    ${boot.select('plate_type', c.plate_types, label='Plate Type', required=False)}
+    ${boot.select('plate_origin', c.plate_origins, label='Plate Origin', required=True)}
+    ${boot.select('project', c.project_field, label="Project", id="project", help_block='Project to associate plate with', klass="span5 autoselect", required=False )}
+    ${boot.upload_submit_html()}
+</form>
+% endif
+
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    ${boot.upload_submit_js('#upload')}
+</%def>

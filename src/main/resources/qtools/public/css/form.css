@@ -1,0 +1,33 @@
+.formbuild .error-message {
+    color: red;
+}
+
+.formerror {
+    color: red;
+}
+
+form td {
+	vertical-align: top;
+}
+
+tr.field td.label {
+    padding-right: 0.5em;
+    font-weight: bold;
+    color: #44494a;
+}
+
+tr.field td, tr.form_button td {
+    padding-top: 0.75em;
+}
+
+tr.description td.field_desc {
+    font-size: 11px;
+    font-style: italic;
+}
+
+tr.form_subsection td {
+    font-size: 17px;
+    font-weight: bold;
+    color: #44494a;
+    padding-top: 1em;
+}

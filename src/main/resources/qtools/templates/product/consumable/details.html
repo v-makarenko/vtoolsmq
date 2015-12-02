@@ -1,0 +1,65 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Batch Details: ${c.batch.lot_num}</%def>
+<%def name="selected_page()">consumable</%def>
+<%def name="explanation()">
+<p>
+	<a href="${url(controller='consumable', action='list')}">&lt;&lt; Back to Batch List</a>
+</p>
+</%def>
+
+<table class="record">
+	<tr>
+		<td class="col_field">Manufacturer:</td>
+		<td>${c.batch.manufacturer}</td>
+	</tr>
+	<tr>
+		<td class="col_field">Insert:</td>
+		<td>${c.batch.insert}</td>
+	</tr>
+	<tr>
+		<td class="col_field">Molding Style:</td>
+		<td>${c.batch.consumable_molding_style.name if c.batch.consumable_molding_style else ''}</td>
+	</tr>
+	<tr>
+		<td class="col_field">Bonding Style:</td>
+		<td>${c.batch.consumable_bonding_style.name if c.batch.consumable_bonding_style else ''}</td>
+	</tr>
+	<tr>
+		<td class="col_field">B-Side:</td>
+		<td>${c.batch.bside}</td>
+	</tr>
+	<tr>
+		<td class="col_field">Manufacture Date:</td>
+		<td>${h.ymd(c.batch.manufacturing_date)}</td>
+	</tr>
+	<tr>
+		<td class="col_field">Recorded Date:</td>
+		<td>${h.ymd(c.batch.added_date)}</td>
+	</tr>
+</table>
+
+<div class="action_bar">
+	<h3>Take Action:</h3>
+	<div class="action_button">
+	<form action="${url(controller='consumable', action='edit', id=c.batch.id)}" method="get">
+		<input type="submit" value="Edit Batch" />
+	</form>
+	</div>
+	<div class="action_button">
+	<form action="${url(controller='consumable', action='size', id=c.batch.id)}" method="get">
+		<input type="submit" value="Enter Droplet Sizes" />
+	</form>
+	</div>
+	<div class="action_button">
+	<form action="${url(controller='consumable', action='batch_size', id=c.batch.id)}" method="get">
+		<input type="submit" value="Upload Droplet Sizes" />
+	</form>
+	</div>
+	<div class="action_button">
+	<form action="${url(controller='consumable', action='fill', id=c.batch.id)}" method="get">
+		<input type="submit" value="Enter Fill Rates" />
+	</form>
+	</div>
+	<div class="clear"></div>
+</div>

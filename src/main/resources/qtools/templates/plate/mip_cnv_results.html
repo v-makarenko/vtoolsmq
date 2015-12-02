@@ -1,0 +1,52 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Find Replicate Concentration, CNV, Error Rates</%def>
+<%def name="selected_page()">mipcnv</%def>
+
+<p>
+	<strong>Plate:</strong> <a href="${url(controller='plate', action='view', id=c.plate.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">${c.plate.name}</a><br/>
+	<strong>Reference Channel:</strong> ${c.reference_channel}<br/>
+	<strong>FP Rates:</strong> ${h.sig1(c.fam_fpr)} FP/&mu;L FAM, ${h.sig1(c.vic_fpr)} FP/&mu;L VIC
+</p>
+
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th colspan="3" style="text-align:center">FAM</th>
+			<th colspan="3" style="text-align:center">VIC</th>
+			<th colspan="3" style="text-align:center">CNV</th>
+		</tr>
+		<tr>
+		<th>Replicate</th>
+			<th>#Wells</th>
+			<th>Conc (copies/&mu;L)</th>
+			<th>RWE %</th>
+			<th>Poisson %</th>
+			<th>Conc (copies/&mu;L)</th>
+			<th>RWE %</th>
+			<th>Poisson %</th>
+			<th>CNV (2 copies)</th>
+			<th>RWE %</th>
+			<th>Poisson %</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, (replicate, well_num, stats) in enumerate(c.replicates):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${replicate[0]} (${replicate[1][0]}, ${replicate[1][1]})</td>
+			<td>${well_num}</td>
+			<td>${h.sig1(stats[0]*1000)}</td>
+			<td>${h.sig2(stats[1]*100)}%</td>
+			<td>${h.sig2(stats[2]*100)}%</td>
+			<td>${h.sig1(stats[3]*1000)}</td>
+			<td>${h.sig2(stats[4]*100)}%</td>
+			<td>${h.sig2(stats[5]*100)}%</td>
+			<td>${h.sig2(stats[6]*2)}</td>
+			<td>${h.sig2(stats[7]*100)}%</td>
+			<td>${h.sig2(stats[8]*100)}%</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>

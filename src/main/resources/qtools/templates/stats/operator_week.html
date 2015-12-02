@@ -1,0 +1,78 @@
+<%inherit file="/stats/operators.html"/>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		td.detail_box {
+			white-space: nowrap;
+		}
+	</style>
+</%def>
+
+<%def name="date_header()">
+	<tr>
+		<td class="prev_date"><a href="${url(controller='stats', action='operators_by_week', weeks_ago=c.week+1)}">&lt;&lt; Previous Week</a></td>
+		<td class="date_display">Week of ${h.ymd(c.first_day)}
+		% if c.week != 0:
+		 | <a href="${url(controller='stats', action='operators_by_week', weeks_ago=0)}">Go to Current Week</a></td>
+		% endif
+		<td class="next_date">
+			% if c.week > 0:
+				<a href="${url(controller='stats', action='operators_by_week', weeks_ago=c.week-1)}">Next Week &gt;&gt;</a>
+			% endif
+		</td>
+	</tr>
+</%def>
+
+<%def name="leaderboard_table()">
+	<thead>
+		<tr>
+			<th class="operator_name">Operator</th>
+			<th class="operator_plates">Plates</th>
+			<th class="operator_points">Points</th>
+			<th class="operator_wells">Wells</th>
+			<th class="operator_data_wells">Non-NTC Wells</th>
+			<th class="operator_events">Total Detected Events*</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, (operator, plates) in enumerate([(operator, plates) for operator, plates in reversed(c.run_profiles) if operator]):
+			<tr class="${idx % 2 and 'odd' or 'even'}">
+				<td><a href="${url(controller='plate', action='list_filter', operator_id=operator.id)}">${operator.first_name} ${operator.last_name}</a></td>
+				<td>${len(plates)}</td>
+				<td class="operator_points">${sum([(plate.plate.score or 0) for plate, wells, data_wells, data_event_count in plates])}</td>
+				<td class="operator_wells">${sum([wells for plate, wells, data_wells, data_event_count in plates if wells])}</td>
+				<td class="operator_data_wells">${sum([data_wells for plate, wells, data_wells, data_event_count in plates if data_wells])}</td>
+				<td>${sum([data_event_count for plate, wells, data_wells, data_event_count in plates if data_event_count])}</td>
+			</tr>
+		% endfor
+	</tbody>
+</%def>
+% if len(c.unattributed_results) > 0:
+<h2>Unattributed Plates (${len(c.unattributed_results)})</h2>
+<p>These plates have not been named with the QTools plate naming standard, and so they were not automatically credited to an operator. (<a href="mailto:jeff.mellen@quantalife.com">let Jeff know</a> if you think there is an error).  <strong>Click the plate link to assign an operator to a plate.</strong></p>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Plate</th>
+			<th>#Wells</th>
+			<th>#NTC Wells</th>
+			<th>Date</th>
+			<th>Box</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, (qlbplate, wells, data_wells, data_event_count) in enumerate(sorted(c.unattributed_results, key=lambda tup: tup[0].host_datetime)):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td><a href="${url(controller='plate', action='edit', id=qlbplate.plate.id)}">${qlbplate.plate.name}</a></td>
+			<td>${wells}</td>
+			<td>${data_wells}</td>
+			<td>${h.ymd(qlbplate.host_datetime)}</td>
+			<td class="detail_box">${qlbplate.plate.box2.name}</td>
+			<td><a href="${url(controller='plate', action='view', id=qlbplate.plate.id)}">Plots</a></td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+% endif

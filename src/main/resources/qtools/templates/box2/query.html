@@ -1,0 +1,114 @@
+<%inherit file="/box2/base.html"/>
+
+<%def name="css()">
+${parent.css()}
+<!-- TODO: make this general (this may be a query-general pattern) -->
+<style type="text/css" media="screen">
+	td.field_col input, td.field_col select,
+	td.value_col input, td.value_col select {
+		width: 200px;
+	}
+	
+	td.compare_col input, td.compare_col select {
+		width: 50px;
+	}
+</style>
+</%def>
+
+${next.body()}
+
+${c.form.start(url(controller='box2', action=c.submit_action, method='post'), attributes=dict([('class','formbuild')]))}
+<table class="gridfield" id="template">
+	<tr id="condition-0">
+		<td class="field_col">
+			<table>
+${c.form.field('conditions-0.field', 'dropdown',
+	label="Parameter",
+	required=True,
+)}
+			</table>
+		</td>
+		<td class="compare_col">
+			<table>
+${c.form.dropdown('conditions-0.compare')}
+			</table>
+		<td class="value_col">
+			<table>
+${c.form.field('conditions-0.value', 'text',
+	label="Value",
+	required=True
+)}
+			</table>
+		</td>
+		<td class="action_col">
+			<a href="#" class="constrain_link">Possible Values Only</a>
+			<a href="#" class="freeform_link hidden">Enter Text</a>
+		</td>
+	</tr>
+</table>
+<table class="formbuild">
+${c.form.field('order_by', 'dropdown',
+	label="Sort By",
+	required=True
+)}
+${c.form.field('order_by_direction', 'dropdown',
+	label="Sort Direction",
+	required=True
+)}
+${c.form.field("return_fields", "combo",
+	label="Additional Fields",
+	required=True
+)}
+${self.custom_fields()}
+<%def name="custom_fields()"></%def>
+</table>
+${c.form.submit('Submit', 'submit')}
+${c.form.end()}
+
+<%def name="js()">
+	${parent.js()}
+	<!-- TODO: break this JS out into its own unit; it's pretty generic -->
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('a.constrain_link').live('click', function() {
+				var row = $(this).parents('tr')
+				var col_name = row.find('td.field_col select').val()
+				var input = row.find('td.value_col input, td.value_col select')
+				var field_name = input.attr('name')
+				$.get("${url(controller='box2', action=c.distinct_action)}",
+				      {'column': col_name, 'field_name': field_name},
+				      function(html) {
+					      input.replaceWith(html)
+					  }
+				)
+				row.find('a.freeform_link, a.constrain_link').toggleClass('hidden')
+				return false;
+			})
+			$('a.freeform_link').live('click', function() {
+				var row = $(this).parents('tr')
+				var select = row.find('td.value_col select')
+				if(select && select.length > 0) {
+					var val = select.val()
+					select.replaceWith('<input type="text" name="'+select.attr('name')+'" value="'+val+'" />')
+				}
+				row.find('a.freeform_link, a.constrain_link').toggleClass('hidden')
+				return false;
+			})
+			$('td.field_col select').change(function() {
+				var row = $(this).parents('tr')
+				var select = row.find('td.value_col select')
+				if(select && select.length > 0) {
+					var col_name = $(this).val()
+					var field_name = select.attr('name')
+					$.get("${url(controller='box2', action=c.distinct_action)}",
+					      {'column': col_name, 'field_name': field_name},
+					      function(html) {
+						      select.replaceWith(html)
+						  }
+					)
+				}
+			})
+			
+		});
+	</script>
+</%def>

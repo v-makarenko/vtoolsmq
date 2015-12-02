@@ -1,0 +1,28 @@
+<%inherit file="/box2/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">${c.upload_title}</%def>
+<%def name="selected_page()">upload</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    ${boot.upload_submit_css()}
+</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+<%def name="explanation()">
+<p>${c.upload_explanation}</p>
+</%def>
+
+<form action="${url(controller='box2', action='upload_file', id=c.box2.code)}" method="post" enctype="multipart/form-data" id="upload">
+    ${boot.file('file', label='File', klass='span4', required=True, help_block='This file will be uploaded to Bio-Rad QL/'+c.box2.src_dir)}
+    ${boot.text('description', label='Description', klass='span4', required=False)}
+    <input type="hidden" name="file_id" value="" />
+    ${boot.upload_submit_html(label=c.upload_label, message='Uploading file...')}
+</form>
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    ${boot.upload_submit_js('#upload')}
+</%def>

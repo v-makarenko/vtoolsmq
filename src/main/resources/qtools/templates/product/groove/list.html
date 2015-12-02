@@ -1,0 +1,102 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Groove Plate Setup List</%def>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		#content.tw_bootstrap .pagination {
+			margin-top: 0;
+		}
+		#filter_div div {
+			height: 36px;
+			line-height: 36px;
+			vertical-align: middle;
+		}
+		#filter_div .input {
+			margin-left: 0;
+		}
+
+		#filter label {
+			width: auto;
+			line-height: 36px;
+			padding-top: 0px;
+			margin-right: 10px;
+		}
+
+		#plate_type {
+			width: 200px;
+		}
+
+		#setups {
+			font-size: 12px;
+		}
+	}
+
+	</style>
+</%def>
+
+<div class="upper_link">
+	<a class="btn primary" href="${url(controller='groove', action='new')}">New Plate</a>
+</div>
+
+<!-- this method does not yet exist -->
+<form id="filter" action="${url(controller='groove', action='filter')}" method="get">
+	<div class="row">
+		<div class="span8">
+			${boot.pager(c.paginator, radius=1, **(c.pager_kwargs))}
+		</div>
+		<!--
+		<div id="filter_div" class="span5">
+			${boot.select('plate_type', c.plate_type_field, label='Plate Type', id="plate_type")}
+		</div>
+		-->
+	</div>
+</form>
+
+<table id="setups" class="condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th>Name/Plates</th>
+			<th>Type</th>
+			<th>Skin Type</th>
+			<th>Chemistry Type</th>
+			<th>Droplet Maker</th>
+			<th>DG</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, setup in enumerate(c.paginator):
+		<tr>
+			<td><a href="${url(controller='groove', action='plates', id=setup.id)}">${setup.name}</td>
+			<td>${setup.plate_type.name}</td>
+			<td>${setup.skin_type_display}</td>
+			<td>${setup.chemistry_type_display}</td>
+			<td class="nowrap">${setup.droplet_maker.full_name}</td>
+			<td class="nowrap">${setup.droplet_generator.name if setup.droplet_generator else '?'}</td>
+			<td><a href="${url(controller='groove', action='edit', id=setup.id)}">Edit Info</a></td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		$(function() {
+			$('#plate_type').change(function() {
+				var val = $(this).val()
+				if(val == '') {
+					window.location.href = "${url(controller='product', action='batch_list')}";
+					return false;
+				}
+				else {
+					$('#filter').submit();
+					return true;
+				}
+			})
+		})
+	</script>
+</%def>

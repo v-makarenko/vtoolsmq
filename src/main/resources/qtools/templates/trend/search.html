@@ -1,0 +1,33 @@
+<%inherit file="/trend/select.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Basic Trends: Name Search</%def>
+<%def name="explanation()">
+    <p>Select wells by plate name, sample name or assay name below.  QTools will search for the
+    supplied names within plate names, sample names and assay names, such that 'MRG' will match
+    'MRGPRX1', but more importantly, 'RPP' may match a variety of different assays.  Be precise
+    if you wish to match a particular sample, plate or assay.</p>
+</%def>
+
+<%def name="search_content()">
+    <form action="${url(controller='trend', action='search_trend')}" method="post" id="filter_form">
+    ${boot.group_select('metric', c.metric_field, label='Metric', required=True, klass="span6")}
+    ${boot.text('plate_name', label='Plate Name', klass="span6")}
+    ${boot.text('sample_name', label='Sample', klass="span6")}
+    ${boot.text('assay_name', label='Assay', klass="span6")}
+    ${boot.select('channel_num', c.channel_field, label='Channel', klass="span2")}
+    ${boot.text('start_date', label="After Date", autocomplete='off', klass="span4 datepicker", id="start_date")}
+    ${boot.text('end_date', label="Before Date", autocomplete='off', klass="span4 datepicker", id="end_date")}
+    ${boot.checkbox('group_by_plate', 'True', label='Average By Plate', klass="span1")}
+        <div class="clearfix">
+            <label for="outlier_operator">Exclude Outliers:</label>
+            <div class="input">
+            ${boot.select('outlier_operator', c.outlier_operator_field, klass="span2", inline=True)}
+            ${boot.text('outlier_value', autocomplete='off', klass="span4", inline=True)}
+            </div>
+        </div>
+        <div class="actions">
+        ${boot.submit('Show Chart')}
+        </div>
+    </form>
+</%def>

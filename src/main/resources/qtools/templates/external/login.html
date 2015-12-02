@@ -1,0 +1,50 @@
+<%inherit file="/base/external.html" />
+<%def name="title()">Log In</%def>
+<%def name="bodyclass()">login</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		body.login {
+			background-image: url(${url('/images/external/bluedot.png')});
+			background-position: 100px -400px;
+			background-repeat: repeat;
+			height: auto !important;
+			min-height: 2000px;
+			height: 2000px;
+			overflow: hidden;
+		}
+
+		#login {
+			margin-top: 120px;
+			background: white;
+		}
+	</style>
+</%def>
+
+<%def name="footer()"></%def>
+
+<div class="row">
+	<div id="login" class="span10 columns offset3 rounded">
+		<form action="#" class="form-stacked">
+			<h2>Customer Login</h2>
+			<p>If you have been issued a QuantaLife customer username and password, enter it below.</p>
+			<fieldset>
+				<div class="clearfix">
+					<label for="username">Username</label>
+					<input class="xlarge" id="username" name="username" type="text" />
+				</div>
+				<div class="clearfix">
+					<label for="password">Password</label>
+					<input class="xlarge" id="password" name="password" type="password" />
+				</div>
+				<div class="clearfix">
+					<label>
+						<input type="checkbox" name="remember">&nbsp;Stay logged in as this user
+					</label>
+				</div>
+			</fieldset>
+			<input type="submit" class="btn primary" value="Log In" />&nbsp;&nbsp;
+			<a href="#">Recall my QuantaLife username and/or password</a>
+		</form>
+	</div>
+</div>

@@ -1,0 +1,255 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagetitle()">Configure Droplet Reader: ${c.dr.name}</%def>
+<%def name="selected_page()">readers</%def>
+<%def name="explanation()">
+<p>Change any of the fields below and click an update button to create a new configuration. The date and time field-- though right now by default, should indicate the date/time the change became effective.  Click on a circuit to inherit a configuration.
+</p>
+</%def>
+
+<%def name="css()">
+${parent.css()}
+${auto.css()}
+<style type="text/css">
+	select, input[type=text] {
+		width: 150px;
+	}
+
+	.content_left {
+		float: left;
+		width: 450px;
+	}
+
+	.content_right {
+		float: right;
+		width: 300px;
+	}
+
+	.content_right_content {
+		padding: 10px;
+		background: #eee;
+	}
+
+	#content h2 {
+		padding-bottom: 0.25em;
+		border-bottom: 1px solid #bbb;
+	}
+</style>
+</%def>
+
+<%def name="js()">
+${parent.js()}
+${auto.js()}
+</%def>
+
+<p>
+	<a href="${url(controller='admin', action='reader_history', id=c.dr.code)}">Back to History</a> &nbsp;|&nbsp;
+	<a href="${url(controller='admin', action='readers')}">All Readers</a>
+</p>
+<h2>Circuit Configuration</h2>
+<div class="content_left">
+${c.form.start_with_layout(url(controller='admin', action='update_reader', id=c.dr.code), method="post", attributes=dict(id='reader_form'))}
+
+${c.form.field("air_filter_location", "text",
+    label="Air Filter Location",
+	required=False
+)}
+${c.form.field("biochem_configuration", "text",
+    label="BioChem Configuration",
+	required=False
+)}
+${c.form.field("capillary", "text",
+	label="Capillary",
+	required=False
+)}
+${c.form.field("door_type", "dropdown",
+	label="Door Type",
+	required=False
+)}
+${c.form.field("fluidics_circuit", "text",
+	label="Fluidics Circuit",
+	required=False
+)}
+${c.form.field("peristaltic_tubing", "text",
+    label="Peristaltic Tubing",
+	required=False
+)}
+${c.form.field("pickup_line", "text",
+	label="Pickup Line",
+	required=False
+)}
+${c.form.field("reservoir_line", "text",
+	label="Reservoir Line",
+	required=False
+)}
+${c.form.field("singulator_material", "text",
+	label="Singulator Material",
+	required=False
+)}
+${c.form.field("singulator_type", "text",
+	label="Singulator Type",
+	required=False
+)}
+${c.form.field("waste_downspout", "text",
+	label="Waste Downspout",
+	required=False
+)}
+</table>
+<p>
+<button class="saveone">Update ${c.dr.name}</button>&nbsp;&nbsp;<button class="savecirc">Update ${c.dr.name} and Create New Circuit</button>
+</p>
+</div>
+<div class="content_right">
+<div class="content_right_content">
+<h5>Use Circuit</h5>
+<ul>
+% for circ in c.circuits:
+	<li><a href="${url(controller='admin', action='reader', id=c.dr.code, circuit_id=circ.id)}">${circ.name}</a></li>
+% endfor
+</ul>
+</div>
+</div>
+<div class="clear"></div>
+<h2>Reader-Specific Configuration</h2>
+<div>
+<div class="grid_6 alpha">
+<table>
+${c.form.field("detector", "text",
+	label="Detector",
+	required=False
+)}
+${c.form.field("tip_lot_number", "text",
+	label="Tip Assembly#",
+	required=False
+)}
+${c.form.field("tip_supplier", "text",
+	label="Tip Supplier",
+	required=False
+)}
+${c.form.field("tip_material", "text",
+	label="Tip Material",
+	required=False
+)}
+${c.form.field("tip_size", "text",
+	label="Tip Size",
+	required=False
+)}
+${c.form.field("bottle_trough_hold_in_status", "dropdown",
+    label="Bottle Trough Hold-In",
+	required=False
+)}
+${c.form.field("lid_sensor_status", "dropdown",
+    label="Door Sensor Status",
+	required=False
+)}
+${c.form.field("plate_sensor_status", "dropdown",
+    label="Plate Sensor",
+	required=False
+)}
+${c.form.field("skin_on", "checkbox_group",
+	label="Skin On?",
+	required=False
+)}
+${c.form.field("quantasoft_version", "text",
+    label="QuantaSoft Version",
+	required=False
+)}
+${c.form.field("routine_version", "text",
+    label="Routine Version",
+	required=False
+)}
+</table>
+</div>
+<div class="grid_6 omega">
+<table>
+${c.form.field("firmware_mcu9", "text",
+	label="MCU Firmware Version",
+	required=False
+)}
+${c.form.field("firmware_dll130", "text",
+	label="DLL Firmware Version",
+	required=False
+)}
+${c.form.field("firmware_fpga16", "text",
+	label="FPGA Firmware Version",
+	required=False
+)}
+${c.form.field("firmware_fluidics", "text",
+	label="Fluidics Firmware Version",
+	required=False
+)}
+${c.form.field("firmware_motor", "text",
+	label="Motor Firmware Version",
+	required=False
+)}
+${c.form.field("waste_bottle_empty", "text",
+    label="Waste Bottle Empty Value",
+	required=False
+)}
+${c.form.field("waste_bottle_full", "text",
+    label="Waste Bottle Full Value",
+	required=False
+)}
+
+${c.form.field("carrier_bottle_empty", "text",
+    label="Carrier Bottle Empty Value",
+	required=False
+)}
+${c.form.field("carrier_bottle_full", "text",
+    label="Carrier Bottle Full Value",
+	required=False
+)}
+</table>
+</div>
+<div class="clear"></div>
+</div>
+</table>
+<h2>Sign Off</h2>
+<div class="grid_6 alpha">
+<table>
+${c.form.field("day_effective", "text",
+	label="Change Date",
+	attributes=dict(id='day_effective')
+)}
+</table>
+</div>
+<div>
+<div class="grid_6 omega">
+<table>
+${c.form.field("time_effective", "text",
+	label="Change Time",
+	field_desc="Example: 3:00pm"
+)}
+</table>
+</div>
+<div class="clear"></div>
+</div>
+<table>
+<tr class="formbutton">
+	<td><input type="hidden" name="box2_id" value="${c.dr.id}" />
+	    <input type="hidden" name="box2_circuit_id" value="${c.circuit_id}" />
+	</td>
+</tr>
+${c.form.end_with_layout()}
+<button class="saveone">Update ${c.dr.name}</button>&nbsp;&nbsp;<button class="savecirc">Update ${c.dr.name} and Create New Circuit</button>
+</h2>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		$(function() {
+			$("#day_effective").datepicker();
+		});
+		$(function() {
+			$(".saveone").click(function() {
+				$('#reader_form').attr('action', "${url(controller='admin', action='update_reader', id=c.dr.code)}");
+				$('#reader_form').submit()
+			})
+			$(".savecirc").click(function() {
+				$('#reader_form').attr('action', "${url(controller='admin', action='update_reader_circuit', id=c.dr.code)}");
+				$('#reader_form').submit()
+			})
+		});
+	</script>
+</%def>

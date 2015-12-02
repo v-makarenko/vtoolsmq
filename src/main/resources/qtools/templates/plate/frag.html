@@ -1,0 +1,48 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Fragmentation Probabilities</%def>
+<%def name="selected_page()">mipcnv</%def>
+<%def name="explanation()">
+<p>Fragmentation probabilities computed for wells that have automatic thresholds computed
+in both channels.</p>
+</%def>
+
+<p>
+	<strong>Plate:</strong> <a href="${url(controller='plate', action='view', id=c.plate.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">${c.plate.name}</a>
+</p>
+
+<table class="datagrid" style="font-size: 11px";>
+	<thead>
+		<tr>
+			<th>Well</th>
+			<th>Sample Name</th>
+			<th>Observed FAM Conc.</th>
+			<th>Observed VIC Conc.</th>
+			<th>Frag. %</th>
+			<th>Frag CI</th>
+			<th>Linked Mol</th>
+			<th>FAM Only Conc</th>
+			<th>VIC Only Conc</th>
+			<th>Linked Conc</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, (well_name, sample, fam_conc, vic_conc, frag, frag_ci_low, frag_ci_high, linked_mol, vic_only_conc, fam_only_conc, linked_conc) in enumerate(c.frag_stats):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${well_name}</td>
+			<td>${sample}</td>
+			<td>${h.sig1(fam_conc)}</td>
+			<td>${h.sig1(vic_conc)}</td>
+			<td>${h.sig2(frag)}%</td>
+			<td>${h.sig2(frag_ci_low)}%-${h.sig2(frag_ci_high)}%</td>
+			<td>${int(linked_mol)}</td>
+			<td>${h.sig1(fam_only_conc)}</td>
+			<td>${h.sig1(vic_only_conc)}</td>
+			<td>${h.sig1(linked_conc)}</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+<p>
+	<a href="${url(controller='plate', action='frag', id=c.plate.id, format='csv')}">Export as CSV</a>
+</p>

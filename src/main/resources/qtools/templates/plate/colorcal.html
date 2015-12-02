@@ -1,0 +1,85 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+${parent.css()}
+${boot.css()}
+<style type="text/css">
+    #results {
+        font-size: 11px;
+    }
+    #results thead th,
+    #results thead td {
+        vertical-align: bottom;
+    }
+
+    #results thead th.dye_name {
+        text-align: center;
+    }
+
+    #results tbody tr.mean_row td {
+        border-width: 3px 0px 3px 0px;
+        font-weight: bold;
+    }
+
+    .tw_bootstrap #results tbody tr:nth-child(odd) td.col_well {
+        background-color: #f9f9f9;
+    }
+</style>
+</%def>
+
+<%def name="pagetitle()">Single-Well CC Analysis: ${c.plate.name}</%def>
+<%def name="explanation()"><p><strong>Dye Set (auto-detected by QuantaSoft 1.3 and later):</strong> ${c.chan0_label}/${c.chan1_label}</p></%def>
+<%def name="selected_page()">experiments</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+<table id="results" class="condensed-table">
+    <colgroup span="1"></colgroup>
+    <colgroup span="3" style="background-color: #cce;"></colgroup>
+    <colgroup span="3" style="background-color: #eef;"></colgroup>
+    <colgroup span="3" style="background-color: #cec;"></colgroup>
+    <colgroup span="3" style="background-color: #efe;"></colgroup>
+    <thead>
+        <tr>
+            <th rowspan="2">Well</th>
+            <th class="dye_name" colspan="3">${c.chan0_label} HI</th>
+            <th class="dye_name" colspan="3">${c.chan0_label} LO</th>
+            <th class="dye_name" colspan="3">${c.chan1_label} HI</th>
+            <th class="dye_name" colspan="3">${c.chan1_label} LO</th>
+        </tr>
+        <tr>
+            <td>Amp</td>
+            <td>%CV</td>
+            <td>Count</td>
+            <td>Amp</td>
+            <td>%CV</td>
+            <td>Count</td>
+            <td>Amp</td>
+            <td>%CV</td>
+            <td>Count</td>
+            <td>Amp</td>
+            <td>%CV</td>
+            <td>Count</td>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- TODO add average row here -->
+    <tr class="mean_row">
+        <td class="col_well"><a href="${url(controller='plate', action='view', id=c.plate.id, reprocess_config_id=c.reprocess_config_id or '', analysis_group_id=c.analysis_group_id or '')}">Mean</a></td>
+        % for group in ('blue_hi', 'blue_lo', 'green_hi', 'green_lo'):
+        <td>${h.sig0(c.mean_stats['%s_mean' % group])}</td>
+        <td>${('%s%%' % h.sig1(100*c.mean_stats['%s_stdev' % group]/c.mean_stats['%s_mean' % group])) if c.mean_stats['%s_mean' % group] else 'N/A'}</td>
+        <td>${h.sig0(c.mean_stats['%s_count' % group])}</td>
+        % endfor
+    % for name, stats in c.colorcal_stats:
+    <tr>
+        <td class="col_well"><a href="${url(controller='well', action='view', id=c.plate_well_dict[name].id, reprocess_config_id=c.reprocess_config_id or '', analysis_group_id=c.analysis_group_id or '')}">${name}</a></td>
+        % for group in ('blue_hi', 'blue_lo', 'green_hi', 'green_lo'):
+        <td>${h.sig0(stats['%s_mean' % group])}</td>
+        <td>${('%s%%' % h.sig1(100*stats['%s_stdev' % group]/stats['%s_mean' % group])) if stats['%s_mean' % group] else 'N/A'}</td>
+        <td>${stats['%s_count' % group]}</td>
+        % endfor
+    </tr>
+    % endfor
+    </tbody>
+</table>

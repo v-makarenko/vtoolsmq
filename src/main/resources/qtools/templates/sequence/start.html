@@ -1,0 +1,22 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/sequence/partials.html" name="part" import="*" />
+
+<%def name="pagetitle()">Enter Basics</%def>
+
+<%include file="/sequence/breadcrumbs.html" />
+
+<form action="${url(controller='sequence', action='save_start', flow=c.flow)}" method="post">
+	${boot.text('name', label='Assay Name', autocomplete='off', required=True, klass="span5")}
+	${boot.select('chemistry', c.chemistry, label='Chemistry', required=True, klass="span5")}
+	${boot.select('assay_structure', c.assay_structure, label='Known Info', required=True, klass="span5")}
+	${boot.select('owner', c.owner, label='Owner',  klass="span5")}
+	${boot.text('gene', 'Gene', klass="span5")}
+	${boot.select('assay_type', c.assay_types, label='Assay Type', klass="span5")}
+	${boot.select('status', c.statuses, label='Status', klass="span5")}
+	${boot.multi_select('tags', c.tags, label='Categories',  size=5, help_block='Optional, use CTRL to select multiple', klass="span5")}
+	<div class="actions">
+		${boot.submit('Enter Primers')}
+		${part.other_actions(save_now_action=url(controller='sequence', action='save_start', flow=c.flow, save_now=1))}
+	</div>
+</form>

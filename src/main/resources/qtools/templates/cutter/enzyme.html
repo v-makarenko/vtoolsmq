@@ -1,0 +1,104 @@
+<%inherit file="/cutter/base.html"/>
+
+<%def name="pagetitle()">Restriction Enzyme List</%def>
+<%def name="selected_page()">enzymes</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		th.col_name, td.col_name {
+			width: 10%;
+		}
+		
+		th.col_cutseq, td.col_cutseq {
+			width: 20%;
+		}
+
+		th.col_control, td.col_control {
+			width: 15%;
+		}
+
+		th.col_instock, td.col_instock {
+			width: 15%;
+		}
+
+		th.col_ms, td.col_ms {
+			width: 40%;
+			white-space: nowrap;
+		}
+	</style>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#enzyme_type').change(function(evt) {
+			$('#enzyme_list').submit()
+		})
+
+		$('form.sensitivity_form').submit(function(evt) {
+			$.post($(this).attr('action'), $(this).serialize(), function() {}, 'text');
+			return false;
+		});
+
+		$('form.instock_form input[type=checkbox]').click(function(evt) {
+			var form = $(this).parent('form');
+			$.post(form.attr('action'), form.serialize(), function() {}, 'text');
+		});
+
+		$('form.instock_form').submit(function(evt) {
+			return false;
+		});
+	})
+</script>
+</%def>
+
+<form action="${url(controller='cutter', action='enzymes')}" method="get" class="formbuild" id="enzyme_list">
+	<table class="gridfield">
+		<tr>
+		<td class="field_col">
+			<table>
+				${c.enzyme_form.field('enzymes', 'dropdown',
+					label="Enzyme List",
+					attributes=dict(id="enzyme_type")
+				)}
+			</table>
+		</td>
+		</tr>
+	</table>
+</form>
+
+
+<table class="datagrid" id="samples">
+	<thead>
+		<tr>
+			<th class="col_name">Enzyme Name</th>
+			<th class="col_cutseq">Restriction Sequence</th>
+			<th class="col_control">Digest Controls</th>
+			<th class="col_instock">In Stock?</th>
+			<th class="col_ms">Methylation Sensitivity</th>
+		</tr>
+	</thead>
+	<tbody>
+% for idx, e in enumerate(c.enzymes):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name">${e.name}</a></td>
+		<td class="col_cutseq">${e.cutseq}</td>
+		<td class="col_control"><a href="${url(controller='cutter', action='digest_control', enzyme=e.name, from_list=c.from_list)}">Find</a></td>
+		<td class="col_instock">
+			<form class="instock_form" action="${url(controller='cutter', action='instock')}" method="post">
+				<input type="hidden" name="vendor_enzyme_id" value="${e.VendorEnzyme.id}" />
+				<input type="checkbox" name="in_stock" ${'checked="checked"' if e.VendorEnzyme.stock_units > 0 else ''} />
+			</form>
+		</td>
+		<td class="col_ms">
+			<form class="sensitivity_form" action="${url(controller='cutter', action='sensitivity')}" method="post">
+				<input type="hidden" name="enzyme" value="${e.name}" />
+				<input type="text" name="sensitivity" value="${e.methylation_sensitivity}" />
+				<input type="submit" value="Update" />
+			</form>
+		</td>
+	</tr>
+% endfor
+	</tbody>
+</table>

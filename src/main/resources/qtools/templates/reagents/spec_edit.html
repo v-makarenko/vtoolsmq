@@ -1,0 +1,183 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/multirow_form.html" name="multirow" import="*" />
+
+<%def name="pagetitle()">${c.title}: ${c.part.name}</%def>
+
+<%def name="explanation()">
+    <p>Use this page to create a test specification for a part.  A specification
+    can have more than one criteria.  Lot numbers for this part must then abide by
+    the specification you outline below to pass validation.</p>
+    <p>Use the More and Remove buttons to add or subtract additional rules.<br/>&nbsp;</p>
+</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    ${multirow.css()}
+    <style type="text/css">
+        table.spec_table {
+            margin-left: 90px;
+            width: 690px;
+        }
+
+        table.spec_table th, table.spec_table td {
+            padding-left: 0px;
+        }
+
+        table.spec_table th {
+            padding-top: 6px;
+        }
+
+        table.spec_table td {
+            vertical-align: bottom;
+        }
+
+        table.spec_table td * {
+            font-size: 11px;
+        }
+
+        .col_actions {
+            width: 180px;
+        }
+
+        #condition_form .clearfix label,
+        .spec_table_container label {
+            width: 70px;
+        }
+
+        .spec_table_container label {
+            float: left;
+            text-align: right;
+        }
+
+        #condition_form .clearfix .input {
+            margin-left: 90px;
+        }
+    </style>
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    ${multirow.js()}
+</%def>
+
+<form action="${c.submit_action}" method="post" id="condition_form">
+    ${boot.text('name', label='Name', required=True, klass="span5")}
+    ${boot.select('test_template_id', c.template_types, label='Template', required=True, klass="span5")}
+    <hr/>
+    <h3>Negative Control Specs</h3>
+    <div id="negative_spec_container" class="spec_table_container">
+        <label>Criteria</label>
+    <table id="negative_spec_table" class="spec_table">
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Channel</th>
+                <th>&nbsp;</th>
+                <th>Value</th>
+                <th>Value</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="negative_sample_row" class="sample_row">
+                <td>${boot.group_select('negative_items-X.metric', c.metrics, inline=True, klass="metric span5")}</td>
+                <td>${boot.select('negative_items-X.channel_num', c.channel_nums, inline=True, klass="channel_num span2")}</td>
+                <td>${boot.select('negative_items-X.operator', c.operators, inline=True, klass="operator span2")}</td>
+                <td>${boot.text('negative_items-X.value1', klass="value1 span2", inline=True, autocomplete='off')}</td>
+                <td>${boot.text('negative_items-X.value2', klass="value2 span2", inline=True, autocomplete='off')}</td>
+                <td class="col_actions">
+                    ${multirow.addRowButton()}
+                    ${multirow.deleteRowButton()}
+                </td>
+            </tr>
+            % for i in range(c.negative_items_length):
+            <tr id="row${i}">
+                <td>${boot.group_select('negative_items-%s.metric' % i, c.metrics, inline=True, klass="metric span5")}</td>
+                <td>${boot.select('negative_items-%s.channel_num' % i, c.channel_nums, inline=True, klass="channel_num span2")}</td>
+                <td>${boot.select('negative_items-%s.operator' % i, c.operators, inline=True, klass="operator span2")}</td>
+                <td>${boot.text('negative_items-%s.value1' % i, klass="value1 span2", inline=True, autocomplete='off')}</td>
+                <td>${boot.text('negative_items-%s.value2' % i, klass="value2 span2", inline=True, autocomplete='off')}</td>
+                <td class="col_actions">
+                    ${multirow.addRowButton()}
+                    ${multirow.deleteRowButton()}
+                </td>
+            </tr>
+            % endfor
+        </tbody>
+    </table>
+    </div>
+    <hr/>
+    <h3>Positive Control Specs</h3>
+    <div id="positive_spec_container" class="spec_table_container">
+        <label>Criteria</label>
+        <table id="positive_spec_table" class="spec_table">
+            <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Channel</th>
+                <th>&nbsp;</th>
+                <th>Value</th>
+                <th>Value</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr id="positive_sample_row" class="sample_row">
+                <td>${boot.group_select('positive_items-X.metric', c.metrics, inline=True, klass="metric span5")}</td>
+                <td>${boot.select('positive_items-X.channel_num', c.channel_nums, inline=True, klass="channel_num span2")}</td>
+                <td>${boot.select('positive_items-X.operator', c.operators, inline=True, klass="operator span2")}</td>
+                <td>${boot.text('positive_items-X.value1', klass="value1 span2", inline=True, autocomplete='off')}</td>
+                <td>${boot.text('positive_items-X.value2', klass="value2 span2", inline=True, autocomplete='off')}</td>
+                <td class="col_actions">
+                    ${multirow.addRowButton()}
+                    ${multirow.deleteRowButton()}
+                </td>
+            </tr>
+                % for i in range(c.positive_items_length):
+                    <tr id="row${i}">
+                        <td>${boot.group_select('positive_items-%s.metric' % i, c.metrics, inline=True, klass="metric span5")}</td>
+                        <td>${boot.select('positive_items-%s.channel_num' % i, c.channel_nums, inline=True, klass="channel_num span2")}</td>
+                        <td>${boot.select('positive_items-%s.operator' % i, c.operators, inline=True, klass="operator span2")}</td>
+                        <td>${boot.text('positive_items-%s.value1' % i, klass="value1 span2", inline=True, autocomplete='off')}</td>
+                        <td>${boot.text('positive_items-%s.value2' % i, klass="value2 span2", inline=True, autocomplete='off')}</td>
+                        <td class="col_actions">
+                            ${multirow.addRowButton()}
+                            ${multirow.deleteRowButton()}
+                        </td>
+                    </tr>
+                % endfor
+            </tbody>
+        </table>
+    </div>
+    <hr/>
+    ${boot.textarea('notes', label="Notes", autocomplete='off', rows="4", klass="span8", help_block='Add any additional details about the test here.')}
+    <div class="actions">
+        ${boot.submit(c.call_to_action, id='submit')}
+        <a href="${url(controller='reagents', action='parts', id=c.line_id)}" class="btn">Back to Parts</a>
+    </div>
+</form>
+
+<%def name="pagescript()">
+<script type="text/javascript">
+    var VALUE_COLS = ['metric', 'operator', 'channel_num', 'value1', 'value2'];
+
+    $(function() {
+        var positiveForm = $('#positive_spec_table').multiRowForm(VALUE_COLS);
+        var negativeForm = $('#negative_spec_table').multiRowForm(VALUE_COLS);
+        % if c.positive_items_length == 0:
+            positiveForm.insertRow('#positive_sample_row');
+        % endif
+        % if c.negative_items_length == 0:
+            negativeForm.insertRow('#negative_sample_row');
+        % endif
+
+        $('#condition_form').submit(function() {
+            positiveForm.prepareForSubmit();
+            negativeForm.prepareForSubmit();
+            return true;
+        })
+    })
+</script>
+</%def>

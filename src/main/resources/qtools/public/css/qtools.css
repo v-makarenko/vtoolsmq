@@ -1,0 +1,320 @@
+h1, h2, h3, h4, h5, h6, strong {
+    color: #44494a;
+}
+
+a {
+    color: #2777bc;
+}
+
+a:hover {
+    color: green;
+}
+
+a:focus,
+a:active {
+    outline: none;
+}
+
+header {
+    border-bottom: 1px solid #ace;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.secondary_info {
+    color: #676767;
+    font-size: 90%;
+    font-style: italic;
+    margin: 0 0.25em;
+}
+
+table.datagrid {
+    width: 780px;
+}
+
+table.datagrid th, table.datagrid td {
+    padding: 0.25em 0.5em;
+}
+
+table.datagrid th {
+    text-align: left;
+    background: #ddd;
+}
+
+table.datagrid tr.even td {
+    background: #f8f8f8;
+}
+
+table.datagrid tr.odd td {
+    background: #d8ebf6;
+}
+
+tr.fail td,
+tr.status0 td,
+table.datagrid tr.fail td,
+table.datagrid tr.status0 td {
+    background: #fcc;
+}
+
+table.datagrid tr td.change {
+    border: 2px solid blue;
+    background: #eef;
+}
+
+tr.status1 td,
+table.datagrid tr.status1 td {
+    background: #ff9;
+}
+
+tr.status2 td,
+table.datagrid tr.status2 td {
+    background: #beb;
+}
+
+table.record td.col_field {
+    padding-right: 1em;
+    font-weight: bold;
+    color: #44494a;
+}
+
+pre.positive_sequence, pre.negative_sequence {
+    margin-bottom: 0;
+}
+
+div.raw_sequence {
+    margin-bottom: 20px;
+}
+
+span.prime5 {
+    color: #00f;
+}
+
+span.prime3 {
+    color: #f00;
+}
+
+span.snp_highlight {
+    background: #f66;
+}
+
+span.snp_highlight_insertion {
+    background: #f66;
+    padding: 0 2px;
+}
+
+#logo {
+    width: 960px;
+    height: 68px;
+    margin-top: 1em;
+}
+
+body.cutter #topnav div ul li#nav_cutter > a,
+body.assays #topnav div ul li#nav_assays > a,
+body.plate #topnav div ul li#nav_plate > a,
+body.stats #topnav div ul li#nav_stats > a,
+body.beta_test #topnav div ul li#nav_beta > a,
+body.status #topnav div ul li#nav_status > a,
+body.product #topnav div ul li#nav_product > a,
+body.help #topnav div ul li#nav_help > a {
+    background: #36aadf;
+}
+
+div.text-rotate {
+    transform:rotate(90deg);
+    -webkit-transform: rotate(90deg); /* Safari and Chrome */
+    -moz-transform: rotate(90deg); /* firefox */
+    -o-transform: rotate(90deg);
+    -ms-transform:rotate(90deg); /* IE 9 */
+}
+
+ul.nav {
+    width: 960px;
+}
+
+li#nav_csv {
+    float: right;
+}
+
+#main {
+    clear: both;
+    height: auto !important;
+    min-height: 450px;
+    height: 450px;
+}
+
+#subnav h2 {
+    font-size: 17px;
+    margin-bottom: 0;
+}
+
+#subnav li {
+    list-style: circle outside;
+    margin-left: 15px;
+}
+
+#subnav li a {
+    text-decoration: none;
+    color: #2777bc;
+}
+
+#subnav li a:hover {
+    color: green;
+}
+
+#subnav, #content {
+    margin-top: 0.5em;
+}
+
+#content {
+    width: 780px;
+}
+
+#content h2 {
+    font-size: 19px;
+    margin-bottom: 15px;
+}
+
+#content h3 {
+    font-size: 15px;
+    margin-bottom: 13px;
+}
+
+
+
+nav#content_nav {
+	float: right;
+}
+
+nav#content_nav ul {
+	float: left;
+}
+
+nav#content_nav ul li {
+    display: inline;
+    float: left;
+    margin-left: 0px;
+}
+
+nav#content_nav ul li a {
+    display: block;
+    float: left;
+    height: 32px;
+    line-height: 32px;
+	text-decoration: none;
+	margin-left: 4px;
+}
+
+nav#content_nav ul li a img {
+	border: none;
+}
+
+.action_bar {
+    background: #D8EBF6;
+    padding: 10px;
+}
+
+#content .action_bar h3 {
+    float: left;
+    display: inline;
+    font-size: 13px;
+    margin-right: 1em;
+    margin-bottom: 0;
+}
+
+#flash {
+    padding: 15px;
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+#flash.flash {
+    background: #cfc;
+    border: 1px solid #090;
+    color: #090;
+}
+
+#flash.error {
+    background: #fdd;
+    border: 1px solid #f33;
+    color: #900;
+}
+
+#flash.warning {
+    background: #ffc;
+    border: 1px solid #dd9;
+    color: #884;
+}
+
+.action_button {
+    float: left;
+    display: inline;
+    margin-right: 1em;
+}
+
+footer {
+    clear: both;
+    margin-top: 30px;
+    text-align: center;
+    font-size: 11px;
+}
+
+.clear {
+    clear: both;
+    font-size: 1px;
+    line-height: 1px;
+}
+
+/** UITools **/
+.autoselect {
+    display: none;
+}
+
+.autoselect_toggle {
+    margin-left: 1em;
+}
+
+table.gridfield td {
+	padding-right: 0.5em;
+	vertical-align: baseline;
+}
+
+table.gridfield td table {
+    margin-bottom: 0;
+}
+
+.hidden {
+	display: none;
+}
+
+td.validation_ok,
+.tw_bootstrap td.validation_ok {
+    background-color: #dfd;
+}
+
+td.validation_warn,
+.tw_bootstrap td.validation_warn {
+    background-color: #ffc;
+}
+
+td.validation_uhoh,
+.tw_bootstrap td.validation_uhoh {
+    background-color: #fdd;
+}
+
+.validation_ok {
+    color: #080;
+}
+
+.validation_warn,
+.tw_bootstrap .validation_warn {
+    color: #aaa800;
+    font-weight: bold;
+}
+
+.validation_uhoh,
+.tw_bootstrap .validation_uhoh {
+    color: #c00;
+    font-weight: bold;
+}

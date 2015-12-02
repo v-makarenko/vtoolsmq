@@ -1,0 +1,1110 @@
+<%namespace file="/metrics/helpers.html" name="mh" import="*" />
+
+<%def name="singleplex_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean Conc.</th>
+		<th>95% CI</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<%
+		sc = c.metrics.all_singleplex_conc_ci95
+	%>
+	<tr>
+		<td>95% CI - All Singleplex</td>
+		<td>${h.sig1(sc[0])}</td>
+		<td>${'-'.join([h.sig1(r) for r in sc[1:]])}</td>
+		<td>${mh.drilldown_link('conc_wells', 'Singleplex Wells', wells='singleplex_wells')}</td>
+	</tr>
+	<tr>
+		<td>Concentration Uniformity (4SD/mean)</td>
+		% if sc[0] and not h.isnan(sc[0]):
+			<td colspan="3">${h.sig1((sc[2]-sc[1])*100/sc[0])}%</td>
+		% else:
+			<td colspan="3">NaN</td>
+		% endif
+	</tr>
+	<tr>
+		<%
+			crr = c.metrics.singleplex_conc_rise_ratio_ci95
+		%>
+		<td>4th Quartile/1st Quartile Conc.</td>
+		<td>${h.sig2(crr[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in crr[1:]])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<%
+		pm = c.metrics.positive_mean_variance_ci95(c.metrics.singleplex_wells, 0)
+		nm = c.metrics.negative_mean_variance_ci95(c.metrics.singleplex_wells, 0)
+		sv = c.metrics.s_value_mean_variance_ci95(c.metrics.singleplex_wells, 0)
+	%>	
+	<tr>
+		<td>Positive Amplitude Mean</td>
+		<td>${h.sig0(pm[0])}</td>
+		<td>${'-'.join([h.sig0(r) for r in pm[2:]])}</td>
+		<td>&nbsp;</td>
+	</tr>	
+	<tr>
+		<td>Negative Amplitude Mean</td>
+		<td>${h.sig0(nm[0])}</td>
+		<td>${'-'.join([h.sig0(r) for r in nm[2:]])}</td>
+		<td>&nbsp;</td>
+	</tr>	
+	<tr>
+		<td>S Value</td>
+		<td>${h.sig2(sv[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in sv[2:]])}</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="new_droplet_metrics_table(channel)">
+<table class="datagrid condensed-table">
+<thead>
+    <tr>
+        <th>Mean B-score</th>
+        <th>Mean S2D</th>
+        <th>Mean % High fliers</th>
+        <th>Mean % Low fliers</th>
+        <th>Mean % Single Rain</th>
+        <th>Mean % Double Rain</th>
+    </tr>
+</thead>
+<tbody>
+    <%
+        sc = [c.metrics.new_droplet_metrics_stats(channel)]
+    %>
+    % for bscore, s2d_val, hf_val, lf_val, sr_val, dr_val in sc:
+    <tr>
+        <td>${h.sig2(bscore)}</td>
+        <td>${h.sig2(s2d_val)}</td>
+        <td>${h.sig2(hf_val)}</td>
+        <td>${h.sig2(lf_val)}</td>
+        <td>${h.sig2(sr_val)}</td>
+        <td>${h.sig2(dr_val)}</td>
+    </tr>
+     % endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="eg200_singleplex_table()">
+<table class="datagrid condensed-table">
+<thead>
+    <tr>
+        <th>Assay</th>
+        <th>Mean Conc</th>
+        <th>Mean S2D</th>
+        <th>Mean % Single Rain</th>
+        <th>Mean % Double Rain</th>
+    </tr>
+</thead>
+<tbody>
+    <%
+        sc = c.metrics.eg200_singleplex_stats()
+    %>
+    % for assay, c_val, s2d_val, sr_val, dr_val in sc:
+    <tr>
+        <td>${assay}</td>
+        <td>${h.sig1(c_val)}</td>
+        <td>${h.sig2(s2d_val)}</td>
+        <td>${h.sig2(sr_val)}</td>
+        <td>${h.sig2(dr_val)}</td>
+    </tr>
+     % endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="tq200_singleplex_tables()">
+% for i in (  1,2 ):
+<h6>Channel ${i} target info</h6>
+<table class="datagrid condensed-table">
+<thead>
+    <tr>
+        <th>Assay</th>
+        <th>Mean Conc</th>
+        <th>Mean S2D</th>
+        <th>Mean % Single Rain</th>
+        <th>Mean % Double Rain</th>
+    </tr>
+</thead>
+<tbody>
+    <%
+        sc = c.metrics.tq200_singleplex_stats(i-1)
+    %>
+    % for assay, c_val, s2d_val, sr_val, dr_val in sc:
+    <tr>
+        <td>${assay}</td>
+        <td>${h.sig1(c_val)}</td>
+        <td>${h.sig2(s2d_val)}</td>
+        <td>${h.sig2(sr_val)}</td>
+        <td>${h.sig2(dr_val)}</td>
+    </tr>
+     % endfor
+</tbody>
+</table>
+% endfor
+</%def>
+
+<%def name="duplex_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Group</th>
+		<th>Mean Conc.</th>
+		<th>95% CI</th>
+		<th>Mean 4Q/1Q Rise</th>
+		<th>Rise 95% CI</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	% for count, cpd in ((125,'.125'),(250, '.25'),(500, '.5'),(1020, '1.02'),(2000, '2')):
+	<tr>
+		<td>FAM - ${cpd}cpd</td>
+		<td>${h.sig1(c.metrics.duplex_fam_conc_ci95(count)[0])}</td>
+		<td>${'-'.join([h.sig1(r) for r in c.metrics.duplex_fam_conc_ci95(count)[1:]])}</td>
+		<%
+			drr = c.metrics.duplex_conc_rise_ci95(count, 0)
+		%>
+		<td>${h.sig2(drr[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in drr[1:]])}</td>
+		<td>${drilldown_link('conc_wells', 'FAM Channels', conc=count, channel_num=0, wells='duplex_wells')}</td>
+	</tr>
+	% endfor
+	<tr>
+		<td>VIC - All Duplex</td>
+		<td>${h.sig1(c.metrics.all_duplex_vic_conc_ci95[0])}</td>
+		<%
+			drr = c.metrics.all_duplex_vic_conc_rise_ci95
+		%>
+		<td>${'-'.join([h.sig1(r) for r in c.metrics.all_duplex_vic_conc_ci95[1:]])}</td>
+		<td>${h.sig2(drr[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in drr[1:]])}</td>
+		<td>${drilldown_link('conc_wells', 'VIC Channels', conc='', channel_num=1, wells='duplex_wells')}</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="dplex200_table()">
+<table class="datagrid condensed-table">
+<thead>
+    <tr>
+        <th>Group</th>
+        <th>Mean Conc.</th>
+        <th>95% CI</th>
+        <th>Mean 4Q/1Q Rise</th>
+        <th>Rise 95% CI</th>
+        <th>Links</th>
+    </tr>
+</thead>
+<tbody>
+    % for count, cpd in ((0,'0'),(125,'.125'),(250, '.25'),(500, '.5'),(1000, '1'),(2000, '2')):
+    <tr>
+        <td>FAM - ${cpd}cpd</td>
+        <td>${h.sig1(c.metrics.duplex_fam_conc_ci95(count)[0])}</td>
+        <td>${'-'.join([h.sig1(r) for r in c.metrics.duplex_fam_conc_ci95(count)[1:]])}</td>
+        <%
+            drr = c.metrics.duplex_conc_rise_ci95(count, 0)
+        %>
+        <td>${h.sig2(drr[0])}</td>
+        <td>${'-'.join([h.sig2(r) for r in drr[1:]])}</td>
+        <td>${drilldown_link('conc_wells', 'FAM Channels', conc=count, channel_num=0, wells='dplex200_wells')}</td>
+    </tr>
+    % endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="groove_dnr_table(well_group)">
+<% dnr_wells = getattr(c.metrics, well_group, []) %>
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Group</th>
+		<th># Called</th>
+		<th>Mean Conc.</th>
+		<th>95% CI</th>
+		<th>Mean 4Q/1Q Rise</th>
+		<th>Rise 95% CI</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	% for count, cpd in ((0,'0'),(8,'.008'),(16, '.016'),(31, '.031'),(62, '.062'),(125, '.125'),\
+		                 (250,'.25'),(500,'.5'),(1000,'1.0'),(2000,'2.0'),(4000,'4.0'),(8000,'8.0')):
+	<tr>
+		<td>FAM - ${cpd}cpd</td>
+		<td>${len(c.metrics.thresholded(c.metrics.fam_conc_well_metrics(dnr_wells, count), 0))}</td>
+		<td>${h.sig1(c.metrics.fam_conc_ci95(dnr_wells, count)[0])}</td>
+		<td>${'-'.join([h.sig1(r) for r in c.metrics.fam_conc_ci95(dnr_wells, count)[1:]])}</td>
+		<%
+			drr = c.metrics.conc_rise_ci95(dnr_wells, count, 0)
+		%>
+		<td>${h.sig2(drr[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in drr[1:]])}</td>
+		<td>${drilldown_link('conc_wells', 'FAM Channels', conc=count, channel_num=0, wells=well_group)}</td>
+	</tr>
+	% endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="qx200_dnr_table(well_group)">
+<% dnr_wells = getattr(c.metrics, well_group, []) %>
+<table class="datagrid condensed-table">
+<thead>
+    <tr>
+        <th>Group</th>
+        <th># Called</th>
+        <th>Mean Conc.</th>
+        <th>95% CI</th>
+        <th>Mean 4Q/1Q Rise</th>
+        <th>Rise 95% CI</th>
+        <th>Links</th>
+    </tr>
+</thead>
+<tbody>
+    % for count, cpd in ((0,'0'),(5,'.005'),(10, '.010'),(20, '.020'),(39, '.039'),(78, '.078'),\
+                         (156,'.156'),(313,'.313'),(625,'0.625'),(1250,'1.25'),(2500,'2.5'),(5000,'5.0')):
+    <tr>
+        <td>FAM - ${cpd}cpd</td>
+        <td>${len(c.metrics.thresholded(c.metrics.fam_conc_well_metrics(dnr_wells, count), 0))}</td>
+        <td>${h.sig1(c.metrics.fam_conc_ci95(dnr_wells, count)[0])}</td>
+        <td>${'-'.join([h.sig1(r) for r in c.metrics.fam_conc_ci95(dnr_wells, count)[1:]])}</td>
+        <%
+            drr = c.metrics.conc_rise_ci95(dnr_wells, count, 0)
+        %>
+        <td>${h.sig2(drr[0])}</td>
+        <td>${'-'.join([h.sig2(r) for r in drr[1:]])}</td>
+        <td>${drilldown_link('conc_wells', 'FAM Channels', conc=count, channel_num=0, wells=well_group)}</td>
+    </tr>
+    % endfor
+</tbody>
+</table>
+</%def>
+
+
+<%def name="groove_rnase_dnr_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Group</th>
+		<th>Mean Conc.</th>
+		<th>95% CI</th>
+		<th>Mean 4Q/1Q Rise</th>
+		<th>Rise 95% CI</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	% for count, cpd in ():
+	<tr>
+		<td>FAM - ${cpd}cpd</td>
+		<td>${h.sig1(c.metrics.duplex_fam_conc_ci95(count)[0])}</td>
+		<td>${'-'.join([h.sig1(r) for r in c.metrics.duplex_fam_conc_ci95(count)[1:]])}</td>
+		<%
+			drr = c.metrics.duplex_conc_rise_ci95(count, 0)
+		%>
+		<td>${h.sig2(drr[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in drr[1:]])}</td>
+		<td>${drilldown_link('conc_wells', 'FAM Channels', conc=count, channel_num=0, wells='duplex_wells')}</td>
+	</tr>
+	% endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="bscore_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Group</th>
+		<th>Mean B-Score</th>
+		<th>B-Score Stdev</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	% for count, cpd in ((125,'.125'),(250, '.25'),(500, '.5'),(1020, '1.02'),(2000, '2')):
+	<tr>
+		<td>${cpd}cpd FAM/1cpd VIC</td>
+		<% bstats = c.metrics.duplex_bscore_mean_variance_ci95(count) %>
+		<td>${h.sig2(bstats[0])}</td>
+		<td>${h.sig2(bstats[1])}</td>
+		<td>${drilldown_link('bias_wells', 'Bias', conc=count, wells='duplex_wells')}</td>
+	</tr>
+	% endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="groove_bscore_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Group</th>
+		<th>Mean B-Score</th>
+		<th>B-Score Stdev</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	% for count, cpd in ((8,'.008'),(16, '.016'),(31, '.031'),(62, '.062'),(125, '.125'),\
+		                 (250,'.25'),(500,'.5'),(1000,'1.0'),(2000,'2.0'),(4000,'4.0'),(8000,'8.0')):
+	<tr>
+		<td>${cpd}cpd FAM/1cpd VIC</td>
+		<% bstats = c.metrics.duplex_bscore_mean_variance_ci95(count) %>
+		<td>${h.sig2(bstats[0])}</td>
+		<td>${h.sig2(bstats[1])}</td>
+		<td>${drilldown_link('bias_wells', 'Bias', conc=count, wells='duplex_wells')}</td>
+	</tr>
+	% endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="dnr_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Sample</th>
+		<th>Mean Conc.</th>
+		<th>95% CI</th>
+		<th>Mean 4Q/1Q Rise</th>
+		<th>Rise 95% CI</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	% for cpd, conc in (('0.001', 1), ('0.01', 10), ('0.1', 100), ('1', 1000), ('5', 5000)):
+	<tr>
+		<td>95% CI - ${cpd} cpd</td>
+		<td>${h.sig2(c.metrics.dnr_conc_ci95(conc)[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in c.metrics.dnr_conc_ci95(conc)[1:]])}</td>
+		<%
+			dnrr = c.metrics.dnr_conc_rise_ci95(conc)
+		%>
+		<td>${h.sig2(dnrr[0])}</td>
+		<td>${'-'.join([h.sig2(r) for r in dnrr[1:]])}</td>
+		<td>${drilldown_link('conc_wells', '%scpd Wells' % cpd, conc=conc, wells='dnr_wells')}</td>
+	</tr>
+	% endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="cnv_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Expected CNV</th>
+		<th># Values on Wrong Side</th>
+		<th>Min-Max</th>
+		<th>Mean, StdDev</th>
+		<th>4Q/1Q Bias Avg</th>
+		<th>Bias 95% CI</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	% for i in range(1,7) + [11,13]:
+	<tr>
+		<%
+			crr = c.metrics.cnv_rise_ratio_mean_stdev_ci95(i)
+		%>
+		<td>${i}</td>
+		<td>${len(c.metrics.cnv_misses(i))}</td>
+		<td>${'-'.join([h.sig2(r) for r in c.metrics.cnv_min_max(i)])}</td>
+		<td>${', '.join([h.sig2(r) for r in c.metrics.cnv_mean_variance(i)])}</td>
+		<td>${h.sig2(crr[0])}</td>
+		<td>${h.sig2(crr[2])}-${h.sig2(crr[3])}</td>
+		<td>${drilldown_link('cnv_wells', "Wells", num=i, wells='cnv_wells')}</td>
+	</tr>
+	% endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="red_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Concentration</th>
+		<th>LOD 95% Percentile</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>1cpd (counts/20k droplets)</td>
+		<td>${h.sig1(c.metrics.red_lod_ci95('0% Mutant, 1cpd WT', 20000))}</td>
+		<td>${drilldown_link('fp_wells', "LOD Wells", wells='red_lod_wells', cpd=1)}</td>
+	</tr>
+	<tr>
+		<td>2cpd (counts/40k droplets)</td>
+		<td>${h.sig1(c.metrics.red_lod_ci95('0% Mutant, 2cpd WT', 40000))}</td>
+		<td>${drilldown_link('fp_wells', "LOD Wells", wells='red_lod_wells', cpd=2)}</td>
+	</tr>
+	<tr>
+		<td>5cpd (counts/100k droplets)</td>
+		<td>${h.sig1(c.metrics.red_lod_ci95('0% Mutant, 5cpd WT', 100000))}</td>
+		<td>${drilldown_link('fp_wells', "LOD Wells", wells='red_lod_wells', cpd=5)}</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="manual_red_table()">
+<table class="datagrid condensed-table">
+<thead>
+    <tr>
+        <th>Concentration</th>
+        <th>LOD 95% Percentile</th>
+        <th>Wells</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>1cpd (counts/20k droplets)</td>
+        <td>${h.sig1(c.metrics.manual_red_lod_ci95('0% Mutant, 1cpd WT', 20000))}</td>
+        <td>${drilldown_link('fp_wells', "LOD Wells", wells='red_lod_wells', cpd=1)}</td>
+    </tr>
+    <tr>
+        <td>2cpd (counts/40k droplets)</td>
+        <td>${h.sig1(c.metrics.manual_red_lod_ci95('0% Mutant, 2cpd WT', 40000))}</td>
+        <td>${drilldown_link('fp_wells', "LOD Wells", wells='red_lod_wells', cpd=2)}</td>
+    </tr>
+    <tr>
+        <td>5cpd (counts/100k droplets)</td>
+        <td>${h.sig1(c.metrics.manual_red_lod_ci95('0% Mutant, 5cpd WT', 100000))}</td>
+        <td>${drilldown_link('fp_wells', "LOD Wells", wells='red_lod_wells', cpd=5)}</td>
+    </tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="events_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean</th>
+		<th>StdDev</th>
+		<th>95% Percentiles</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<% ec_stats = c.metrics.event_count_count_mean_variance_ci95 %>
+	<tr>
+		<td>Droplet Count</td>
+		<td>${h.sig0(ec_stats[0])}</td>
+		<td>${h.sig0(ec_stats[1])}</td>
+		<td>${h.sig0(ec_stats[2])}-${h.sig0(ec_stats[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Low Event Wells</td>
+        % if ( c.metrics.event_count_wells and len(c.metrics.event_count_wells) > 0):
+		<td>${len(c.metrics.event_count_undercount_wells)}/${len(c.metrics.event_count_wells)}</td>
+        % else:
+        <td>N\A</td>
+        % endif:
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>${drilldown_link('wells', "Low Count Wells", wells='event_count_undercount_wells')}</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="carryover_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Production Metric</th>
+		<th>Spec</th>
+		<th>Observed</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% ec_stats = c.metrics.attr_mean_variance_ci95(c.metrics.carryover_eventful_wells, 'accepted_event_count') %>
+		<td>Event Count</td>
+		<td>&gt; 12000</td>
+		<td>${h.sig0(ec_stats[0])}</td>
+		<td>${mh.drilldown_link('conc_wells', 'Wells', wells='carryover_eventful_wells')}</td>
+	</tr>
+	<tr>
+		<td>Event Count &lt; 12000</td>
+		<td>&lt; 1/48</td>
+        % if c.metrics.carryover_eventful_wells and len(c.metrics.carryover_eventful_wells):
+		<td>${len(c.metrics.low_event_wells_in(c.metrics.carryover_eventful_wells))}/${len(c.metrics.carryover_eventful_wells)}</td>
+        % else:
+        <td> N/A</td>
+        % endif
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Quality &lt; 0.85</td>
+		<td>&lt; 1/48</td>
+         % if c.metrics.carryover_eventful_wells and len(c.metrics.carryover_eventful_wells) > 0:
+		<td>${len(c.metrics.low_quality_wells_in(c.metrics.carryover_eventful_wells))}/${len(c.metrics.carryover_eventful_wells)}</td>
+		% else:
+        <td>NaN</td>
+        % endif
+        <td>&nbsp;</td>
+	</tr>
+	<tr>
+		<%
+			su_stats = c.metrics.conc_ci95(c.metrics.carryover_eventful_wells)
+		%>
+		<td>Singleplex Uniformity</td>
+		<td>&lt; 20%</td>
+		% if su_stats[0] and not h.isnan(su_stats[0]):
+		<td>${h.sig1((su_stats[2]-su_stats[1])*100/su_stats[0])}%</td>
+		% else:
+		<td>NaN</td>
+		% endif
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<% wstats = c.metrics.mean_width_mean_variance_ci95_in(c.metrics.carryover_eventful_wells) %>
+		<td>Avg Width</td>
+		<td>8 &lt; Avg &lt; 10</td>
+		<td>${h.sig2(wstats[0])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<% pd_stats = c.metrics.polydispersity_fam_stats(c.metrics.carryover_eventful_wells) %>
+		<td>FAM Polydispersity</td>
+		<td>&lt; 0.3% Internal, &lt; 0.5% Field</td>
+		<td>${h.sig2(100*pd_stats[0])}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<% mds = c.metrics.carryover_event_middle_rain_stats %>
+		<td>Middle Rain % (Staph Wells)</td>
+		<td>No Spec</td>
+		<td>${h.sig2(mds[0]*100)}%</td>
+		<td>${drilldown_link('rain_wells', "Staph Rain", wells='carryover_eventful_wells')}</td>
+	</tr>
+	<tr>
+		<% mds = c.metrics.carryover_event_negative_rain_stats %>
+		<td>Negative Rain % (Staph Wells)</td>
+		<td>No Spec</td>
+		<td>${h.sig2(mds[0]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+
+</tbody>
+</table>
+
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>#Plates</th>
+		<th>#Stealth Wells</th>
+		<th>Carryover/8 Wells</th>
+		<th>Gated Contaminants/8W</th>
+		<th>Contaminants/8W</th>
+		<th>Plates</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% cstats = c.metrics.total_carryover_stats %>
+		% if cstats[-1] > 0:
+		<td>${cstats[0]}</td>
+		<td>${cstats[-1]}</td>
+		<td>${h.sig1(cstats[1]*(8.0/cstats[-1]))}</td>
+		<td>${h.sig1(cstats[2]*(8.0/cstats[-1]))}</td>
+		<td>${h.sig1(cstats[3]*(8.0/cstats[-1]))}</td>
+		<td><a href="${url(controller='metrics', action='carryover_wells', id=c.id, mode=c.mode, reprocess_config_id=getattr(c, 'rp_code', ''), dr_id=getattr(c, 'dr_id', ''), dg_id=getattr(c ,'dg_id', ''), operator_id=getattr(c, 'operator_id', ''), pt_id=getattr(c, 'pt_id', ''), gated_filter=getattr(c, 'gated_filter', ''), channel=0, pattern=getattr(c, 'pattern', ''))}">Plates</td>
+		% else:
+		<td colspan="6">No carryover wells detected.</td>
+		% endif
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="carryover_rejected_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean</th>
+		<th>Stdev</th>
+		<th>95% Percentiles</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% cstats = c.metrics.carryover_eventful_rejected_peaks_ci95 %>
+		<td>Rejected Peaks/Well - Eventful Wells</td>
+		<td>${h.sig1(cstats[0])}</td>
+		<td>${h.sig1(cstats[1])}</td>
+		<td>${h.sig1(cstats[2])}-${h.sig1(cstats[3])}</td>
+		<td>${mh.drilldown_link('gated_wells', 'Wells', wells='carryover_eventful_wells')}</td>
+	</tr>
+	<tr>
+		<% cstats = c.metrics.carryover_stealth_rejected_peaks_ci95 %>
+		<td>Rejected Peaks/Well - Stealth Wells</td>
+		<td>${h.sig1(cstats[0])}</td>
+		<td>${h.sig1(cstats[1])}</td>
+		<td>${h.sig1(cstats[2])}-${h.sig1(cstats[3])}</td>
+		<td>${mh.drilldown_link('gated_wells', 'Wells', wells='carryover_stealth_wells')}</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="colorcomp_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Well</th>
+		<th>Amplitude Mean</th>
+		<th>Amplitude Stdev</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% fam350 = c.metrics.colorcomp_amplitude_stats(('FAM 350nM', 'FAM HI'), 0) %>
+		<td>FAM 350nM</td>
+		<td>${h.sig0(fam350[0])}</td>
+		<td>${h.sig0(fam350[1])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='colorcomp_sample_wells', sample='FAM 350nM')}</td>
+	</tr>
+	<tr>
+		<% fam40 = c.metrics.colorcomp_amplitude_stats(('FAM 40nM', 'FAM LO'), 0) %>
+		<td>FAM 40nM</td>
+		<td>${h.sig0(fam40[0])}</td>
+		<td>${h.sig0(fam40[1])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='colorcomp_sample_wells', sample='FAM 40nM')}</td>
+	</tr>
+	<tr>
+		<% vic350 = c.metrics.colorcomp_amplitude_stats(('VIC 350nM', 'VIC HI'), 1) %>
+		<td>VIC 350nM</td>
+		<td>${h.sig0(vic350[0])}</td>
+		<td>${h.sig0(vic350[1])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='colorcomp_sample_wells', sample='VIC 350nM')}</td>
+	</tr>
+	<tr>
+		<% vic70 = c.metrics.colorcomp_amplitude_stats(('VIC 70nM', 'VIC LO'), 1) %>
+		<td>VIC 70nM</td>
+		<td>${h.sig0(vic70[0])}</td>
+		<td>${h.sig0(vic70[1])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='colorcomp_sample_wells', sample='VIC 70nM')}</td>
+	</tr>
+	<tr>
+		<% hex500 = c.metrics.colorcomp_amplitude_stats('HEX 500nM', 1) %>
+		<td>HEX 500nM</td>
+		<td>${h.sig0(hex500[0])}</td>
+		<td>${h.sig0(hex500[1])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='colorcomp_sample_wells', sample='HEX 500nM')}</td>
+	</tr>
+	<tr>
+		<% hex100 = c.metrics.colorcomp_amplitude_stats('HEX 100nM', 1) %>
+		<td>HEX 100nM</td>
+		<td>${h.sig0(hex100[0])}</td>
+		<td>${h.sig0(hex100[1])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='colorcomp_sample_wells', sample='HEX 100nM')}</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="singlewell_colorcomp_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Well</th>
+		<th>Amplitude Mean</th>
+		<th>Amplitude Stdev</th>
+		<th>Wells</th>
+	</tr>
+</thead>
+<tbody>
+	<%
+		famvic_stats = c.metrics.singlewell_colorcomp_amplitude_stats('FAM/VIC')
+		famhex_stats = c.metrics.singlewell_colorcomp_amplitude_stats('FAM/HEX')
+	%>
+	<tr>
+		<td>FAM 350nM (FAM/VIC)</td>
+		<td>${h.sig0(famvic_stats[0])}</td>
+		<td>${h.sig0(famvic_stats[1])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='singlewell_colorcomp_well', sample='FAM/VIC')}</td>
+	</tr>
+	<tr>
+		<td>FAM 40nM (FAM/VIC)</td>
+		<td>${h.sig0(famvic_stats[2])}</td>
+		<td>${h.sig0(famvic_stats[3])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='singlewell_colorcomp_well', sample='FAM/VIC')}</td>
+	</tr>
+	<tr>
+		<td>VIC 350nM</td>
+		<td>${h.sig0(famvic_stats[4])}</td>
+		<td>${h.sig0(famvic_stats[5])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='singlewell_colorcomp_well', sample='FAM/VIC')}</td>
+	</tr>
+	<tr>
+		<td>VIC 70nM</td>
+		<td>${h.sig0(famvic_stats[6])}</td>
+		<td>${h.sig0(famvic_stats[7])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='singlewell_colorcomp_well', sample='FAM/VIC')}</td>
+	</tr>
+	<tr>
+		<td>FAM 350nM (FAM/HEX)</td>
+		<td>${h.sig0(famhex_stats[0])}</td>
+		<td>${h.sig0(famhex_stats[1])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='singlewell_colorcomp_well', sample='FAM/HEX')}</td>
+	</tr>
+	<tr>
+		<td>FAM 40nM (FAM/HEX)</td>
+		<td>${h.sig0(famhex_stats[2])}</td>
+		<td>${h.sig0(famhex_stats[3])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='singlewell_colorcomp_well', sample='FAM/HEX')}</td>
+	</tr>
+	<tr>
+		<td>HEX 350nM</td>
+		<td>${h.sig0(famhex_stats[4])}</td>
+		<td>${h.sig0(famhex_stats[5])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='singlewell_colorcomp_well', sample='FAM/HEX')}</td>
+	</tr>
+	<tr>
+		<td>HEX 70nM</td>
+		<td>${h.sig0(famhex_stats[6])}</td>
+		<td>${h.sig0(famhex_stats[7])}</td>
+		<td>${drilldown_link('amp_wells', "Wells", wells='singlewell_colorcomp_well', sample='FAM/HEX')}</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="width_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean</th>
+		<th>StdDev</th>
+		<th>95% Percentiles</th>
+		<th>Link</th>
+	</tr>
+</thead>
+<tbody>
+	<% width_stats = c.metrics.mean_width_mean_variance_ci95 %>
+	<tr>
+		<td>Per-Well Mean Droplet Width</td>
+		<td>${h.sig2(width_stats[0])}</td>
+		<td>${h.sig2(width_stats[1])}</td>
+		<td>${h.sig2(width_stats[2])}-${h.sig2(width_stats[3])}</td>
+		<td>${drilldown_link('width_wells', 'Width Stats', wells='all_well_metrics')}</td>
+	</tr>
+	<% width_stats = c.metrics.width_variance_mean_variance_ci95 %>
+	<tr>
+		<td>Per-Well Droplet Width StdDev</td>
+		<td>${h.sig2(width_stats[0])}</td>
+		<td>${h.sig2(width_stats[1])}</td>
+		<td>${h.sig2(width_stats[2])}-${h.sig2(width_stats[3])}</td>
+	</tr>
+	<% nds = c.metrics.short_droplet_spacing_ci95 %>
+	<tr>
+		<td>% Droplet Spaces &lt; 2.5 Normalized Widths</td>
+		<td>${h.sig1(nds[0]*100)}%</td>
+		<td>${h.sig2(nds[1]*100)}%</td>
+		<td>${h.sig1(nds[2]*100)}%-${h.sig1(nds[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<% poly = c.metrics.polydispersity_all_fam_stats %>
+	<tr>
+		<td>% Polydisperse Drops, FAM Channel</td>
+		<td>${h.sig2(poly[0]*100)}%</td>
+		<td>${h.sig2(poly[1]*100)}%</td>
+		<td>${h.sig2(poly[2]*100)}%-${h.sig2(poly[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<% poly = c.metrics.polydispersity_all_vic_stats %>
+	<tr>
+		<td>% Polydisperse Drops, VIC Channel</td>
+		<td>${h.sig2(poly[0]*100)}%</td>
+		<td>${h.sig2(poly[1]*100)}%</td>
+		<td>${h.sig2(poly[2]*100)}%-${h.sig2(poly[3]*100)}%</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="rain_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistics</th>
+		<th># Wells w/Gap Drops</th>
+		<th>Mean</th>
+		<th>StdDev</th>
+		<th>95th Percentiles</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% stats = c.metrics.gap_rain_all_fam_stats %>
+		<td>FAM Gap Rain Drops/Well (ColorComp/Events)</td>
+		<td>${stats[4]}/${stats[5]}</td>
+		<td>${h.sig1(stats[0])}</td>
+		<td>${h.sig1(stats[1])}</td>
+		<td>${h.sig1(stats[2])}-${h.sig1(stats[3])}</td>
+		<td>${mh.drilldown_link('rain_wells', 'CC/Events FAM Stats', wells='fam_gap_rain_wells')}</td>
+	</tr>
+	<tr>
+		<% stats = c.metrics.gap_rain_all_vic_stats %>
+		<td>VIC Gap Rain Drops/Well (ColorComp/Events)</td>
+		<td>${stats[4]}/${stats[5]}</td>
+		<td>${h.sig1(stats[0])}</td>
+		<td>${h.sig1(stats[1])}</td>
+		<td>${h.sig1(stats[2])}-${h.sig1(stats[3])}</td>
+		<td>${mh.drilldown_link('rain_wells', 'CC/Events VIC Stats', wells='vic_gap_rain_wells')}</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="gating_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean/StdDev</th>
+		<th>95th Percentiles</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>Mean/Stdev % Width Gated</td>
+		<td>${', '.join([h.sig1(val) for val in c.metrics.width_gated_pct_mean_variance])}</td>
+		<td>${'-'.join([h.sig1(val) for val in c.metrics.width_gated_pct_95])}</td>
+		<td>${drilldown_link('gated_wells', 'Gating Statistics')}</td>
+	</tr>
+	<tr>
+		<% minamp = c.metrics.min_amplitude_gated_mean_variance_ci95 %>
+		<td>Mean/Stdev % Below Min Amplitude (Accepted Events > 1000)</td>
+		<td>${h.sig1(minamp[0])}, ${h.sig1(minamp[1])}</td>
+		<td>${h.sig1(minamp[2])}-${h.sig1(minamp[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Mean/Stdev % Quality Gated</td>
+		<td>${', '.join([h.sig1(val) for val in c.metrics.quality_gated_pct_mean_variance])}</td>
+		<td>${'-'.join([h.sig1(val) for val in c.metrics.quality_gated_pct_95])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Mean/Stdev % Vertical Streaks</td>
+		<td>${', '.join([h.sig1(val) for val in c.metrics.vertical_streak_pct_mean_variance])}</td>
+		<td>${'-'.join([h.sig1(val) for val in c.metrics.vertical_streak_pct_95])}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>Mean/Stdev Rejected Peaks/Total Events (%; # &gt; 100)</td>
+		<td>${', '.join([h.sig1(val) for val in c.metrics.rejected_peak_pct_mean_variance])}</td>
+		<td>${'-'.join([h.sig1(val) for val in c.metrics.rejected_peak_pct_95])}</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="extracluster_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean/StdDev</th>
+		<th>95th Percentiles</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<% ec_stats = c.metrics.extracluster_fam_stats(c.metrics.eventful(c.metrics.all_well_metrics)) %>
+		<td>FAM Extracluster Stats (%; # &gt; 1000)</td>
+		<td>${h.sig1(100*ec_stats[0])}%</td>
+		<td>${h.sig1(100*ec_stats[2])}-${h.sig1(100*ec_stats[3])}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<% ec_stats = c.metrics.extracluster_vic_stats(c.metrics.eventful(c.metrics.all_well_metrics)) %>
+		<td>VIC Extracluster Stats (%; # &gt; 1000)</td>
+		<td>${h.sig1(100*ec_stats[0])}%</td>
+		<td>${h.sig1(100*ec_stats[2])}-${h.sig1(100*ec_stats[3])}%</td>
+		<td>&nbsp;</td>
+	</tr>
+
+	<tr>
+		<% ec_stats = c.metrics.extracluster_revb_fam_stats(c.metrics.eventful(c.metrics.all_well_metrics)) %>
+		<td>FAM Extracluster Stats (bin measure) (%; # &gt; 1000)</td>
+		<td>${h.sig1(100*ec_stats[0])}%</td>
+		<td>${h.sig1(100*ec_stats[2])}-${h.sig1(100*ec_stats[3])}%</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<% ec_stats = c.metrics.extracluster_revb_vic_stats(c.metrics.eventful(c.metrics.all_well_metrics)) %>
+		<td>VIC Extracluster Stats (bin measure) (%; # &gt; 1000)</td>
+		<td>${h.sig1(100*ec_stats[0])}%</td>
+		<td>${h.sig1(100*ec_stats[2])}-${h.sig1(100*ec_stats[3])}%</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="baseline_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Mean</th>
+		<th>StdDev</th>
+		<th>95th Percentiles</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<%
+			sbm = c.metrics.sum_baseline_mean_mean_variance_ci95
+		%>
+		<td>Sum Baseline Mean</td>
+		<td>${h.sig2(sbm[0])}</td>
+		<td>${h.sig2(sbm[1])}</td>
+		<td>${h.sig2(sbm[2])}-${h.sig2(sbm[3])}</td>
+		<td>${drilldown_link('baseline_wells', 'Baseline Statistics')}</td>
+	</tr>
+	<tr>
+		<%
+			sbs = c.metrics.sum_baseline_stdev_mean_variance_ci95
+		%>
+		<td>Sum Baseline StdDev</td>
+		<td>${h.sig2(sbs[0])}</td>
+		<td>${h.sig2(sbs[1])}</td>
+		<td>${h.sig2(sbs[2])}-${h.sig2(sbs[3])}</td>
+		<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+</%def>
+
+<%def name="fam350_load_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>ng/uL dig hDNA</th>
+		<th>Events</th>
+		<th>FAM Amp</th>
+		<th>VIC Amp</th>
+		<th># Thresholded, FAM</th>
+		<th>ExtraC %</th>
+		<th>Width</th>
+		<th>Sigma</th>
+		<th>Streak%</th>
+	</tr>
+</thead>
+<tbody>
+	% for count, sample in ((0,'0 '),\
+		                    (0.013, '0.013'),\
+		                    (0.026, '0.026'),\
+		                    (0.052, '0.052'),\
+		                    (0.103, '0.103'),\
+		                    (0.206, '0.206'),\
+		                    (0.412, '0.412'),\
+		                    (0.825, '0.825'),\
+		                    (1.65, '1.65'),\
+		                    (3.3, '3.3'),\
+		                    (6.6, '6.6'),\
+		                    (13.2, '13.2')):
+	<% wm = c.metrics.well_metrics_by_type_sample('fm350l', "%sng/ul dig hDNA" % sample) %>
+	<tr>
+		<td>${sample}</td>
+		<td>${h.sig0(c.metrics.attr_mean_variance_ci95(wm, 'accepted_event_count')[0])}</td>
+		<td>${h.sig0(c.metrics.channel_attr_mean_variance_ci95(wm, 0, 'amplitude_mean')[0])}</td>
+		<td>${h.sig0(c.metrics.channel_attr_mean_variance_ci95(wm, 1, 'amplitude_mean')[0])}</td>
+        % if len(wm) > 0:
+		<td>${len(c.metrics.thresholded(wm, 0))}/${len(wm)}</td>
+        % else:
+        <td>Nan</td>
+        % endif
+		<td>${h.sig1(100*c.metrics.channel_attr_mean_variance_ci95(wm, 1, 'revb_extracluster')[0])}%</td>
+		<td>${h.sig2(c.metrics.attr_mean_variance_ci95(wm, 'width_mean')[0])}</td>
+		<td>${h.sig2(c.metrics.attr_mean_variance_ci95(wm, 'width_variance')[0])}</td>
+		<td>${h.sig1(c.metrics.attr_mean_variance_ci95(wm, 'vertical_streak_ratio')[0])}%</td>
+	</tr>
+	% endfor
+</tbody>
+</table>
+</%def>
+
+<%def name="eva_dnaload_table()">
+<table class="datagrid condensed-table">
+<thead>
+	<tr>
+		<th>ng/ul dig hDNA</th>
+		<th>Events</th>
+		<th>FAM Amplitude</th>
+		<th>VIC Amplitude</th>
+		<th># Thresholded, FAM</th>
+		<th>ExtraC %</th>
+		<th>Width</th>
+		<th>Sigma</th>
+		<th>Streak%</th>
+	</tr>
+</thead>
+<tbody>
+	% for count, sample in ((0,'0'),\
+		                    (2.5, '2.5'),\
+		                    (5, '5'),\
+		                    (10, '10'),\
+		                    (15, '15'),\
+		                    (20, '20'),\
+		                    (25, '25'),\
+		                    (30, '30'),\
+		                    (35, '35'),\
+		                    (40, '40'),\
+		                    (45, '45'),\
+		                    (50, '50')):
+	<% wm = c.metrics.well_metrics_by_type_sample('gload', "%sng/ul dig hDNA" % sample) %>
+	<tr>
+		<td>${sample}</td>
+		<td>${h.sig0(c.metrics.attr_mean_variance_ci95(wm, 'accepted_event_count')[0])}</td>
+		<td>${h.sig0(c.metrics.channel_attr_mean_variance_ci95(wm, 0, 'amplitude_mean')[0])}</td>
+		<td>${h.sig0(c.metrics.channel_attr_mean_variance_ci95(wm, 1, 'amplitude_mean')[0])}</td>
+        % if len(wm) > 0:
+		<td>${len(c.metrics.thresholded(wm, 0))}/${len(wm)}</td>
+        % else:
+        <td>Nan</td>
+        % endif
+		<td>${h.sig1(100*c.metrics.channel_attr_mean_variance_ci95(wm, 1, 'revb_extracluster')[0])}%</td>
+		<td>${h.sig2(c.metrics.attr_mean_variance_ci95(wm, 'width_mean')[0])}</td>
+		<td>${h.sig2(c.metrics.attr_mean_variance_ci95(wm, 'width_variance')[0])}</td>
+		<td>${h.sig1(c.metrics.attr_mean_variance_ci95(wm, 'vertical_streak_ratio')[0])}%</td>
+	</tr>
+	% endfor
+</tbody>
+</table>
+</%def>

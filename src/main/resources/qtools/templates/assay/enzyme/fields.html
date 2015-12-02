@@ -1,0 +1,56 @@
+${c.form.field("author_id", "dropdown",
+	label="Reporter",
+	required=True
+)}
+
+${c.form.field("enzyme_id", "dropdown",
+	label="Enzyme",
+	required=True,
+	field_desc="Autocomplete enabled.  All known enzymes included.",
+	attributes=dict([('class', 'autoselect_text'),
+	                 ('id', 'enzyme_id')])
+)}
+
+${c.form.field("assay_id", "dropdown",
+	label="Assay",
+	required=True,
+	field_desc="Autocomplete enabled.  All stored assays included.",
+	attributes=dict([('class', 'autoselect_text'),
+	                 ('id', 'assay_id')])
+)}
+
+${c.form.field('minimum_conc', 'text',
+	label='Minimum Conc.',
+	field_desc='units/ug',
+	attributes=dict(style='width: 60px')
+)}
+
+${c.form.field('maximum_conc', 'text',
+	label='Maximum Conc.',
+	field_desc='units/ug',
+	attributes=dict(style='width: 60px')
+)}
+
+% if c.plate:
+<tr class="field">
+	<td class="label">
+		<span style="visibility:hidden">*</span>Evidence Plate:</td>
+	<td>
+		<input type="hidden" name="source_plate_id" value="${c.plate.id}" />
+		${c.plate.name}
+	</td>
+</tr>
+% else:
+${c.form.field('source_plate_id', 'text',
+	label='Evidence Plate ID',
+	required=False,
+	attributes=dict(style='width: 40px')
+)}
+% endif
+
+${c.form.field('notes', 'textarea',
+	label='Notes',
+	field_desc="Add additional information about the enzyme concentration here.",
+	required=False,
+	attributes=dict(cols=40, rows=4)
+)}

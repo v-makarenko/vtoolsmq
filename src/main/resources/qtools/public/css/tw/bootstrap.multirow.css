@@ -1,0 +1,28 @@
+.tw_bootstrap table tr td:first-child {
+	color: #44494A;
+	width: 250px;
+}
+
+.tw_bootstrap table.unlined tr td:first-child {
+	font-weight: bold;
+}
+
+.tw_bootstrap table.multi-row tr td:first-child {
+	font-weight: inherit;
+	color: inherit;
+	width: auto;
+}
+
+.tw_bootstrap table.multi-row tr.row-parent td:first-child {
+	font-weight: bold;
+	color: #44494A;
+	width: 250px;
+}
+
+.tw_bootstrap table.unlined tr td {
+	border-top: none;
+}
+
+.tw_bootstrap table.unlined tr:first-child td {
+	border-top: 1px solid #ddd;
+}

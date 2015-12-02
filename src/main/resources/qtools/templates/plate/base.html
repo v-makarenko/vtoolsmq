@@ -1,0 +1,65 @@
+<%inherit file="/base/index.html"/>
+<%namespace file="/components/beta_plates.html" name="beta" import="*" />
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.nameplate li#subnav_nameplate,
+		#subnav nav.newplate li#subnav_newplate,
+		#subnav nav.platelist li#subnav_platelist,
+		#subnav nav.platesearch li#subnav_platesearch,
+		#subnav nav.algorithms li#subnav_algorithms,
+		#subnav nav.bielas li#subnav_bielas {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav ul li#subnav_beta a.sublist_link,
+		#subnav nav ul li#subnav_bielas a.sublist_link,
+        #subnav nav ul li#subnav_qx200 a.sublist_link {
+			font-weight: normal;
+		}
+		
+		#subnav nav li ul {
+			margin-bottom: 0px;
+		}
+		
+		#subnav nav li ul li {
+			color: #4a444f;
+		}
+		
+		#subnav nav.nameplate li#subnav_nameplate a,
+		#subnav nav.newplate li#subnav_newplate a,
+		#subnav nav.platelist li#subnav_platelist a,
+		#subnav nav.platesearch li#subnav_platesearch a,
+		#subnav nav.algorithms li#subnav_algorithms a,
+		#subnav nav.bielas li#subnav_bielas a.sublist_link {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">plate</%def>
+<%def name="subnav_title()">Plate Links</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_nameplate"><a href="${url(controller='plate', action='name')}">Create Plate</a></li>
+		<li id="subnav_platelist"><a href="${url(controller='plate', action='list')}">Plate List</a>
+		                          <ul>
+		                          	<li id="subnav_beta"><a class="sublist_link" href="${url(controller='plate', action='beta_qx100')}">QX100 Beta Sites</a></li>
+		                          	<li id="subnav_bielas"><a class="sublist_link" href="${url(controller='plate', action='revz', id='bielas')}">RevZ Bielas</a></li>
+                                    <li id="subnav_qx200"><a class="sublist_link" href="${url(controller='plate', action='val_qx200')}">QX200 DR3900X</a></li>
+		                          </ul>
+		</li>
+		<li id="subnav_platesearch"><a href="${url(controller='plate', action='search')}">Plate Search</a></li>
+	</ul>
+	<strong>Beta Plates</strong>
+	${beta.beta_plate_links()}
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.footer()}
+</div>
+
+<%def name="footer()"></%def>

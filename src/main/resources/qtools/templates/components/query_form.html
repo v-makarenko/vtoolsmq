@@ -1,0 +1,8 @@
+<%def name="column_field(form, i, field, type, label='', required=False, compare='=')">
+<input type="hidden" name="conditions-${i}.field" value="${field}" id="conditions-${i}.field" />
+<input type="hidden" name="conditions-${i}.compare" value="${compare}" id="conditions-${i}.compare" />
+${form.field('conditions-%s.value' % i, type,
+    label=label,
+    required=required
+)}
+</%def>

@@ -80,6 +80,7 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/releases' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url 'http://repo.maven.apache.org/maven2' }
+    mavenLocal()
 }
 
 dependencies {
@@ -101,7 +102,7 @@ dependencies {
     compile (group: 'com.ryantenney.metrics', name: 'metrics-spring', version: metrics_spring_version) {
         exclude(module: 'metrics-core')
         exclude(module: 'metrics-healthchecks')
-    } 
+    }
     compile(group: 'com.zaxxer', name: 'HikariCP', version: HikariCP_version) {
         exclude(module: 'tools')
     }
@@ -111,7 +112,7 @@ dependencies {
     compile group: 'javax.transaction', name: 'javax.transaction-api'
     compile group: 'org.apache.geronimo.javamail', name: 'geronimo-javamail_1.4_mail', version: geronimo_javamail_1_4_mail_version
     compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_entitymanager_version
-    
+
     compile group: 'org.hibernate', name: 'hibernate-envers'
     compile group: 'org.hibernate', name: 'hibernate-validator'
     compile group: 'org.springframework.boot', name: 'spring-boot-actuator'
@@ -138,9 +139,13 @@ dependencies {
     compile(group: 'io.springfox', name: 'springfox-swagger2', version: springfox_version){
         exclude module: 'mapstruct'
     }
-    
+
     compile group: 'fr.ippon.spark.metrics', name: 'metrics-spark-reporter', version: metrics_spark_reporter_version
     compile group: 'org.mapstruct', name: 'mapstruct-jdk8', version: mapstruct_version
+    compile group: 'com.rabbitmq', name:'amqp-client', version:'3.5.6'
+    compile 'org.springframework.amqp:spring-rabbit:1.5.2.RELEASE'
+    compile 'jep:jep:3.4.2'
+
     testCompile group: 'com.jayway.awaitility', name: 'awaitility', version: awaility_version
     testCompile group: 'com.jayway.jsonpath', name: 'json-path'
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
@@ -150,8 +155,8 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core'
     testCompile group: 'de.flapdoodle.embed', name: 'de.flapdoodle.embed.mongo'
     testCompile group: 'org.hamcrest', name: 'hamcrest-library'
-    
-    
+
+
     testCompile group: 'com.h2database', name: 'h2'
     optional group: 'org.springframework.boot', name:'spring-boot-configuration-processor', version: spring_boot_version
 }

@@ -1,0 +1,28 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${boot.css()}
+</%def>
+
+<%def name="pagetitle()">Replicate Analysis: Select Metrics</%def>
+<%def name="selected_page()">replicates</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+<%def name="explanation()">
+<p>
+	Select the metrics that you want to investigate per technical replicate.  Technical replicates have the same sample name and assay targets in the QLP file.
+</p>
+</%def>
+
+<form action="${url(controller='plate', action='replicates_compute', id=c.plate.id)}" method="get">
+	${boot.group_select('metrics', c.columns, label='Metrics', size=10, help_block='Use CTRL to select multiple metrics from the list', multiple='multiple', klass="span7")}
+	${boot.select('replicate_type', c.replicate_types, label='Replicates', klass='span4')}
+	${boot.select('channel', c.channels, label='Channel', klass="span4")}
+	${boot.text('ignore_wells', label='Ignore Wells:', help_block='e.g., D04,E05,B12')}
+	<div class="actions">
+		${boot.submit('Analyze Replicates')}
+	</div>
+	<input type="hidden" name="analysis_group_id" value="${c.analysis_group_id or ''}" />
+	<input type="hidden" name="reprocess_config_id" value="${c.reprocess_config_id or ''}" />
+</form>

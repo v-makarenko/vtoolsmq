@@ -1,0 +1,38 @@
+<%def name="enzyme_conc_list(concs, title=None)">
+% if len(concs):
+<h2>${title or 'Recommended CNV Enzyme Concentrations'}</h2>
+<table class="datagrid" id="enzyme_list">
+	<thead>
+		<tr>
+			<th class="enz_col_name">Enzyme</th>
+			<th class="enz_col_min">Min (units/&mu;g)</th>
+			<th class="enz_col_max">Max (units/&mu;g)</th>
+			<th class="enz_col_plate">Evidence Plate</th>
+			<th class="enz_col_reporter">Reporter</th>
+			<th class="enz_col_actions">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, conc in enumerate(sorted(concs, key=lambda c: c.enzyme_id)):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td class="enz_col_name">${conc.enzyme_id}</td>
+			<td class="enz_col_min">${conc.minimum_conc}</td>
+			<td class="enz_col_max">${conc.maximum_conc}</td>
+			<td class="enz_col_plate">
+				% if conc.plate:
+					<a href="${url(controller='plate',action='view', id=conc.plate.id)}">View</a>
+				% else:
+					&nbsp;
+				% endif
+			</td>
+			<td class="enz_col_reporter">${conc.reporter.name_code}</td>
+			<td class="enz_col_actions">
+				<a href="${url(controller='assay', action='enzyme_conc_edit', id=conc.id)}">Edit</a>
+				<!-- TODO delete action -->
+			</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+% endif
+</%def>

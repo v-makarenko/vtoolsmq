@@ -1,0 +1,58 @@
+div.topbar h3 a {
+	padding: 8px 20px 8px;
+}
+
+/* here's where LESS makes sense */
+/* need rounded-large and rounded-small */
+.rounded {
+	padding: 9px;
+	border: 1px solid #ccc;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.125);
+	-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.125);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.125);
+}
+
+.btn {
+	cursor: pointer;
+}
+
+#topbar_pad {
+	height: 30px;
+}
+
+#header {
+	background: url(../../images/external/helix.png);
+	background-repeat: no-repeat;
+	background-position: center 5px;
+	height: 99px;
+	margin-bottom: 33px;
+}
+
+#header h1 {
+	padding-top: 40px;
+	font-size: 40px;
+	color: #fff;
+	text-shadow: 0 1px 2px rgba(0,0,0,.5);
+}
+
+section {
+	clear: both;
+	margin-bottom: 30px;
+}
+
+section.bordered {
+	padding-bottom: 20px;
+	border-bottom: 1px solid #eee;
+	margin-bottom: 10px;
+}
+
+section.bordered.last {
+	border-bottom: none;
+}
+
+div.right {
+	text-align: right;
+}

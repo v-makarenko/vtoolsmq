@@ -1,0 +1,71 @@
+<%inherit file="/setup/base.html"/>
+<%namespace file="components/step_icon.html" name="comp" import="*" />
+
+<%def name="pagetitle()">${'View' if c.setup.locked else 'Edit'} ${c.setup.name}: ${next.pagesubtitle()}</%def>
+<%def name="selected_page()">expedit</%def>
+<%def name="css()">
+	${parent.css()}
+	<link rel="stylesheet" media="screen" href="${url('/css/stepnav.css')}" charset="utf-8">
+	<style type="text/css" media="screen">
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#setup_save').click(setupSaveHandler);
+		});
+	</script>
+</%def>
+
+<%def name="stepclass()"></%def>
+<%def name="steps()">
+	${step_icon('name', desc='Name/Operator')}
+	${step_icon('consumable', desc='Consumables')}
+	${step_icon('reagents')}
+	${step_icon('dg', desc='Droplet Generator')}
+	${step_icon('cycler', desc='Thermal Cycler')}
+	% if c.beta:
+	<li id="step_plan">
+		<a href="${url(controller='setup', action='plan', id=c.setup.id, beta=c.beta)}">
+			<img src="${url('/images/matte_white/notepad.png')}" title="Get Plan" /><br/>Get Plan
+		</a>
+	</li>
+	% else:
+	<li id="step_reader">
+		<a href="${url(controller='setup', action='reader', id=c.setup.id, beta=c.beta)}">
+			<img src="${url('/images/matte_white/aa.png')}" title="Get Name" /><br/>Get Name
+		</a>
+	</li>
+	% endif
+</%def>
+
+<nav id="expnav" class="${next.stepclass()}">
+	<ul>
+		${self.steps()}
+	</ul>
+</nav>
+<div class="clear"></div>
+
+${next.body()}
+${self.action_bar()}
+
+<%def name="action_bar()">
+% if (hasattr(c,'setup') and not c.setup.locked) or not hasattr(c,'setup'):
+<div class="action_bar">
+	<h3>Setup Actions:</h3>
+	<button id="setup_save">Save</button>
+	<div class="clear"></div>
+</div>
+% endif
+</%def>
+
+<%def name="setupSaveHandler()">function() {}</%def>
+
+<script type="text/javascript">
+var setupSaveHandler = ${self.setupSaveHandler()}
+</script>

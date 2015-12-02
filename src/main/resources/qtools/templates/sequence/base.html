@@ -1,0 +1,65 @@
+<%inherit file="/base/index.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	${boot.css()}
+	<style type="text/css" media="screen">
+		#content {
+			position: relative;
+		}
+
+		#subnav nav.assaylist li#subnav_assaylist,
+		#subnav nav.newassay li#subnav_newassay,
+		#subnav nav.groups li#subnav_groups {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav.assaylist li#subnav_assaylist a,
+		#subnav nav.newassay li#subnav_newassay a,
+		#subnav nav.groups li#subnav_groups a {
+			font-weight: bold;
+		}
+
+		.tw_bootstrap form {
+			margin-top: 20px;
+		}
+
+		.tw_bootstrap table.unlined tr td {
+			border-top: none;
+		}
+
+		.tw_bootstrap table.unlined tr:first-child td {
+			border-top: 1px solid #ddd;
+		}
+
+		#content .upper_link {
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			z-index: 2;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">assays</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+<%def name="subnav_title()">Assay Links</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_assaylist"><a href="${url(controller='sequence', action='list')}">Assay List</a></li>
+		% if h.wowo('show_approved_assays'):
+		<li id="subnav_approvedlist"><a href="${url(controller='sequence', action='approved_list')}">Field-Approved List</a></li>
+		% endif
+		<li id="subnav_newassay"><a href="${url(controller='sequence', action='start', flow='sequence.new')}">New Assay</a></li>
+		<li id="subnav_groups"><a href="${url(controller='assay_group', action='list')}">Categories</a></li>
+	</ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.pagefooter()}
+</div>
+
+<%def name="pagefooter()"></%def>

@@ -1,0 +1,26 @@
+<%inherit file="/product/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${boot.css()}
+	<style type="text/css" media="screen">
+		#content {
+			position: relative;
+		}
+
+		#content .upper_link {
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			z-index: 2;
+		}
+
+		.actions .btn {
+			margin-right: 10px;
+		}
+	</style>
+</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+${next.body()}

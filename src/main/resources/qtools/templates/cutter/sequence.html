@@ -1,0 +1,228 @@
+<%inherit file="/cutter/base.html"/>
+
+<%def name="pagetitle()">Cutter Analysis: ${c.assay_name}</%def>
+<%def name="selected_page()">cutseq</%def>
+<%def name="explanation()">
+<p>
+Select an enzyme and press 'Cut' to determine if an enzyme cuts within the amplicon (green) or surrounding regions (red, blue).
+<span style="color: #f00">Red color bars</span> indicate a restriction site may be altered by a mutation; <span style="color: #090">green color bars</span> are restriction sites that emerge due
+to mutations.
+</p>
+</%def>
+
+<%def name="js()">
+${parent.js()}
+<script src="${url('/js/bases.js')}"></script>
+</%def>
+
+<%def name="css()">
+${parent.css()}
+<link rel="stylesheet" href="${url('/css/bases.css')}" type="text/css" media="screen">
+<style type="text/css" media="screen">
+% if c.found_sequence:
+	td.amplicon_prefix {
+		width: ${c.prefix_pct}%;
+		% if c.prefix_pct == 0:
+		display: none;
+		% endif
+	}
+	
+	td.amplicon_suffix {
+		width: ${c.suffix_pct}%;
+		% if c.suffix_pct == 0:
+		display: none;
+		% endif
+	}
+	
+	td.amplicon {
+		width: ${c.amplicon_pct}%;
+	}
+% endif
+	
+	#results {
+		visibility: hidden;
+		width: 200px;
+		float: right;
+		display: inline;
+		margin: 15px 20px;
+	}
+	
+	#cut_ok {
+		font-weight: bold;
+	}
+	
+	.cut_warning {
+		color: #f00;
+	}
+	
+	.cut_almost {
+		color: #c60;
+	}
+	
+	.cut_good {
+		color: #0c0;
+	}
+	
+	div.snp_cancel_re_site {
+		background-color: #f00;
+	}
+	
+	div.snp_re_site {
+		background-color: #090;
+	}
+</style>
+</%def>
+
+% if c.found_sequence:
+<p>
+% if getattr(c, 'assay_id', None):
+	<a href="${url(controller='cutter', action='find_cutters', left_padding=c.left_padding, right_padding=c.right_padding, assay=c.assay_id, enzymes=c.enzymes)}">Pick Restriction Digests</a>
+% endif
+</p>
+<p>
+<strong>Assay:</strong>&nbsp;${h.assay_link(getattr(c,'assay',None))}<br/>
+<strong style="color: #060">Amplicon Length:</strong>&nbsp; ${c.amplicon_width}bp<br/>
+<strong style="color: #900">Prefix Length:</strong>&nbsp; ${c.prefix_width}bp<br/>
+<strong style="color: #009">Suffix Length:</strong>&nbsp; ${c.suffix_width}bp<br/>
+% if hasattr(c, 'sequence'):
+<strong>UCSC Info:</strong>&nbsp;${h.ucsc_sequence_link(c.sequence)}
+% endif
+</p>
+
+<div id="cut_bar">
+<table class="amplicon_container">
+	<!--
+	<thead>
+	<tr class="amplicon_header">
+		<td class="amplicon_prefix"><div>Padding (${c.prefix_width}bp)</div></td>
+		<td class="amplicon"><div>Amplicon (${c.amplicon_width}bp)</div></td>
+		<td class="amplicon_suffix"><div>Padding (${c.suffix_width}bp)</div></td>
+	</tr>
+	</thead>
+	-->
+	<tbody>
+	<tr class="amplicon_bar">
+		<td class="amplicon_prefix">&nbsp;</td>
+		<td class="amplicon">&nbsp;</td>
+		<td class="amplicon_suffix">&nbsp;</td>
+	</tr>
+	</tbody>
+</table>
+</div>
+
+<form id="cutter" action="${url(controller="cutter", action="cut")}" method="POST">
+	<fieldset>
+		<legend>Test Cutters</legend>
+		<fieldset id="results">
+			<legend>Results</legend>
+			<div id="cut_ok"></div>
+			<div id="amplicon_cuts">Amplicon Cuts: <span id="amplicon_cut_count"></span></div>
+			<div id="prefix_cuts">Prefix Cuts: <span id="prefix_cut_count"></span></div>
+			<div id="suffix_cuts">Suffix Cuts: <span id="suffix_cut_count"></span></div>
+		</fieldset>
+	<table>
+	${c.form.field("enzymes", "dropdown",
+		label="Enzyme",
+		attributes=dict(id="enzymes"),
+		required=False
+	)}
+	
+	<tr class="field">
+	<td class="label" height="10" valign="top">
+		<span style="visibility: hidden">*</span><label for="re_seq">Sequence:&nbsp;</label>
+	</td>
+	<td class="field">
+		<input type="hidden" name="re_seq" value="" id="re_seq">
+		<span style="font-weight: bold;" id="re_seq_disp"></span>
+	</td>
+	</tr>
+	<tr class="field">
+	<td class="label" height="10" valign="top">
+		<span style="visibility:hidden">*</span><label>Fragment Length:&nbsp;</label>
+	</td>
+	<td class="label" height="10" valign="top">
+		<span id="inner_len"></span>
+	</td>
+	</tr>
+	<tr class="field">
+	<td class="label" height="10" valign="top">
+		<span style="visibility:hidden">*</span><label>Fragment %GC:&nbsp;</label>
+	</td>
+	<td class="label" height="10" valign="top">
+		<span id="inner_gc"></span>
+	</td>
+	</tr>
+	</table>
+	<div style="clear: both"></div>
+	
+	<input type="hidden" name="left_padding" value="${c.left_padding}">
+	<input type="hidden" name="right_padding" value="${c.right_padding}">
+	<input type="hidden" name="assay_id" value="${c.assay_id}">
+	<input type="hidden" name="positive_sequence" value="${c.positive_sequence}">
+	<input type="hidden" name="enzyme" value="" id="enzyme">
+	</fieldset>
+</form>
+
+<script type="text/javascript">
+	var onCutResponse = function(json) {
+		var cutBar = $('#cut_bar');
+		var width = json.re_width_pct;
+		for(var i=0; i<json.positive_cuts.length; i++) {
+			var left = json.positive_cuts[i].pos;
+			var class_ = json.positive_cuts[i]['class'];
+			$('#cut_bar, #posWindow').append('<div class="cut_mark cut_mark_pos '+class_+'" style="left: '+left+'; width:'+width+';">&nbsp;</div>')
+		}
+		for(var i=0; i<json.negative_cuts.length; i++) {
+			var left = json.negative_cuts[i].pos;
+			var class_ = json.negative_cuts[i]['class'];
+			$('#cut_bar, #negWindow').append('<div class="cut_mark cut_mark_neg '+class_+'" style="left: '+left+'; width:'+width+';">&nbsp;</div>')
+		}
+
+		if(json['fragment']) {
+			$('#inner_len').text(json.fragment.len+" ("+json.fragment.loff+"L, "+json.fragment.roff+"R)")
+			$('#inner_gc').text(json.fragment.gc)
+		}
+		
+		
+		if(json.amplicon_cuts > 0) {
+			$('#cut_ok').removeClass("cut_almost cut_good").addClass("cut_warning").html("Cuts Amplicon!")
+		}
+		else if(json.left_cuts == 0 && json.right_cuts == 0){
+			$('#cut_ok').removeClass("cut_warning cut_almost cut_good").html("No cuts")
+		}
+		else if(json.left_cuts > 0 && json.right_cuts > 0) {
+			$('#cut_ok').removeClass("cut_warning cut_almost").addClass("cut_good").html("Cuts both sides")
+		}
+		else {
+			$('#cut_ok').removeClass("cut_almost cut_good").addClass("cut_almost").html("Cuts one side")
+		}
+		$('#amplicon_cut_count').html(json.amplicon_cuts)
+		$('#prefix_cut_count').html(json.left_cuts)
+		$('#suffix_cut_count').html(json.right_cuts)
+		$('#results').css('visibility','visible');
+	}
+
+	$(document).ready(function() {
+		$('#enzymes').change(function(evt) {
+			$('#enzyme').val($(this).find('option:selected').text());
+			$('#re_seq').val($(this).val());
+			$('#re_seq_disp').text($(this).val());
+			$('#cut_bar .cut_mark').remove();
+			$('#inner_len, #inner_gc').text('');
+			if($(this).val()) {
+			$.post($('#cutter').attr('action'),
+			       $('#cutter').serialize(),
+			       onCutResponse,
+			       "json");
+			}
+		})
+		
+		/*var viewer = new BaseViewer("${c.positive_sequence}","${c.negative_sequence[::-1]}", ${c.amplicon_offset_pos}, ${c.amplicon_offset_pos+c.amplicon_width})
+		viewer.bindTo($('#cut_bar'));*/
+	})
+</script>
+% else:
+<p>
+<strong>The sequence for this assay is unknown.</strong>
+</p>
+% endif

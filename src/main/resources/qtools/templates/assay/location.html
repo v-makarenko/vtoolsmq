@@ -1,0 +1,24 @@
+<%inherit file="/assay/getbase.html"/>
+
+<%def name="pagetitle()">Get Sequence by Probe Location</%def>
+
+${c.form.start_with_layout(url(controller='assay', action='process_location'), method="post")}
+	${c.form.field("chromosome", "dropdown",
+		label="Chromosome",
+		required=True
+	)}
+	
+	${c.form.field("location", "text",
+		label="Location",
+		required=True
+	)}
+	
+	${c.form.field("width", "text",
+		label="Amplicon Width",
+		field_desc="The sequence generated will be all the bases within this distance from the probe.",
+		required=True
+	)}
+	<tr class="form_button"><td>
+	${c.form.submit("submit","Get Sequence")}
+	</td></tr>
+${c.form.end_with_layout()}

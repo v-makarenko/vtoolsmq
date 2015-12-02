@@ -1,0 +1,25 @@
+<%def name="css()">
+    <style type="text/css">
+        .minigrid {
+            font-family: monospace;
+            font-size: 9px;
+            line-height: 4px;
+            white-space: nowrap;
+            letter-spacing: -3px;
+            cursor: pointer;
+        }
+    </style>
+</%def>
+
+<%def name="grid96(*highlight_wells)">
+    <div class="minigrid" title="${','.join(sorted(set(highlight_wells)))}">
+    % for row in ('A','B','C','D','E','F','G','H'):
+        % for col in range(1,13):
+            ${h.literal('&#x25A0') if highlight_wells and '%s%s' % (row,str(col).zfill(2)) in highlight_wells else h.literal('&#x25A1')};
+        % endfor
+        % if row != 'H':
+            <br/>
+        % endif
+    % endfor
+    </div>
+</%def>

@@ -1,0 +1,59 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Metric Wells: ${c.name}, Concentration</%def>
+<%def name="selected_page()">metrics</%def>
+
+<%include file="/metrics/nav_back.html" />
+<%include file="/metrics/nav_snippet.html" />
+<%include file="/metrics/nav_filter.html" />
+
+<table class="datagrid" style="font-size: 11px;">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Plate</th>
+			<th>Well</th>
+			<th>Plate Type</th>
+			<th>Sample Name</th>
+			<th>Well Name</th>
+			<th>#Events Accepted</th>
+			<th>Expected Conc.</th>
+			<th>Actual Conc.</th>
+			<th>FAM Pos Mean</th>
+			<th>FAM Neg Mean</th>
+			<th>VIC NonPos Mean</th>
+			<th>4Q/1Q Ratio</th>
+			<th>S</th>
+			<th>Data Quality</th>
+			<th>Droplet Reader</th>
+			<th>Bag#</th>
+			<th>Consumable</th>
+			<th>Droplet Generator</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, wm in enumerate(c.well_metrics):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${h.ymd(wm.well.host_datetime)}</td>
+			<td><a href="${url(controller='plate', action='view', id=wm.well.plate.plate.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or '')}" title="${wm.well.plate.plate.name}">View</a></td>
+			<td><a href="${url(controller='well', action='view', id=wm.well.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or 0)}">View</a> <a href="${url(controller='well', action='galaxy', id=wm.well.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or '')}">Gxy</a> <a href="${url(controller='well', action='temporal', id=wm.well.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or 0)}">Tmp</a></td>
+			<td>${wm.well.plate.plate.plate_type.name if wm.well.plate.plate.plate_type else ''}</td>
+			<td>${wm.well.sample_name}</td>
+			<td>${wm.well.well_name}</td>
+			<td>${wm.accepted_event_count}</td>
+			<td>${h.sig1(wm.well_channel_metrics[c.channel_num].expected_concentration)}</td>
+			<td>${h.sig1(wm.well_channel_metrics[c.channel_num].concentration)}</td>
+			<td>${int(wm.well_channel_metrics[0].positive_mean) if wm.well_channel_metrics[0].positive_mean else ''}</td>
+			<td>${int(wm.well_channel_metrics[0].negative_mean) if wm.well_channel_metrics[0].positive_mean else ''}</td>
+			<td>${int(wm.well_channel_metrics[1].nonpositive_mean)}</td>	
+			<td>${h.sig2(wm.well_channel_metrics[c.channel_num].concentration_rise_ratio) if wm.well_channel_metrics[c.channel_num].concentration_rise_ratio else 'N/A'}</td>
+			<td>${h.sig2(wm.well_channel_metrics[c.channel_num].s_value) if wm.well_channel_metrics[c.channel_num] else 'N/A'}</td>
+			<td>${h.sig2(wm.well_channel_metrics[c.channel_num].threshold_conf)}</td>
+			<td>${wm.well.plate.plate.box2.name}</td>
+			<td>${wm.well.plate.plate.plate_setup_id or '?'}</td>
+			<td>${wm.well.consumable_chip_num}-${wm.well.consumable_channel_num}</td>
+			<td>${wm.well.droplet_generator.name if wm.well.droplet_generator else '?'}</td>
+		</tr>
+	% endfor
+	</tbody>
+</table>

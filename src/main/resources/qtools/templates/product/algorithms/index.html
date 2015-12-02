@@ -1,0 +1,27 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Reprocess Central</%def>
+<%def name="selected_page()">algorithm</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+<%def name="explanation()">
+    <p>Here are the links you need to run and view the results of batch reprocessing.</p>
+</%def>
+
+<h4><a href="${url(controller='metrics', action='index')}">Analysis Groups</a></h4>
+<p>Use this page as a jump-off point for looking at sets of plates, creating new
+   analysis groups, and comparing algorithms.</p>
+
+<h4><a href="${url(controller='product', action='algorithms')}">Register Reprocessor</a></h4>
+<p>Find new release candidates and add them to QTools, to be able to batch reprocess with
+   that version of QuantaSoft.</p>
+
+<h4><a href="${url(controller='product', action='algcommand')}">Get Commands</a></h4>
+<p>Find out what commands you need to enter into the command-line tools on QLTester and
+   QTools in order to batch reprocess and then analyze reprocessed analysis groups.</p>

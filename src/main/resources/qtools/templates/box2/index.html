@@ -1,0 +1,18 @@
+<%inherit file="/box2/base.html"/>
+
+<%def name="pagetitle()">Box 2 Utilities</%def>
+<%def name="selected_page()">box2home</%def>
+
+<p>Right now, you can search for plates and wells by datetime, box and operating characteristics.  These utilities
+	still need feature testing, so if you have any suggestions or see any errors, email
+	<a href="mailto:jeff.mellen@quantalife.com">jeff.mellen@quantalife.com</a></p>
+
+<h2>Under Construction</h2>
+<ul>
+	<li><a href="${url(controller='box2', action='well_tag')}">Search for Wells by Tag</a></li>
+	<li><a href="${url(controller='box2', action='plates')}">Search for Plates by Operating Parameter</a></li>
+	<li><a href="${url(controller='box2', action='wells')}">Search for Wells by Operating Parameter</a></li>
+</ul>
+
+<h2>What's New</h2>
+<p><strong>2010/10/25:</strong> Added searching for Plates, Wells.</p>

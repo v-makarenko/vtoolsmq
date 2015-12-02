@@ -1,0 +1,296 @@
+.consumable_plate_bag {
+	padding: 0.5em 1em;
+	background: #ffc;
+	border: 1px solid #ccc;
+	font-size: 15px;
+	margin-bottom: 1em;
+}
+
+.consumable_palette {
+	float: left;
+	width: 160px;
+	background: #eee;
+	border: 1px solid #ccc;
+}
+
+.consumable_palette_panel {
+	display: none;
+	padding: 5px;
+	min-height: 392px;
+	height: auto !important;
+	height: 392px;
+}
+
+div.consumable_palette_locked {
+	display: none;
+	padding: 5px;
+	min-height: 332px;
+	height: auto !important;
+	height: 332px;
+}
+
+.consumable_palette_panel label {
+	display: block;
+}
+
+.consumable_palette_panel input {
+	width: 120px;
+}
+
+.consumable_palette_start {
+	text-align: center;
+}
+
+.consumable_palette_start input {
+	margin-top: 100px;
+	width: 80px;
+}
+
+.consumable_palette_consumable {
+	text-align: center;
+}
+
+.consumable_palette_section {
+	margin-bottom: 10px;
+}
+
+.consumable_palette_usage {
+	display: none;
+}
+
+.consumable_chip_number {
+	float: left;
+	height: 30px;
+	width: 30px;
+	border: 3px solid #ccc;
+	line-height: 30px;
+	text-align: center;
+	font-size: 18px;
+	vertical-align: middle;
+	font-weight: bold;
+}
+
+.consumable_chip {
+	width: 30px;
+	margin-left: 46px;
+	float: left;
+	display: inline;
+	margin-bottom: 0;
+}
+.consumable_chip td {
+	width: 24px;
+	height: 18px;
+	line-height: 18px;
+	border: 2px solid #ccc;
+	border-collapse: collapse;
+	padding: 2px;
+	text-align: center;
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+.consumable_chip td.selected {
+	background-color: #ccf;
+}
+
+.consumable_chip td.placed {
+	background-color: #cfc;
+}
+
+.consumable_plate td.c1_1,
+.consumable_plate td.c2_1,
+.consumable_plate td.c3_1,
+.consumable_plate td.c4_1,
+.consumable_plate td.c5_1,
+.consumable_plate td.c6_1,
+.consumable_plate td.c7_1,
+.consumable_plate td.c8_1,
+.consumable_plate td.c9_1,
+.consumable_plate td.c10_1,
+.consumable_plate td.c11_1,
+.consumable_plate td.c12_1 {
+	background-color: #dfd;
+}
+
+.consumable_plate td.c1_2,
+.consumable_plate td.c2_2,
+.consumable_plate td.c3_2,
+.consumable_plate td.c4_2,
+.consumable_plate td.c5_2,
+.consumable_plate td.c6_2,
+.consumable_plate td.c7_2,
+.consumable_plate td.c8_2,
+.consumable_plate td.c9_2,
+.consumable_plate td.c10_2,
+.consumable_plate td.c11_2,
+.consumable_plate td.c12_2 {
+	background-color: #bfb;
+}
+
+.consumable_plate td.c1_3,
+.consumable_plate td.c2_3,
+.consumable_plate td.c3_3,
+.consumable_plate td.c4_3,
+.consumable_plate td.c5_3,
+.consumable_plate td.c6_3,
+.consumable_plate td.c7_3,
+.consumable_plate td.c8_3,
+.consumable_plate td.c9_3,
+.consumable_plate td.c10_3,
+.consumable_plate td.c11_3,
+.consumable_plate td.c12_3 {
+	background-color: #9f9;
+}
+
+.consumable_plate td.c1_4,
+.consumable_plate td.c2_4,
+.consumable_plate td.c3_4,
+.consumable_plate td.c4_4,
+.consumable_plate td.c5_4,
+.consumable_plate td.c6_4,
+.consumable_plate td.c7_4,
+.consumable_plate td.c8_4,
+.consumable_plate td.c9_4,
+.consumable_plate td.c10_4,
+.consumable_plate td.c11_4,
+.consumable_plate td.c12_4 {
+	background-color: #7e7;
+}
+
+.consumable_plate td.c1_5,
+.consumable_plate td.c2_5,
+.consumable_plate td.c3_5,
+.consumable_plate td.c4_5,
+.consumable_plate td.c5_5,
+.consumable_plate td.c6_5,
+.consumable_plate td.c7_5,
+.consumable_plate td.c8_5,
+.consumable_plate td.c9_5,
+.consumable_plate td.c10_5,
+.consumable_plate td.c11_5,
+.consumable_plate td.c12_5 {
+	background-color: #6d6;
+}
+
+
+.consumable_plate td.c1_6,
+.consumable_plate td.c2_6,
+.consumable_plate td.c3_6,
+.consumable_plate td.c4_6,
+.consumable_plate td.c5_6,
+.consumable_plate td.c6_6,
+.consumable_plate td.c7_6,
+.consumable_plate td.c8_6,
+.consumable_plate td.c9_6,
+.consumable_plate td.c10_6,
+.consumable_plate td.c11_6,
+.consumable_plate td.c12_6 {
+	background-color: #5c5;
+}
+
+
+.consumable_plate td.c1_7,
+.consumable_plate td.c2_7,
+.consumable_plate td.c3_7,
+.consumable_plate td.c4_7,
+.consumable_plate td.c5_7,
+.consumable_plate td.c6_7,
+.consumable_plate td.c7_7,
+.consumable_plate td.c8_7,
+.consumable_plate td.c9_7,
+.consumable_plate td.c10_7,
+.consumable_plate td.c11_7,
+.consumable_plate td.c12_7 {
+	background-color: #4b4;
+}
+
+
+.consumable_plate td.c1_8,
+.consumable_plate td.c2_8,
+.consumable_plate td.c3_8,
+.consumable_plate td.c4_8,
+.consumable_plate td.c5_8,
+.consumable_plate td.c6_8,
+.consumable_plate td.c7_8,
+.consumable_plate td.c8_8,
+.consumable_plate td.c9_8,
+.consumable_plate td.c10_8,
+.consumable_plate td.c11_8,
+.consumable_plate td.c12_8 {
+	background-color: #393;
+}
+
+.consumable_plate_container {
+	float: right;
+	width: 600px;
+}
+
+.consumable_plate {
+	position: relative;
+}
+
+.consumable_plate_map th, .consumable_plate_map td {
+	width: 38px;
+	height: 30px;
+	line-height: 30px;
+	border: 2px solid #ccc;
+	border-collapse: collapse;
+	padding: 3px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.consumable_cursor th, .consumable_cursor td {
+	width: 38px;
+	height: 30px;
+	line-height: 30px;
+	border: 2px solid #69f;
+	background-color: #cce8ff;
+	border-collapse: collapse;
+	padding: 3px;
+	text-align: center;
+	vertical-align: middle;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+}
+
+.consumable_plate_map th, .consumable_plate_map td.row_name {
+	font-weight: bold;
+	background: #e8e8e8;
+}
+
+.consumable_cursor {
+	position: absolute;
+	z-index: 2;
+	display: none;
+}
+
+.consumable_action {
+	float: left;
+	width: 600px;
+	padding: 10px 0;
+	background: #eee;
+	margin-bottom: 15px;
+}
+
+.consumable_action h3, .consumable_action input {
+	float: left;
+	display: inline;
+	margin: 0 10px;
+}
+
+#content .consumable_action h3 {
+	font-size: 13px;
+	margin-bottom: 0;
+}
+
+#consumable_info0 {
+	display: none;
+}
+
+#consumable_lot_numbers input[type=text],
+#consumable_lot_numbers select {
+	width: 80px;
+}

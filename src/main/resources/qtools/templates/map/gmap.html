@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>IFrame Remoting Page</title>
+</head>
+<body>
+<p id="payload">Map Payload</p>
+<script type="text/javascript">
+    document.domain = "${c.origin}";
+    var knownAddresses = ${h.literal(c.known_address_json)};
+    var unknownAddresses = ${h.literal(c.unknown_address_json)};
+    window.parent.loadMap(knownAddresses, unknownAddresses, "${c.api_key}");
+</script>
+</body>
+</html>

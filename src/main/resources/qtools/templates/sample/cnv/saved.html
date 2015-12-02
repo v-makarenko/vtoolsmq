@@ -1,0 +1,10 @@
+<%inherit file="/assay/base.html"/>
+
+<%def name="pagetitle()">CNV Record Saved</%def>
+<%def name="selected_page()">nameplate</%def>
+
+<p>The CNV of ${c.cnv} for ${c.assay.name} on ${c.sample.name} is stored.  What would you like to do next?</p>
+<ul>
+<li><a href="${url(controller='sample', action='view', id=c.sample.id)}">Return to ${c.sample.name} sample</a></li>
+<li><a href="${url(controller='assay', action='view', id=c.assay.id)}">Return to ${c.assay.name} assay</a></li>
+<li><a href="${url(controller='sample', action='cnv_new')}">Enter a new CNV record</a></li>

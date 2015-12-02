@@ -1,0 +1,24 @@
+<%inherit file="/help/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/help.html" name="help" import="*" />
+
+<%def name="pagetitle()">Help Guide</%def>
+<%def name="selected_page()">guide</%def>
+
+<p>
+This page contains a variety of links to explain various features and concepts in QTools.
+</p>
+
+<h2>Metrics</h2>
+<ul>
+    <li><a href="${url(controller='help', action='well_metrics')}">Well Metric Definitions</a></li>
+    <li><a href="${url(controller='help', action='well_channel_metrics')}">Well Channel Metric Definitions</a></li>
+</ul>
+
+<h2>Features</h2>
+<ul>
+    <li>${h.help_link('features/index.html', text='Features Overview')}</li>
+    <li>${h.help_link('features/plate_view.html', text='Plate View')}</li>
+    <li>${h.help_link('features/well_view.html', text='Well View')}</li>
+    <li>${h.help_link('features/replicate_tools.html', text='Replicate Tools')}</li>
+</ul>

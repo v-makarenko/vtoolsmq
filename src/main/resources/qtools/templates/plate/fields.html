@@ -1,0 +1,114 @@
+<tr>
+	<td colspan="2">
+<table id="tracked_fields" class="gridfield">
+	<caption>Currently Tracked Fields</caption>
+	<tr>
+	<td class="field_col" colspan="2">
+		<table>
+		${c.plate_form.field('droplet_generation_method', 'dropdown',
+		    label="Consumable",
+		    field_desc="Example: ThinXXS v1/DG",
+		    required=False,
+		    attributes=dict(id='dg_method')
+		)}
+		</table>
+	</td>
+	<tr>
+	<tr class="formbutton">
+		<td colspan="2">${c.plate_form.submit('submit', "Save Plate")}</td>
+	</tr>
+</table>
+</td>
+</tr>
+
+${c.plate_form.field('user', 'dropdown',
+	label="Operator",
+	required=True
+)}
+
+${c.plate_form.field('system_version', 'dropdown',
+    label="System Version",
+    field_desc="Hardware this plate was run on.",
+    required=False,
+    attributes=dict(id="system_version")
+)}
+
+${c.plate_form.field('plate_type_id', 'dropdown',
+	label="Plate Type",
+	field_desc="Note: Not all metric stats may be recalculated if you change the type.",
+	required=False,
+	attributes=dict(id="plate_type_id")
+)}
+
+${c.plate_form.field('physical_plate_id', 'dropdown',
+    label="Physical Plate",
+    required=False,
+    attributes=dict(id="physical_plate_id")
+)}
+
+${c.plate_form.field('dg_used_id', 'dropdown',
+    label="Droplet Generator Used",
+    required=False,
+    attributes=dict(id="dg_used_id")
+)}
+
+${c.plate_form.field('dg_oil', 'dropdown',
+	label="DG Oil",
+	field_desc="Example: QLF 1.1",
+	required=False,
+	attributes=dict(id="dg_oil")
+)}
+${c.plate_form.field('dr_oil', 'dropdown',
+    label="DR Oil",
+    field_desc="Example: QLF 2.1.1",
+	required=False,
+	attributes=dict(id="dr_oil")
+)}
+${c.plate_form.field('master_mix', 'dropdown',
+    label="Master Mix",
+	required=False,
+	field_desc="Example: QLMM 0.1",
+	attributes=dict(id="master_mix")
+)}
+${c.plate_form.field('fluidics_routine', 'dropdown',
+	label="Routine",
+	required=False,
+	attributes=dict(id="fluidics_routine")
+)}
+
+
+${c.plate_form.field('droplet_maker', 'dropdown',
+	label="Droplet Maker",
+	required=False
+)}
+
+${c.plate_form.field('project', 'dropdown',
+	label="Project",
+	field_desc="New projects will be added when you save the plate.",
+	required=True,
+	attributes=dict([('class', 'autoselect'),
+	                 ('id', 'project')])
+)}
+
+${c.plate_form.field('gasket', 'dropdown',
+	label="Gasket?",
+	required=False,
+	attributes=dict(id="gasket")
+)}
+
+${c.plate_form.field('thermal_cycler', 'dropdown',
+	label="Thermal Cycler"
+)}
+
+${c.plate_form.field('description', 'textarea',
+	label="Notes",
+	field_desc="For now, include failure modes any other plate data here (more to come)",
+	attributes=dict(rows=5, cols=80)
+)}
+
+${c.plate_form.field('tags', 'checkbox_group',
+	label="Tags"
+)}
+${c.plate_form.field('mfg_exclude', 'checkbox_group',
+	label="Exclude from Metrics?"
+)}

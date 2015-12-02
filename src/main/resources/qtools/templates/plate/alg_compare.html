@@ -1,0 +1,593 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Compare Algorithms</%def>
+<%def name="selected_page()">algorithms</%def>
+<%def name="explanation()">
+<p>
+	In each cell (there are now 6 per row), we compare the originally computed quantitative data and plots with the results from
+	running the specified algorithm version.  The originals are on the left, the reprocessed on the right.
+</p>
+</%def>
+<%def name="css()">
+${parent.css()}
+<style type="text/css" media="screen">
+table.plate_grid td.col_name,
+table.plate_grid th.col_name {
+	width: 25px;
+	font-weight: bold;
+	background: #d8d8d8;
+}
+
+table.plate_grid th {
+	background: #e8e8e8;
+	color: #999;
+}
+
+table.plate_grid td.col_name {
+	vertical-align: middle;
+	background: #d8d8d8;
+	padding-left: 5px;
+}
+
+#plate_table td div.cell_container {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+#plate_table td.noop_cell {
+	background: #eee;
+}
+
+table.plate_grid td,
+table.plate_grid th {
+	width: 120px;
+	border-collapse: collapse;
+	border: 1px solid #999;
+}
+
+table.plate_grid img.chan0 {
+	background: #eef;
+}
+
+table.plate_grid img.chan1 {
+	background: #fee;
+}
+
+table.plate_grid img.chan01 {
+	background: #efe;
+}
+
+a.selected_cell {
+	border: 2px solid #00f;
+	position: absolute;
+	z-index: 3;
+	outline: none;
+	text-decoration: none;
+	padding: 0;
+	font-size: 10px;
+}
+
+.cell_label_span {
+	font-size: 10px;
+	color: white;
+	background: #00f;
+	padding: 0.25em;
+	margin: 0;
+	line-height: normal;
+}
+
+#stats_box {
+	position: fixed;
+	z-index: 999;
+	top: 70px;
+	left: 15px;
+	padding: 5px 10px 10px 10px;
+	width: 240px;
+	border: 3px double black;
+	background: #eef8ff;
+	display: none;
+}
+
+#stats_box h5 {
+	margin-bottom: 0.5em;
+}
+
+#stats_box table {
+	margin-bottom: 0;
+}
+
+#well_stats {
+	width: 240px;
+}
+
+#well_stats td strong {
+	padding-right: 0.5em;
+}
+
+.channel_stats_header {
+	font-weight: bold;
+	font-size: 13px;
+	margin-top: 1em;
+}
+
+table.channel_stats_table {
+	width: 240px;
+	border: 1px solid #bbb;
+	font-size: 11px;
+}
+
+table.channel_stats_table td {
+	width: 80px;
+}
+
+span.data_warning {
+	font-weight: bold;
+	color: red;
+}
+
+.control_channel_stat, .control_well_stat,
+.exp_channel_stat, .exp_well_stat,
+.whole_well_stat, .whole_channel_stat {
+	display: none;
+	font-size: 11px;
+	text-align: center;
+}
+
+.control_well_stat {
+	background: #e8e8e8;
+	width: 50%;
+	float: left;
+}
+
+.whole_well_stat {
+	background: #e8e8e8;
+}
+
+.whole_channel0 {
+	background: #e8e8f8;
+}
+
+.whole_channel1 {
+	background: #f8e8e8;
+}
+
+.exp_well_stat {
+	background: #d8d8d8;
+	width: 50%;
+	float: right;
+	font-weight: bold;
+}
+
+.control_stat0 {
+	background: #e8e8f8;
+	width: 50%;
+	float: left;
+}
+
+.control_stat1 {
+	background: #f8e8e8;
+	width: 50%;
+	float: left;
+}
+
+.exp_stat0 {
+	background: #d8d8e8;
+	width: 50%;
+	float: right;
+	font-weight: bold;
+}
+
+.exp_stat1 {
+	background: #e8d8d8;
+	width: 50%;
+	float: right;
+	font-weight: bold;
+}
+
+.image_cell {
+	width: 58px;
+	float: left;
+	border-style: solid;
+	border-color: #ddd;
+	border-width: 0px 1px;
+	border-collapse: collapse;
+}
+
+.well_events {
+	text-align: center;
+	color: #369;
+	font-weight: bold;
+}
+
+</style>
+</%def>
+
+<%def name="js()">
+${parent.js()}
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		var basePlateUrl = "${url(controller='well', action='view', id=0)}";
+		$('#plate_table tbody td.plate_cell div.cell_container').hover(function() {
+			var offset = $(this).offset()
+			var id = $(this).attr('id').substring(4);
+			var well_name = $(this).attr('rel');
+			var selected = $('<a href="'+basePlateUrl.replace("0", id)+'" class="selected_cell"><span class="cell_label_span">'+well_name+'</span></a>')
+			selected.css({top: '-2px', left: '-2px', width: $(this).width()+'px', height: $(this).height()+'px'})
+			$(this).append(selected)
+			populateStatsBox(id)
+		}, function() {
+			$('.selected_cell').remove()
+		});
+		
+		$('#plate_table').mouseleave(function() {
+			$('#stats_box').hide()
+		});
+		
+		$('#display_selector').change(onDisplayChange)
+	});
+	
+	var wellData = {
+		% for well in c.wells:
+		'${well.id}': {sample_name: "${well.sample_name}",
+		               well_name: "${well.well_name}",
+		               experiment_type: "${well.experiment_type}",
+		               versions: [{
+		               event_count: ${well.event_count or 0},
+		               fam_vic_cnv_ratio: '${"%.02f" % well.fam_vic_cnv_ratio}',
+		               vic_fam_cnv_ratio: '${"%.02f" % well.vic_fam_cnv_ratio}',
+
+		                 channel_statistics: [
+			% for channel in well.channels:
+				{threshold: "${int(channel.quantitation_threshold or 0) or h.literal('<span class=\'data_warning\'>--</span>')}",
+				 concentration: ${h.sig1(channel.concentration)},
+				 positive_peaks: ${channel.positive_peaks or 0},
+				 negative_peaks: ${channel.negative_peaks or 0},
+				 rejected_peaks: ${channel.rejected_peaks or 0},
+				 peaks_count: ${channel.peaks_count or 0},
+				 target: "${channel.target}"
+				},
+			% endfor
+			    {}
+			           ]},
+			                    {
+				         event_count: ${well.compare_well.event_count or 0},
+				         fam_vic_cnv_ratio: '${"%.02f" % well.compare_well.fam_vic_cnv_ratio}',
+			             vic_fam_cnv_ratio: '${"%.02f" % well.compare_well.vic_fam_cnv_ratio}',
+				         channel_statistics: [
+			% for channel in well.compare_well.channels:
+				{threshold: "${int(channel.quantitation_threshold or 0) or h.literal('<span class=\'data_warning\'>--</span>')}",
+				 concentration: ${h.sig1(channel.concentration)},
+				 positive_peaks: ${channel.positive_peaks or 0},
+				 negative_peaks: ${channel.negative_peaks or 0},
+				 rejected_peaks: ${channel.rejected_peaks or 0},
+				 peaks_count: ${channel.peaks_count or 0}
+				},
+			% endfor
+			    {}
+			           ]}]
+		},
+		% endfor
+		'ie_blank': {}
+	}
+	
+	var populateStatsBox = function(well_id) {
+		var well = wellData[well_id]
+	    $('#stats_sample_name').text(well.sample_name);
+	    $('#stats_experiment_type').text(well.experiment_type);
+		var cs = well.versions[0].channel_statistics;
+		$('#stats_fam_target').text(cs[0]['target'])
+		$('#stats_vic_target').text(cs[1]['target'])
+		for(var j=0;j<well.versions.length;j++) {
+		    var channelStats = well.versions[j].channel_statistics;
+		    $('.channel_stats_table:eq('+j+') .well_events').text(well.versions[j].event_count)
+		    for(var i=0;i<channelStats.length-1; i++) {
+			    for(var key in channelStats[i]) {
+				    $('.channel_stats_table:eq('+j+') .channel_'+key+' td:eq('+(i+1)+')').html(channelStats[i][key])
+			    }
+			}
+		}	
+		$('#stats_box').show()
+	}
+	
+	var onDisplayChange = function() {
+		var containers = $('.cell_container');
+		var selected = $(this).val()
+		$('.whole_well_stat, .whole_channel_stat, .control_well_stat, .exp_well_stat, .control_channel_stat, .exp_channel_stat').hide();
+		switch(selected) {
+			case "concentration":
+			case "threshold":
+			case "positive_peaks":
+			case "negative_peaks":
+			case "rejected_peaks":
+				containers.each(function(i, obj) {
+					var id = $(obj).attr('id').substring(4);
+					var well = wellData[id];
+					var channelStats = well.versions[0].channel_statistics;
+					for(var i=0;i<channelStats.length-1;i++) {
+						$(obj).find('.control_channel_stat:eq('+i+')').html(channelStats[i][selected])
+					}
+					var channelStats = well.versions[1].channel_statistics;
+					for(var i=0;i<channelStats.length-1;i++) {
+						$(obj).find('.exp_channel_stat:eq('+i+')').html(channelStats[i][selected])
+					}
+				});
+				$('.control_channel_stat, .exp_channel_stat').show()
+				break;
+			case "target":
+				containers.each(function(i, obj) {
+					var id = $(obj).attr('id').substring(4);
+					var well = wellData[id];
+					var channelStats = well.versions[0].channel_statistics;
+					for(var i=0;i<channelStats.length-1;i++) {
+						$(obj).find('.whole_channel_stat:eq('+i+')').html(channelStats[i][selected])
+					}
+				});
+				$('.whole_channel_stat').show()
+				break;
+			case "sample_name":
+				containers.each(function(i, obj) {
+					var id = $(obj).attr('id').substring(4);
+					var well = wellData[id];
+					$(obj).find('.whole_well_stat').html(well[selected])
+				});
+				$('.whole_well_stat').show()
+				break;
+			case "event_count":
+			case "fam_vic_cnv_ratio":
+			case "vic_fam_cnv_ratio":
+				containers.each(function(i, obj) {
+					var id = $(obj).attr('id').substring(4);
+					var well = wellData[id];
+					$(obj).find('.control_well_stat').html(well.versions[0][selected])
+					$(obj).find('.exp_well_stat').html(well.versions[1][selected])
+				});
+				$('.control_well_stat, .exp_well_stat').show();
+				break;
+			case "none":
+			default:
+				break;
+		}
+	}
+</script>
+</%def>
+
+% if c.qlbplate:
+<div id="stats_box">
+	<h5 id="stats_sample_name"></h5>
+	<table id="well_stats">
+		<tr><td><strong>Exp. Type:</strong></td>
+			<td id="stats_experiment_type"></td>
+		</tr>
+		<tr><td><strong>FAM Target:</strong></td>
+			<td id="stats_fam_target"></td>
+		</tr>
+		<tr><td><strong>VIC Target:</strong></td>
+			<td id="stats_vic_target"></td>
+		</tr>
+	</table>
+	<div class="channel_stats_header">${c.qlbplate.host_software}</div>
+	<table class="channel_stats_table datagrid">
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>FAM</th>
+				<th>VIC</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="odd">
+				<td>Events</td>
+				<td colspan="2" class="well_events"></td>
+			</tr>
+			<tr class="even channel_threshold">
+				<td>Threshold</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="odd channel_concentration">
+				<td>Conc.</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="even channel_positive_peaks">
+				<td>Positives</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="odd channel_negative_peaks">
+				<td>Negatives</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="even channel_rejected_peaks">
+				<td>Rejected</td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="channel_stats_header">Quantitation v${c.major_version}.${c.minor_version}</div>
+	<table class="channel_stats_table datagrid">
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>FAM</th>
+				<th>VIC</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="odd">
+				<td>Events</td>
+				<td colspan="2" class="well_events"></td>
+			</tr>
+			<tr class="even channel_threshold">
+				<td>Threshold</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="odd channel_concentration">
+				<td>Conc.</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="even channel_positive_peaks">
+				<td>Positives</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="odd channel_negative_peaks">
+				<td>Negatives</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="even channel_rejected_peaks">
+				<td>Rejected</td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<p>
+<strong>Plate:</strong> <a href="${url(controller='plate', action='view', id=c.plate.id)}">${c.qlbplate.file.dirname}</a><br/>
+<strong>Original Processor (left):</strong> ${c.qlbplate.host_software} (QA ${c.qlbplate.quantitation_algorithm})<br/>
+<strong>Batch Reprocess (Right):</strong> Quantitation Algorithm ${c.major_version}.${c.minor_version}
+</p>
+% endif
+<p><span style="background: #eef">&nbsp; &nbsp;</span>&nbsp; FAM Channel&nbsp;&nbsp;&nbsp;<span style="background: #fee">&nbsp; &nbsp;</span>&nbsp; VIC Channel&nbsp;&nbsp;&nbsp;  Max amplitude 24000.  Darker pixels = more common over sample width (400 evt/pix)</p>
+<p>
+	<label for="display_selector"><strong>Display:&nbsp;</strong></label>
+	<select id="display_selector">
+		<option value="none" selected="selected">Only Images</option>
+		<option value="sample_name">Sample Name</option>
+		<option value="target">Targets</option>
+		<option value="event_count">Event Count</option>
+		<option value="threshold">Threshold</option>
+		<option value="concentration">Concentration (copies/&mu;L)</option>
+		<option value="positive_peaks">Positives</option>
+		<option value="negative_peaks">Negatives</option>
+		<option value="rejected_peaks">Rejected</option>
+		<option value="fam_vic_cnv_ratio">CNV (FAM->VIC)</option>
+		<option value="vic_fam_cnv_ratio">CNV (VIC->FAM)</option>
+	</select>
+</p>
+
+% if any([len(cols) > 0 for k, cols in c.rows.items()]):
+<table id="plate_table" class="plate_grid">
+	<tbody>
+		% for k, cols in sorted(c.rows.items()):
+			% if len(cols) > 0:
+				<tr>
+					<td rowspan="4" class="col_name">${k}</td>
+					<th>01</th>
+					<th>02</th>
+					<th>03</th>
+					<th>04</th>
+					<th>05</th>
+					<th>06</th>
+				</tr>
+				<tr>
+					% for col in ('01','02','03','04','05','06'):
+						% if cols.has_key(col):
+							<td class="plate_cell">
+								<div class="cell_container" id="cell${cols[col].id}" rel="${k}${col}">
+									<div class="top_stat">
+										<div class="control_well_stat"></div>
+										<div class="exp_well_stat"></div>
+										<div class="control_channel_stat control_stat0"></div>
+										<div class="exp_channel_stat exp_stat0"></div>
+										<div class="whole_well_stat"></div>
+										<div class="whole_channel_stat whole_channel0"></div>
+										<div class="clear"></div>
+									</div>
+									% for num in range(len(cols[col].channels)):
+										<div class="image_row">
+											<div class="image_cell">
+										${h.literal(h.qlb_thumbnail(c.qlbplate.id, cols[col].well_name, num))}
+											</div>
+											<div class="image_cell">
+										${h.literal(h.qlb_batch_thumbnail(c.qlbplate.id, c.major_version, c.minor_version, cols[col].well_name, num))}
+											</div>
+											<div class="clear"></div>
+										</div>
+									% endfor
+									<div class="bottom_stat">
+										<div class="control_channel_stat control_stat1"></div>
+										<div class="exp_channel_stat exp_stat1"></div>
+										<div class="whole_channel_stat whole_channel1"></div>
+										<div class="clear"></div>
+									</div>
+								</div>
+							</td>
+						% else:
+							<td class="noop_cell">&nbsp;</td>
+						% endif
+					% endfor
+				</tr>
+				<tr>
+					<th>07</th>
+					<th>08</th>
+					<th>09</th>
+					<th>10</th>
+					<th>11</th>
+					<th>12</th>
+				</tr>
+				<tr>
+					% for col in ('07','08','09','10','11','12'):
+						% if cols.has_key(col):
+							<td class="plate_cell">
+								<div class="cell_container" id="cell${cols[col].id}" rel="${k}${col}">
+									<div class="top_stat">
+										<div class="control_well_stat"></div>
+										<div class="exp_well_stat"></div>
+										<div class="control_channel_stat control_stat0"></div>
+										<div class="exp_channel_stat exp_stat0"></div>
+										<div class="whole_well_stat"></div>
+										<div class="whole_channel_stat whole_channel0"></div>
+										<div class="clear"></div>
+									</div>
+									% for num in range(len(cols[col].channels)):
+										<div class="image_row">
+											<div class="image_cell">
+										${h.literal(h.qlb_thumbnail(c.qlbplate.id, cols[col].well_name, num))}
+											</div>
+											<div class="image_cell">
+										${h.literal(h.qlb_batch_thumbnail(c.qlbplate.id, c.major_version, c.minor_version, cols[col].well_name, num))}
+											</div>
+											<div class="clear"></div>
+										</div>
+									% endfor
+									<div class="bottom_stat">
+										<div class="control_channel_stat control_stat1"></div>
+										<div class="exp_channel_stat exp_stat1"></div>
+										<div class="whole_channel_stat whole_channel1"></div>
+										<div class="clear"></div>
+									</div>
+								</div>
+							</td>
+						% else:
+							<td class="noop_cell">&nbsp;</td>
+						% endif
+					% endfor
+				</tr>
+			% endif
+		% endfor
+	</tbody>
+</table>
+% else:
+<div style="background: #eee; padding: 15px">
+<h5>This plate does not have any recorded well data.</h5>
+<p>
+	There may be few reasons for this:</strong>
+</p>
+<ul>
+	<li><strong>New Plate:</strong> The plate has just been loaded into the server, and the well data has not yet been parsed (come back in a few minutes)</li>
+	<li><strong>Cancelled Run:</strong> This plate run was cancelled.  Look for a similarly named, newer plate.</li>
+	<li><strong>Duplicate Plate:</strong> The plate was copied from one folder to another, and the server didn't process the wells.  (Please don't do this.)</li>
+</ul>
+<p>
+	If you feel there should be well data for this plate, please note the plate name and number (<strong>${c.plate.id}</strong>) and <a href="mailto:jeff.mellen@quantalife.com">email Jeff</a>.
+</p>
+</div>
+% endif

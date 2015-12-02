@@ -1,0 +1,28 @@
+<%inherit file="/cutter/base.html"/>
+
+<%def name="pagetitle()">Digest Controls: ${c.enzyme.name}</%def>
+<%def name="selected_page()">enzymes</%def>
+
+<%def name="explanation()">
+<p>
+Only assays that have been marked as validated or optimized will be included in this list.
+</p>
+</%def>
+<table class="datagrid" id="controls">
+	<thead>
+		<tr>
+			<th class="col_name">Assay Name</th>
+			<th class="col_cutseq"># Cuts (on both strands count twice)</th>
+			<th class="col_actions">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+% for idx, (assay, cuts) in enumerate(c.controls):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name"><a href="${url(controller='sequence', action='view_details', id=assay.id)}">${assay.name}</a></td>
+		<td class="col_cutseq">${cuts}</td>
+		<td class="col_rdv"><a href="${url(controller='cutter', action='sequence', assay=assay.id, left_padding=0, right_padding=0, enzymes=c.from_list, allow_methylation=1 if c.enzyme.methylation_sensitivity else '')}">View Restriction Sites</a></td>
+	</tr>
+% endfor
+	</tbody>
+</table>

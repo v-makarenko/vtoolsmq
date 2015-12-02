@@ -1,0 +1,282 @@
+<%inherit file="/setup/steps.html"/>
+<%namespace file="components/layout_grids.html" name="grid" import="*" />
+
+<%def name="pagetitle()">${c.setup.name}: Get Test Plan</%def>
+<%def name="stepclass()">reader</%def>
+
+<%def name="css()">
+${parent.css()}
+${grid.layout_css()}
+<style type="text/css" media="screen">
+	#setup_name {
+		font-size: 21px;
+		font-weight: bold;
+	}
+
+	#overview_container {
+		float: left;
+		width: 510px;
+	}
+
+	#overview_container .col_field {
+		white-space: nowrap;
+	}
+
+	#layout_container {
+		float: right;
+		width: 250px;
+	}
+
+	#layout_container table {
+		width: 250px;
+	}
+
+	#layout_container table,
+	#layout_container table td {
+		border: 1px solid #44494a;
+		border-collapse: collapse;
+	}
+
+	#layout_container table td {
+		vertical-align: middle;
+		text-align: center;
+		padding: 5px;
+		width: 50%;
+	}
+
+	#layout_container table.column_layout td {
+		height: 90px;
+	}
+
+	#layout_container table.half_layout td,
+	#layout_container table.single_half_layout td
+	{
+		padding: 0px;
+		font-size: 9px;
+		line-height: 11px;
+		height: 11px;
+		width: 100%;
+	}
+
+	#layout_container table.quarter_layout td {
+		height: 40px;
+	}
+
+	#setup_notes {
+		margin-bottom: 1em;
+	}
+</style>
+</%def>
+<div id="plan_overview">
+<div id="overview_container">
+<table class="record">
+	<tbody>
+		<tr>
+			<td class="col_field">Droplet Maker:</td>
+			<td>${c.setup.droplet_maker.full_name if c.setup.droplet_maker else h.literal('&nbsp;')}</td>
+		</tr>
+		<tr>
+			<td class="col_field">Reader Operator:</td>
+			<td>${c.setup.author.full_name if c.setup.author else h.literal('&nbsp;')}</td>
+		</tr>
+		<tr>
+			<td class="col_field">Plate Layout:</td>
+			<td>${c.plate_layout[1]}&nbsp;&nbsp;(For now, see Excel spreadsheets for layout details.)</td>
+		</tr>
+		<tr>
+			<td class="col_field">Consumable Layout:</td>
+			<td><a href="${url(controller='setup', action='consumable', id=c.setup.id, beta=True)}">View</a></td>
+		</tr>
+		<tr>
+			<td class="col_field">Used Consumable Bag#:</td>
+			<td>${c.setup.id}</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<div id="layout_container">
+% if c.plate_layout[2] == 'c':
+	${grid.column_layout(c.exec_order)}
+% elif c.plate_layout[2] == 'q':
+	${grid.quarter_layout(c.exec_order)}
+% elif c.plate_layout[2] == 'h':
+	${grid.half_layout(c.exec_order)}
+% elif c.plate_layout[2] == 's':
+	${grid.single_layout(c.exec_order)}
+% elif c.plate_layout[2] == 'sw':
+	${grid.single_whole_layout(c.exec_order)}
+% elif c.plate_layout[2] == 'sh':
+	${grid.single_half_layout(c.exec_order)}
+% elif c.plate_layout[2] == 'vh':
+	${grid.column_half_layout(c.exec_order)}
+% elif c.plate_layout[2] == 'o':
+	${grid.half_layout(c.exec_order[:2])}
+% else:
+	&nbsp;
+% endif
+</div>
+<div class="clear"></div>
+</div>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Task</th>
+			<th>Unit/Config</th>
+			<th>Complete?</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Droplet Generation</td>
+			<td>${c.setup.droplet_generator.name if c.setup.droplet_generator else h.literal('Not Specified')}</td>
+			<td><input id="droplets_generated" type="checkbox" class="progress" /></td>
+		</tr>
+		<tr>
+			<td>Thermal Cycler</td>
+			<td>${c.setup.thermal_cycler.name if c.setup.thermal_cycler else h.literal('Not Specified')}</td>
+			<td><input id="thermal_cycled" type="checkbox" class="progress" /></td>
+		</tr>
+		<!-- have if condition about 2/4 segments -->
+		% if len(c.exec_order) > 0 and c.exec_order[0]:
+		<tr>
+			<td>Section A</td>
+			<td>${c.exec_order[0]} &ndash;
+			% if c.experiment_name:
+				<strong><a href="${url(controller='setup', action='beta_qlt', id=c.setup.id, beta=True, quadrant='A')}">Download QLT</a></strong>
+			% else:
+				<strong>Set operators before downloading QLT</strong>
+			% endif
+			</td>
+			<td><input id="reader1" type="checkbox" class="progress" /></td>
+		</tr>
+		% endif
+		% if (not c.a_quadrant) and c.exec_order[1]:
+		<tr>
+			<td>Section B</td>
+			<td>${c.exec_order[1]} &ndash;
+			% if c.experiment_name:
+				<strong><a href="${url(controller='setup', action='beta_qlt', id=c.setup.id, beta=True, quadrant='B')}">Download QLT</a></strong>
+			% else:
+				<strong>Set operators before downloading QLT</strong>
+			% endif
+			</td>
+			<td><input id="reader2" type="checkbox" class="progress" /></td>
+		</tr>
+		% endif
+		% if len(c.exec_order) > 2 and c.exec_order[2]:
+		<tr>
+			<td>Section C</td>
+			<td>${c.exec_order[2]} &ndash;
+			% if c.experiment_name:
+				<strong><a href="${url(controller='setup', action='beta_qlt', id=c.setup.id, beta=True, quadrant='C')}">Download QLT</a></strong>
+			% else:
+				<strong>Set operators before downloading QLT</strong>
+			% endif
+				</td>
+			<td><input id="reader3" type="checkbox" class="progress" /></td>
+		</tr>
+		% endif
+		% if len(c.exec_order) > 3 and c.exec_order[3]:
+		<tr>
+			<td>Section D</td>
+			<td>${c.exec_order[3]} &ndash;
+			% if c.experiment_name:
+				<strong><a href="${url(controller='setup', action='beta_qlt', id=c.setup.id, beta=True, quadrant='D')}">Download QLT</a></strong>
+			% else:
+				<strong>Set operators before downloading QLT</strong>
+			% endif
+			</td>
+			<td><input id="reader4" type="checkbox" class="progress" /></td>
+		</tr>
+		% endif
+		<!-- this may be correct in the general case -->
+		% for i in range(4, len(c.exec_order)):
+		% if c.exec_order[i]:
+			<% sec = chr(ord('A')+i) %>
+			<tr>
+				<td>Section ${sec}</td>
+				<td>${c.exec_order[i]} &ndash;
+				% if c.experiment_name:
+					<strong><a href="${url(controller='setup', action='beta_qlt', id=c.setup.id, beta=True, quadrant=sec)}">Download QLT</a></strong>
+				% else:
+					<strong>Set operators before downloading QLT</strong>
+				% endif
+				</td>
+				<td><input id="reader${i+1}" type="checkbox" class="progress" /></td>
+			</tr>
+		% endif
+		% endfor
+
+	</tbody>
+</table>
+<strong>Notes:</strong><br/>
+<textarea name="notes" id="setup_notes" rows="4" cols="80">${c.setup.notes}</textarea>
+
+<%def name="action_bar()">
+<div class="action_bar">
+	<h3>Setup Actions:</h3>
+	<div class="action_button">
+		<button id="setup_save">Save</button>
+	</div>
+	<div class="action_button">
+		<form action="${url(controller='setup', action='done', id=c.setup.id, beta=c.beta)}" method="post">
+			<input type="submit" value="Mark as Done" />
+		</form>
+	</div>
+	<div class="action_button">
+		<form action="${url(controller='setup', action='donotrun', id=c.setup.id, beta=c.beta)}" method="post">
+			<input type="submit" value="Skip (Will Not Run)" />
+		</form>
+	</div>
+	<div class="clear"></div>
+</div>
+</%def>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		function getSaveData() {
+			var saveData = {};
+			$('.progress').each(function(i, e) {
+				if($(e).is(':checked')) {
+					saveData[$(e).attr('id')] = true
+				}
+				else {
+					saveData[$(e).attr('id')] = false
+				}
+			});
+			saveData['notes'] = $('#setup_notes').val()
+			return saveData;
+		}
+
+		$(function() {
+			var checkData = ${h.literal(c.data)};
+			for(var check in checkData) {
+				if(checkData[check]) {
+					$('#'+check).attr('checked', 'checked');
+				}
+				else {
+					$('#'+check).attr('checked','')
+				}
+			}
+
+			$('')
+		});
+	</script>
+</%def>
+
+<%def name="setupSaveHandler()">
+	function() {
+		$.post("${url(controller='setup', action='save', id=c.setup.id, beta=c.beta)}",
+		       {block: JSON.stringify(getSaveData()), step: 'progress'},
+		       function(json) {
+			       if(json.status != 302) {
+			          alert(json.msg)	
+			       }
+			       else {
+			       	  window.location.href = json.next;
+			       }
+			   },
+			   'json');
+	}
+</%def>

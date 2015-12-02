@@ -1,0 +1,30 @@
+<%inherit file="/metrics/compare/metric.html"/>
+
+<h5>${c.attr_name}</h5>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Plate Links</th>
+			<th>Reader</th>
+			<th>Date</th>
+			<th>Plate Type</th>
+			<th>Original Value</th>
+			<th>Test Value</th>
+			<th>Diff</th>
+		</tr>
+	</thead>
+	<tbody>
+% for idx, result in enumerate(c.results):
+	<% (oldp, newp), cmpval = result %>
+	<tr class="${idx % 2 and 'odd' or 'even'}${' divider' if c.divider_row and idx == c.divider_row-1 else ''}">
+		<td><a href="${url(controller='plate', action='view', id=oldp.plate_id, analysis_group_id=c.group.id, reprocess_config_id=c.left_config_id)}" title="${oldp.plate.name}">Original</a>&nbsp;|&nbsp;<a href="${url(controller='plate', action='view', id=newp.plate_id, analysis_group_id=c.group.id, reprocess_config_id=c.right_config_id)}" title="${newp.plate.name}">Test</a></td>
+		<td>${oldp.plate.box2.name}</td>
+		<td>${h.ymd(oldp.plate.run_time)}</td>
+		<td>${oldp.plate.plate_type.name if oldp.plate.plate_type else ''}</td>
+		<td>${getattr(oldp, c.attr, None)}</td>
+		<td>${getattr(newp, c.attr, None)}</td>
+		<td><strong>${c.cmp_display(cmpval)}</strong></td>
+	</tr>
+% endfor
+	</tbody>
+</table>

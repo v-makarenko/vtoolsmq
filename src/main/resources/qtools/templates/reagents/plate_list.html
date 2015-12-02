@@ -1,0 +1,92 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Recent Validation Plates</%def>
+<%def name="css()">
+    ${parent.css()}
+    <style type="text/css">
+        #content.tw_bootstrap .pagination {
+            margin-top: 0;
+        }
+
+        #filter_div {
+            text-align: right;
+            line-height: 36px;
+            vertical-align: middle;
+            width: 300px;
+        }
+
+        #filter_div span {
+            margin-right: 1em;
+        }
+    </style>
+</%def>
+
+<form id="filter" action="${url(controller='reagents', action='plate_filter')}" method="get">
+    <div class="row">
+        <div class="span8">
+            ${boot.pager(c.paginator, radius=1, hide_if_single_page=True, single_page_content=h.literal('&nbsp;'), **(c.pager_kwargs))}
+        </div>
+        <div id="filter_div" class="span5">
+            <span>Line</span>
+            ${boot.select('product_line_id', c.product_line_field, klass="span4", inline=True, id='product_line_id')}
+        </div>
+    </div>
+</form>
+% if c.paginator and len(c.paginator):
+<table class="condensed-table zebra-striped">
+<tr>
+    <th>Name</th>
+    <th>Product Line</th>
+    <th>Part</th>
+    <th>Spec</th>
+    <th>Control Lots</th>
+    <th>Test Lots</th>
+    <th>Date</th>
+    <th>Instrument</th>
+</tr>
+% for idx, validation_plate in enumerate(c.paginator):
+    <tr>
+        <td><a href="${url(controller='reagents', action='test_plate', id=validation_plate.id)}">${validation_plate.plate.name}</a></td>
+        <td><a href="${url(controller='reagents', action='parts', id=validation_plate.spec.part.product_line_id)}">${validation_plate.spec.part.product_line.name}</a></td>
+        <td>${validation_plate.spec.part.name}</td>
+        <td><a href="${url(controller='reagents', action='spec', id=validation_plate.spec_id, tab='spec')}">${validation_plate.spec.name}</a></td>
+        <td>
+            % for num in sorted(set([test.lot.number for test in validation_plate.control_lot_tests])):
+                ${num}<br/>
+            % endfor
+        </td>
+        <td>
+            % for num in sorted(set([test.lot.number for test in validation_plate.test_lot_tests])):
+                ${num}<br/>
+            % endfor
+        </td>
+        <td>${h.ymd(validation_plate.plate.run_time)}</td>
+        <td>${validation_plate.plate.box2.name}</td>
+    </tr>
+% endfor
+</table>
+% else:
+<div class="well">
+No validation plates have been run.
+</div>
+% endif
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    <script type="text/javascript">
+        $(function() {
+            $('#product_line_id').change(function() {
+                var val = $(this).val()
+                if(val == '') {
+                    window.location.href = "${url(controller='reagents', action='plates')}";
+                    return false;
+                }
+                else {
+                    $('#filter').submit();
+                    return true;
+                }
+            })
+        })
+    </script>
+</%def>

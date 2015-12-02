@@ -1,0 +1,43 @@
+<%inherit file="/base/index.html"/>
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.plates, li#subnav_plates,
+		#subnav nav.wells li#subnav_wells,
+		#subnav nav.well_tag li#subnav_well_tag {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav.plates li#subnav_plates a,
+		#subnav nav.wells li#subnav_wells a,
+		#subnav nav.well_tag li#subnav_well_tag a {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">box2</%def>
+<%def name="subnav_title()">Box 2 Links</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_well_tag"><a href="${url(controller='box2', action='well_tag')}">Search Wells by Tag</a></li>
+		<li id="subnav_plates"><a href="${url(controller='box2', action='plates')}">Advanced Plate Search</a></li>
+		<li id="subnav_wells"><a href="${url(controller='box2', action='wells')}">Advanced Well Search</a></li>
+	</ul>
+</%def>
+
+<%def name="relatednav()">
+	<ul>
+		<li><a href="${url(controller='plate', action='list')}">Plate List</a></li>
+		<li><a href="${url(controller='plate', action='search')}">Plate Search</a></li>
+	</ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.footer()}
+</div>
+
+<%def name="footer()"></%def>

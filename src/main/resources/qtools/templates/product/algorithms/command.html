@@ -1,0 +1,64 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Reprocess Commands</%def>
+<%def name="selected_page()">algorithm</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="explanation()">
+    <p><strong>NOTE:</strong> These commands assume you have read/write
+    access to the SharedData folder on the QLTester remote Windows
+    instance.  If you do not, ask someone who does (Dimitri, Jeff, IT)
+    to grant you read/write access to QLTester/SharedData.</p>
+</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+<h2>Copying &amp; Updating the Analysis Group on QLTester</h2>
+<p>To batch reprocess QLPs, you need to copy them onto QLTester first.  If you just created the "${c.ag.name}" group,
+    or if you added a new QLP this group, you will need to run this command.</p>
+<p>Before running, be sure you have \\USPLEWIP10\SharedData mounted to V:\ folder.</p>
+<p>Log into QLTester, open the Command Prompt line, and cd into the D:\SharedData folder.  Then, run this:</p>
+<pre>
+<span style='color: #999;'>D:\SharedData</span> python analysis_group_hyperv_copy.py ${c.ag.id}
+</pre>
+<p>The one argument is the ID of the analysis group.  The copying will take some time to finish,
+especially if there is other network traffic and if the USPLEWIP10 volume is running out of space.
+It is also worth it to check the amount of space on QLTester -- it only has about 1.2TB of storage.</p>
+<p>You'll see errors on this if a file has already been copied to QLTester; this is OK.</p>
+
+<h2>Batch Reprocess on QLTester</h2>
+<p>Log into QLTester, open the Command Prompt line, and cd into the D:\SharedData folder.  Then, run this:</p>
+<pre>
+<span style='color: #999;'>D:\SharedData></span> python reprocess_analysis_group_qs.py ${c.ag.id} ${c.rp.code}
+</pre>
+<p>The two arguments are the ID of the analysis group and the code/shorthand of the reprocessor.
+   This may take some time to run.  After that, it's time to process the new QLPs generated
+   by batch reprocessing.</p>
+
+<h2>Analysing the Reprocessed QLPs</h2>
+<p>Log (ssh) into the QTools VM as qtools, run <code>act</code> to activate the QTools Python
+   environment, then run:</p>
+<pre>
+<span style='color: #999;'>(pyenv)$</span> paster --plugin=qtools compute-beta-analysis-group-metrics ${c.ag.id} ${c.rp.code} ~/apps/qtools/production.ini
+</pre>
+<p>This will also take some time, but once it is completed, you should be able to compare
+   the results of the ${c.rp.name} algorithm against the ${c.ag.name} analysis group, and
+   look at per-plate and per-well data for the reprocessed plates using the Versions tab
+   in plate view.</p>
+<h5><a href="${url(controller='product', action='algcommand')}">&lt;&lt; Get Commands for Another Algorithm or Analysis Group</a></h5>
+<form action="${url(controller='product', action='run_algcommand', reprocess_config_id=c.rp.id or '', analysis_group_id=c.ag.id or '')}" method="post">
+
+    <p> If you would like to run these commands auto-magicly,  click here:
+
+    <div class="actions">
+        ${boot.submit('Beta** run commands **')}
+    </div>
+
+    This will take some time to process, please do not click twice
+    </p>
+
+</form>

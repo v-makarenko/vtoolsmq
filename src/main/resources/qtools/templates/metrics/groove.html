@@ -1,0 +1,128 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/metrics/helpers.html" name="mh" import="*" />
+<%namespace file="/metrics/stats_tables.html" name="st" import="*" />
+
+<%def name="pagetitle()">Groove Metrics: ${c.name}</%def>
+<%def name="selected_page()">metrics</%def>
+
+<%include file="/metrics/nav_snippet.html" />
+<%include file="/metrics/nav_filter.html" />
+% if not c.metrics.all_well_metrics:
+	<p>No wells found.</p>
+% else:
+<h5>Basic Statistics</h5>
+<table class="datagrid">
+<thead>
+	<tr>
+		<th>Statistic</th>
+		<th>Value</th>
+		<th>Links</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>Number of Plates</td>
+		<td>${len(c.metrics.metric_plates)}</td>
+		<td><a href="${url(controller='plate', action='list_filter', box2_id=c.dr_id or '', plate_type_id=c.pt_id or '', operator_id=c.operator_id or '', analysis_group_id=c.analysis_group_id)}">Plates</a></td>
+	</tr>
+	<tr>
+		<td>Number of Wells</td>
+		<td>${len(c.metrics.all_well_metrics)}</td>
+		<td>${drilldown_link('wells', 'All Wells', wells='all_well_metrics')}</td>
+	</tr>
+	<tr>
+		<td>Number of Wells &lt; 10000 (excl. Stealth)</td>
+		<td>${len(c.metrics.low_event_wells)} (${h.sig1(100*float(len(c.metrics.low_event_wells))/len(c.metrics.all_well_metrics))}%)</td>
+		<td>${drilldown_link('wells', 'Bad Wells', wells='low_event_wells')}</td>
+	</tr>
+	<tr>
+		<td># Low Data Quality Wells (&lt;0.85)</td>
+		% if len(c.metrics.quality_eligible_wells) > 0:
+		<td>${len(c.metrics.low_quality_wells)}/${len(c.metrics.quality_eligible_wells)} (${h.sig1(100*float(len(c.metrics.low_quality_wells))/len(c.metrics.quality_eligible_wells))}%)</td>
+		% else:
+		<td>0 (0.0%)</td>
+		% endif
+		<td>${drilldown_link('wells', 'Low Quality Wells', wells='low_quality_wells')}</td>
+	</tr>
+	<tr>
+		<td># QS 'Check' Wells (where threshold expected)</td>
+		% if len(c.metrics.quality_eligible_wells) > 0:
+		<td>${len(c.metrics.check_quality_wells)}/${len(c.metrics.quality_eligible_wells)} (${h.sig1(100*float(len(c.metrics.check_quality_wells))/len(c.metrics.quality_eligible_wells))}%)</td>
+		% else:
+		<td>0 (0.0%)</td>
+		% endif
+		<td>${drilldown_link('wells', "'Check' Wells", wells='check_quality_wells')}</td>
+	</tr>
+	<tr>
+		<td>FPFN False Positive 95% Percentile (per 10000)</td>
+		<td>${h.sig1(c.metrics.fpfn_false_positive_ci95)}</td>
+		<td>${drilldown_link('fp_wells', "FP Wells", wells='fpfn_false_positive_wells')}</td>
+	</tr>
+	<tr>
+		<td>FPFN False Negative 95% Percentile (per 10000)</td>
+		<td>${h.sig1(c.metrics.fpfn_false_negative_ci95)}</td>
+		<td>${drilldown_link('fp_wells', "FN Wells", wells='fpfn_false_negative_wells')}</td>
+	</tr>
+
+	<% poly = c.metrics.polydispersity_all_fam_stats %>
+	<tr>
+		<td>% Polydisperse Drops, FAM Channel</td>
+		<td>${h.sig2(poly[0]*100)}%</td>
+		<td>${drilldown_link('width_wells', "Well Widths", wells='all_well_metrics')}</td>
+	</tr>
+	<% air_wells, all_wells = c.metrics.carryover_air_droplet_count_test %>
+	<tr>
+		<td>Carryover Air Droplet Count &gt; 0 (Accepted Gap Air Metric)</td>
+		% if all_wells > 0:
+		<td>${air_wells}/${all_wells} (${h.sig1(float(air_wells*100)/all_wells)}%)</td>
+		% else:
+		<td>0/0 (0.0%)</td>
+		% endif
+		<td><a href="${url(controller='metrics', action='gated_wells', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code, wells='ok_carryover_eventful_wells', operator_id=c.operator_id or '', dr_id=c.dr_id, dg_id=c.dg_id, pt_id=c.pt_id, gated_filter=c.gated_filter, channel=c.channel)}">Air Wells</a></td>
+	</tr>
+</tbody>
+</table>
+
+<h5>Carryover/Certification</h5>
+${st.carryover_table()}
+
+<h5>Singleplex</h5>
+${st.singleplex_table()}
+
+<h5>Standard Duplex/B-Score</h5>
+${st.duplex_table()}
+${st.bscore_table()}
+
+<h5>Dynamic Range: Staph/No Background</h5>
+${st.groove_dnr_table('dnr_eva_staph_wells')}
+
+<h5>Dynamic Range: Staph/High Background</h5>
+${st.groove_dnr_table('dnr_eva_staph_bg_wells')}
+
+<h5>CNV</h5>
+${st.cnv_table()}
+
+<h5>RED</h5>
+${st.red_table()}
+
+<h5>FAM350 DNA Load</h5>
+${st.fam350_load_table()}
+
+<h5>Eva/RNaseP DNA Load</h5>
+${st.eva_dnaload_table()}
+
+<h5>Event Count</h5>
+${st.events_table()}
+
+<h5>Widths (Events > 100)</h5>
+${st.width_table()}
+
+<h5>Rain</h5>
+${st.rain_table()}
+
+<h5>Gating (Events > 1000)</h5>
+${st.gating_table()}
+
+<h5>Baselines</h5>
+${st.baseline_table()}
+% endif

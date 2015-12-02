@@ -1,0 +1,25 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Edit Plate: ${c.plate.name}</%def>
+
+<form action="${url(controller='product', action='batch_saveplate', id=c.plate.id)}" method="post">
+	${boot.text('name', label='Name', autocomplete='off', klass="span4 disabled", id="name", disabled="disabled")}
+	${boot.select('plate_type', c.plate_type, label='Plate Type', klass="span4 disabled", id="plate_type", disabled='disabled')}
+	${boot.select('dg_method', c.dg_method, label='DG Method', required=True, klass="span4", id="dg_method")}
+	${boot.select('thermal_cycler_id', c.thermal_cyclers, label='Thermal Cycler', required=False, klass="span4", id="thermal_cycler_id")}
+	${boot.checkbox("qc_plate", label="QC Plate?", value=c.plate.qc_plate, required=True, klass="span4")}
+	${boot.textarea('plate_notes', label="Notes", autocomplete='off', rows="4", klass="span8", help_block='Add any additional details about the plate here.')}
+	<div class="actions">
+		${boot.submit('Save Plate')}
+		<a href="${url(controller='product', action='batch_plates', id=c.plate.mfg_batch_id)}" class="btn">Back to Batch</a>
+		% if not c.plate.plate:
+			% if c.plate.batch.plate_type.code == 'mfgcc':
+			<a href="${url(controller='product', action='batch_plate_name', id=c.plate.id)}" class="btn info">Get Name</a>
+			% else:
+			<a href="${url(controller='product', action='batch_plate_template', id=c.plate.id)}" class="btn info">Download Template</a>
+			% endif
+		<a href="${url(controller='product', action='batch_plate_upload', id=c.plate.id)}" class="btn info">Upload Plate</a>
+		% endif
+	</div>
+</form>

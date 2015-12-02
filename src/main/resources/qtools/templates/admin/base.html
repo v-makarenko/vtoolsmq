@@ -1,0 +1,43 @@
+<%inherit file="/base/index.html"/>
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.readers li#subnav_readers,
+		#subnav nav.prod_readers li#subnav_prod_readers,
+		#subnav nav.modules li#subnav_modules {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav.readers li#subnav_readers a,
+		#subnav nav.prod_readers li#subnav_prod_readers a,
+		#subnav nav.modules li#subnav_modules a {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">status</%def>
+<%def name="subnav_title()">Status Links</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_readers"><a href="${url(controller='admin', action='readers', admin=False)}">Internal Readers</a></li>
+		<li id="subnav_prod_readers"><a href="${url(controller='admin', action='prod')}">Production Readers</a></li>
+		<li id="subnav_modules"><a href="${url(controller='admin', action='modules')}">Fluidics Modules</a></li>
+        <li id="subnav_modules"><a href="${url(controller='admin', action='detectors')}">Detector Modules</a></li>
+	</ul>
+</%def>
+
+<%def name="relatednav()">
+	<ul>
+		<li><a href="${url(controller='stats', action='boxes')}">DR Utilization</a></li>
+	</ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.pagefooter()}
+</div>
+
+<%def name="pagefooter()"></%def>

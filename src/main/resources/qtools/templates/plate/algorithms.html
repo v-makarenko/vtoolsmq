@@ -1,0 +1,54 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Algorithm Comparison List</%def>
+<%def name="explanation()">
+<p>
+	These plates have been batch reprocessed with different versions of the quantitation algorithm
+	(colloquially known as 'the DLL').  Click on a version number to compare algorithm automatic thresholds
+	and concentrations.
+</p>
+</%def>
+<%def name="selected_page()">algorithms</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		th.col_name, td.col_name {
+			width: 45%;
+		}
+		
+		th.col_software, td.col_software {
+			width: 30%;
+		}
+		
+		th.col_analyses, td.col_analyses {
+			width: 25%;
+		}
+		
+		td.col_analyses a {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+
+<table class="datagrid" id="compares">
+	<thead>
+		<tr>
+			<th class="col_name">Plate Name</th>
+			<th class="col_software">Original Software</th>
+			<th class="col_analyses">Compare Original To:</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, (plate, alg_list) in enumerate(c.plates):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name"><a href="${url(controller='plate', action='view', id=plate.plate.id)}">${plate.plate.name}</a></td>
+		<td class="col_software">${plate.host_software} (QA ${plate.quantitation_algorithm})</td>
+		<td class="col_analyses">
+			% for plate, major, minor, count in alg_list:
+			<a href="${url(controller='plate', action='alg_compare', plate_id=plate.id, major_version=major, minor_version=minor)}">${major}.${minor}</a>&nbsp;
+			% endfor
+		</td>
+	</tr>
+% endfor
+	</tbody>
+</table>

@@ -1,0 +1,38 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Metric Wells: ${c.name}</%def>
+<%def name="selected_page()">metrics</%def>
+
+<%include file="/metrics/nav_back.html" />
+<%include file="/metrics/nav_snippet.html" />
+<%include file="/metrics/nav_filter.html" />
+<table class="datagrid" style="font-size: 11px">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Droplet Reader</th>
+			<th>Plate</th>
+			<th>Plot</th>
+			<th>Plate Type</th>
+			<th>Carryover Wells</th>
+			<th>Total Carryover Peaks</th>
+			<th>Gated Contamination</th>
+			<th>All Contamination</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, pm in enumerate(c.plate_metrics):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${h.ymd(pm.plate.run_time)}</td>
+			<td>${pm.plate.box2.name}</td>
+			<td><a href="${url(controller='plate', action='view', id=pm.plate.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or '')}" title="${pm.plate.name}">View</a></td>
+			<td><a href="${url(controller='plate', action='carryover', id=pm.plate.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or '', channel=c.channel or 0)}">Plot</a></td>
+			<td>${pm.plate.plate_type.name if pm.plate.plate_type else ''}</td>
+			<td>${pm.stealth_wells}</td>
+			<td>${pm.carryover_peaks}</td>
+			<td>${pm.gated_contamination_peaks}</td>
+			<td>${pm.contamination_peaks}</td>
+		</tr>
+	% endfor
+	</tbody>
+</table>

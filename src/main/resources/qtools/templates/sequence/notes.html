@@ -1,0 +1,16 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/sequence/partials.html" name="part" import="*" />
+
+<%def name="pagetitle()">Enter Assay Notes</%def>
+
+<%include file="/sequence/breadcrumbs.html" />
+
+<form action="${url(controller='sequence', action='save_notes', flow=c.flow)}" method="post">
+	${boot.textarea('notes', label='Notes', autocomplete='off', rows="4", klass="span8", help_block='Optimal anneal temperature, ideal conditions, gotchas, etc.')}
+	${boot.text('reference_source', label='Reference Source', klass="span8")}
+	<div class="actions">
+		${boot.submit('Enter Notes')}
+		${part.other_actions(save_now_action=url(controller='sequence', action='save_notes', flow=c.flow, save_now=1))}
+	</div>
+</form>

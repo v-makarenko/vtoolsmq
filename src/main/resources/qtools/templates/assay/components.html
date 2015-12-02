@@ -1,0 +1,211 @@
+<%namespace file="/base/includes.html" name="incl" import="*" />
+
+<%def name="seq_result(seq)">
+<table class="record">
+	<tr><td class="col_field">Amplicon Region:</td><td>${h.ucsc_sequence_amplicon_link(seq)} (${len(seq.amplicon)}bp) ${h.gc_display(seq.amplicon.sequence)} <span class="secondary_info">&Delta;G ${h.sig2(seq.dg) if hasattr(seq,'dg') else '?'}</span></td></tr>
+</table>
+<strong>Sequence (hg19 refseq):</strong><br/>
+<div class="raw_sequence">
+<pre class="positive_sequence">+: <span class="prime5">5'-</span><span class="basestring">${h.wrapped(seq.positive_display_sequence, 100, overhang=6)}</span><span class="prime3">-3'</span></pre>
+<pre class="negative_sequence">-: <span class="prime3">3'-</span><span class="basestring">${h.wrapped(seq.negative_display_sequence, 100, overhang=6)}</span><span class="prime5">-5'</span></pre>
+</div>
+</%def>
+
+<%def name="seq_save_fields(ctx)">
+% for idx, seq in enumerate(ctx.sequences):
+<input type="hidden" name="sequences-${idx}.chromosome" value="${seq.chromosome}" />
+<input type="hidden" name="sequences-${idx}.start_pos" value="${seq.amplicon.start}" />
+<input type="hidden" name="sequences-${idx}.end_pos" value="${seq.amplicon.end}" />
+<input type="hidden" name="sequences-${idx}.strand" value="${seq.strand}" />
+<input type="hidden" name="sequences-${idx}.positive_sequence" value="${seq.merged_positive_sequence.sequence}" />
+<input type="hidden" name="sequences-${idx}.padding_pos5" value="${ctx.left_padding}" />
+<input type="hidden" name="sequences-${idx}.padding_pos3" value="${ctx.right_padding}" />
+    % for sidx, snp in enumerate(seq.snps):
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.bin" value="${snp.bin}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.chrom" value="${snp.chrom}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.chromStart" value="${snp.chromStart}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.chromEnd" value="${snp.chromEnd}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.name" value="${snp.name}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.score" value="${snp.score}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.strand" value="${snp.strand}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.refNCBI" value="${snp.refNCBI}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.refUCSC" value="${snp.refUCSC}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.observed" value="${snp.observed}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.molType" value="${snp.molType}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.class_" value="${snp['class']}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.valid" value="${snp.valid}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.avHet" value="${snp.avHet}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.avHetSE" value="${snp.avHetSE}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.func" value="${snp.func}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.locType" value="${snp.locType}" />
+    <input type="hidden" name="sequences-${idx}.snps-${sidx}.weight" value="${snp.weight}" />
+	% endfor
+% endfor
+</%def>
+
+
+<%def name="snp_results(snps)">
+% if snps and len(snps) > 0:
+<h3>SNPs in Sequence</h3>
+<p>Move your mouse over any of the SNPs to see its position in the sequence.</p>
+<table class="datagrid">
+	<thead>
+	  <tr>
+		<th>Name</th>
+		<th>Chr</th>
+		<th>Start</th>
+		<th>End</th>
+		<th>Strand</th>
+		<th>refUCSC</th>
+		<th>Observed</th>
+		<th>Class</th>
+		<th>Validity</th>
+		<th>avHet</th>
+		<th>avHetSE</th>
+	  </tr>
+	</thead>
+	<tbody>
+	% for idx, snp in enumerate(snps):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${snp['name']}</td>
+			<td>${snp['chrom']}</td>
+			<td>${snp['chromStart']}</td>
+			<td>${snp['chromEnd']}</td>
+			<td>${snp['strand']}</td>
+			<td>${snp['refUCSC']}</td>
+			<td>${snp['observed']}</td>
+			<td>${snp['class']}</td>
+			<td>${snp['valid']}</td>
+			<td>${snp['avHet']}</td>
+			<td>${snp['avHetSE']}</td>
+		</tr>
+	% endfor
+	</tbody>
+</table>
+% endif
+</%def>
+
+<%def name="edit_action(assay)">
+	<div class="action_button">
+	<form action="${url(controller='assay', action='edit', id=assay.id)}" method="get">
+		<input type="submit" value="Edit Assay" />
+	</form>
+	</div>
+</%def>
+
+<%def name="delete_action(assay)">
+	<div class="action_button">
+	<form id="delete_form" action="${url(controller='assay', action='delete', id=assay.id)}" method="post">
+		<input type="submit" value="Delete Assay" id="delete_button" />
+		<script type="text/javascript" charset="utf-8">
+			$('#delete_button').click(function() {
+				return confirm('Are you sure you want to delete the ${c.assay.name} assay?')
+			})
+		</script>
+	</form>
+	</div>
+</%def>
+
+<%def name="cut_action(assay)">
+	<div class="action_button">
+	<form action="${url(controller='cutter', action='index')}" method="get">
+		<input type="hidden" name="assay" value="${assay.id}">
+		<input type="submit" value="Cut Sequence" />
+	</form>
+	</div>
+</%def>
+
+<%def name="re_pick_action(assay)">
+	<div class="action_button">
+	<form action="${url(controller='cutter', action='pick')}" method="get">
+		<input type="hidden" name="assay" value="${assay.id}">
+		<input type="submit" value="Pick Enzymes for CNV" />
+	</form>
+	</div>
+</%def>
+
+<%def name="cnv_action(assay)">
+	<div class="action_button">
+	<form action="${url(controller='sample', action='cnv_new')}" method="get">
+		<input type="hidden" name="assay_id" value="${assay.id}" />
+		<input type="submit" value="Add Sample CNV" />
+	</form>
+	</div>
+</%def>
+
+<%def name="conc_action(assay)">
+	<div class="action_button">
+	<form action="${url(controller='assay', action='enzyme_conc_new')}" method="get">
+		<input type="hidden" name="assay_id" value="${assay.id}" />
+		<input type="submit" value="Specify Enzyme Concentration" />
+	</form>
+	</div>
+</%def>
+
+<%def name="unreject_action(assay)">
+	<div class="action_button">
+	<form action="${url(controller='assay', action='unreject', id=assay.id)}" method="post">
+		<input type="submit" value="Mark As Not Rejected" />
+	</form>
+	</div>
+</%def>
+
+<%def name="reject_action(assay)">
+	<div class="action_button">
+	<form action="${url(controller='assay', action='reject', id=assay.id)}" method="post">
+		<input type="submit" value="Mark As Rejected" />
+	</form>
+	</div>
+</%def>
+
+<%def name="assay_edit_css()">
+	${incl.jqueryui_css()}
+	<style type="text/css">
+		.formbuild {
+			width: 600px;
+		}
+
+		input[type=text], select {
+			width: 150px;
+		}
+
+		.formbuild tr.field td.label {
+			width: 157px;
+			padding-right: 0px;
+		}
+		#tabs .ui-tabs-panel {
+			font-size: 13px;
+			padding: 0.5em 0.5em;
+		}
+
+		#tabs .ui-tabs-panel table {
+			margin-bottom: 0px;
+		}
+
+		#tabs .ui-tabs-nav li a {
+			padding: 0.25em 0.75em;
+		}
+
+		#tabs-primer input {
+			width: 300px
+		}
+
+		#tabs {
+			margin: 15px 0;
+		}
+
+		.formbuild .ui-tabs-panel tr.field td.label {
+			width: 147px;
+		}
+	</style>
+</%def>
+
+<%def name="assay_edit_js(selectedTab=0)">
+	${incl.jqueryui_js()}
+	<script src="${url('/js/uitools.js')}"></script>
+	<script type="text/javascript">
+		$(function() {
+			$('#tabs').tabs({selected: ${selectedTab}});
+		});
+	</script>
+</%def>

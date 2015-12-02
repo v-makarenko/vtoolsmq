@@ -1,0 +1,49 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/query_form.html" import="column_field"/>
+<%namespace file="/components/minigrid.html" name="grid" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    ${grid.css()}
+    ${auto.css()}
+
+    <style type="text/css">
+        .tw_bootstrap a.autoselect_toggle {
+            margin-left: 1em;
+        }
+    </style>
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    ${auto.js()}
+</%def>
+
+<%def name="contentclass()">grid_13 tw_bootstrap omega</%def>
+<%def name="pagetitle()">Search for Plates: By Sample & Assay</%def>
+<%def name="explanation()">
+    <p>Type the names of samples and assays below.  Assays will be autocompleted with records stored in
+    QTools, though you can type something not in the list by using the ESC or TAB keys to hide the
+    menu.  The search will look for samples and targets named like what you type; the search may take
+    a few seconds to complete.</p>
+</%def>
+
+<form id="well_search" action="${url(controller='plate', action='search_results', id=c.search_id)}" method="get">
+    ${boot.text('sample_name', label='Sample Name Contains', klass="span6")}
+    ${boot.select('any_assay', c.assay_field, label='Any Assay Contains', klass="span6 autoselect_text", help_block="To enter a search term not in the list, press Esc or Tab.")}
+    ${boot.select('fam_assay', c.assay_field, label='FAM Assay Contains', klass="span6 autoselect_text")}
+    ${boot.select('vic_assay', c.assay_field, label='VIC Assay Contains', klass="span6 autoselect_text")}
+    <input type="hidden" name="order_by" value="run_time" />
+    <input type="hidden" name="order_by_direction" value="desc" />
+    <div class="actions">
+        ${boot.submit('Search')}
+    </div>
+</form>
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    ${auto.detect_autoselect('#well_search')}
+</%def>

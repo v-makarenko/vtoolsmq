@@ -1,0 +1,59 @@
+<%inherit file="/box2/list.html"/>
+
+<%def name="pagetitle()">Box 2 Well Results</%def>
+<%def name="selected_page()">wells</%def>
+
+<%def name="results_rows()">
+% for idx, well_tuple in enumerate(c.wells):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name">${well_tuple[0].file.dirname}/${well_tuple[0].file.basename}</td>
+		<td class="col_time">${h.ymd(well_tuple[0].host_datetime)}</td>
+		% for i in range(1,len(well_tuple)):
+		<td class="col_val">${well_tuple[i]}</td>
+		% endfor
+	</tr>
+% endfor
+</%def>
+
+<%def name="results_groups()">
+<%
+	dirname = None
+	idx = 0
+%>
+% for well_tuple in c.wells:
+% if well_tuple[0].file.dirname != dirname:
+% if dirname:
+	</tbody>
+</table>
+% endif
+<%
+	dirname = well_tuple[0].file.dirname
+	idx = 0
+%>
+<h5>${dirname}</h5>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th class="col_name">Well Name</th>
+			<th class="col_time">Run Time</th>
+			% for name in c.label_names:
+			<th class="col_val">${name}</th>
+			% endfor
+		</tr>
+	</thead>
+	<tbody>
+%endif
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name">${well_tuple[0].well_name}</td>
+		<td class="col_time">${h.ymd(well_tuple[0].host_datetime)}</td>
+		% for i in range(1,len(well_tuple)):
+		<td class="col_val">${well_tuple[i]}</td>
+		% endfor
+	</tr>
+	<% idx += 1 %>
+% endfor
+% if dirname:
+	</tbody>
+</table>
+% endif
+</%def>

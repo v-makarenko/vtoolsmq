@@ -1,0 +1,26 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/admin/components.html" name="comp" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Register New Lab Reader</%def>
+<%def name="selected_page()">readers</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+<%def name="explanation()">
+    <p>The folders below indicate folders on \\USPLEWIP10\SharedData that do not have corresponding
+       records in QTools.  If you select a folder below, a reader with that name will be registered
+       as a lab reader, and new plates from that reader will be added to QTools.</p>
+    <p>Note: a folder name has to start with 'DR ' to be counted.</p>
+</%def>
+
+<form action="${url(controller='admin', action='do_register_lab_reader')}" method="post">
+    ${boot.select('path', c.reader_field, label='Reader', required=True, klass='span5')}
+    <div class="actions">
+        ${boot.submit('Register')}
+    </div>
+</form>

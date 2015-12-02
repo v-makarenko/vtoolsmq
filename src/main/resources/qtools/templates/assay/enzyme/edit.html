@@ -1,0 +1,52 @@
+<%inherit file="/assay/base.html" />
+<%namespace file="fields.html" name="fields" import="*"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+	<style type="text/css" media="screen"> 
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+</%def>
+
+<%def name="pagetitle()">Edit Enzyme Concentration</%def>
+<%def name="selected_page()">enzedit</%def>
+<%def name="explanation()">
+<p>
+Edit the optimal CNV restriction enzyme concentrations for the ${c.conc.enzyme_id} enzyme against the ${c.conc.assay.name} assay.
+</p>
+</%def>
+
+${c.form.start_with_layout(url(controller='assay', action='enzyme_conc_save', id=c.conc.id), method="post")}
+	${fields.body()}
+	<tr><td>
+	${c.form.submit("submit","Save Concentrations")}
+	</td></tr>
+${c.form.end_with_layout()}
+
+<div class="action_bar">
+<h3>More Actions:</h3>
+	<div class="action_button">
+	<form id="delete_form" action="${url(controller='assay', action='enzyme_conc_delete', id=c.conc.id)}" method="post">
+		<input type="submit" value="Delete Concentrations" id="delete_button" />
+		<script type="text/javascript" charset="utf-8">
+			$('#delete_button').click(function() {
+				return confirm('Are you sure you want to delete these concentrations?')
+			})
+		</script>
+	</form>
+	</div>
+	<div class="clear"></div>
+</div>
+
+<%def name="pagescript()">
+	${auto.detect_autoselect('#form')}
+</%def>

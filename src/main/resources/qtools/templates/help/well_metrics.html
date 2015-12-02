@@ -1,0 +1,18 @@
+<%inherit file="/help/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/help.html" name="help" import="*" />
+
+<%def name="pagetitle()">Well Metrics</%def>
+<%def name="selected_page()">well_metrics</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${help.col_definition_table_css()}
+</%def>
+
+<%def name="explanation()">
+    <p>The table below explains the well metrics found in the Plate View, Trend, Replicate Analysis and other pages throughout QTools.  These attributes are derived from the <code>well_metric</code> table, and <code>WellMetric</code> model in the QTools code.</p>
+    <p>This table is actually derived from the <code>qtools.model.WellMetric</code> class, so this table should automatically update if a new column or property is added.</p>
+</%def>
+
+${help.col_definition_table(c.well_metric_cols)}

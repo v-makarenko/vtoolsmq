@@ -1,0 +1,23 @@
+<%inherit file="/assay/base.html" />
+<%namespace file="fields.html" name="fields" import="*"/>
+
+<%def name="css()">
+${parent.css()}
+	<style type="text/css" media="screen"> 
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+<%def name="pagetitle()">Enter New Sample</%def>
+<%def name="selected_page()">samplenew</%def>
+<%def name="explanation()">
+Enter sample information below.
+</%def>
+
+${c.form.start_with_layout(url(controller='sample', action='create'), method="post")}
+	${fields.body()}
+	<tr><td>
+	${c.form.submit("submit","Save Sample")}
+	</td></tr>
+${c.form.end_with_layout()}

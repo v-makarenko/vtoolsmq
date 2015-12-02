@@ -1,0 +1,36 @@
+<%inherit file="/plate/list_base.html" />
+<%namespace file="/components/old_form_style.html" import="*" name="ofs" />
+
+<%def name="plate_filter_fields()">
+    <table class="gridfield">
+        <tr>
+        <td class="field_col">
+            <table>
+                ${c.form.field('project_id', 'dropdown',
+                    label="Project",
+                    attributes=dict(id="project_id")
+                )}
+            </table>
+        </td>
+        <td class="field_col">
+            <table>
+                ${c.form.field('operator_id', 'dropdown',
+                    label="Operator",
+                    attributes=dict(id="operator_id")
+                )}
+            </table>
+        </td>
+        <td class="field_col">
+            <table>
+                ${ofs.optgroup('box2_id', c.lab_box2_field, label='Reader', id='box2_id')}
+            </table>
+        </td>
+        <td class="field_col">
+            <a href="${url(controller='plate', action='list')}">Reset</a>
+            <input type="hidden" name="plate_type_id" value="${c.plate_type_id}" />
+            <input type="hidden" name="analysis_group_id" value="${c.analysis_group_id}" />
+            <input type="hidden" name="onsite" value="${c.onsite}" />
+        </td>
+        </tr>
+    </table>
+</%def>

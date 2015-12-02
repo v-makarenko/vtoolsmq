@@ -1,0 +1,95 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Galaxy: Time Animation, ${c.channel_name}</%def>
+<%def name="selected_page()">mipcnv</%def>
+<%def name="explanation()">
+<p>Below is a real-time animation of where droplets are measured in amplitude-width space.  You will need a modern browser (IE9, Firefox, Safari, Chrome) to view this animation.</p>
+</%def>
+
+<%def name="js()">
+${parent.js()}
+<script type="text/javascript" src="${url('/js/processing-1.3.5.min.js')}"></script>
+</%def>
+
+<canvas id="canvas" width="600" height="400"></canvas>
+
+<%def name="pagescript()">
+${parent.pagescript()}
+<script type="text/javascript">
+	GalaxyAnim = function(w, h) {
+		this.w = w;
+		this.h = h;
+		this.minA = Math.log(100);
+		this.maxA = Math.log(32000);
+		this.minW = 5;
+		this.maxW = 20;
+		this.sampleRate = 100000.0;
+	}
+	GalaxyAnim.prototype.wxform = function(w) {
+		return this.h-(((w-this.minW)/(this.maxW-this.minW))*this.h);
+	}
+	GalaxyAnim.prototype.axform = function(a) {
+		// to avoid bad Math.log vals
+		if(a < this.minA) {
+			return -1;
+		}
+		return ((Math.log(a)-this.minA)/(this.maxA-this.minA))*this.w;
+	}
+	GalaxyAnim.prototype.xformTArray = function(ampwidth) {
+		var pointArr = [];
+		for(var i=0;i<ampwidth.length;i++) {
+			pointArr.push([ampwidth[i][0],this.axform(ampwidth[i][1]), this.wxform(ampwidth[i][2])]);
+		}
+		return pointArr;
+	}
+	GalaxyAnim.prototype.sketch = function(points) {
+		this.points = this.xformTArray(points);
+		this.maxTime = this.points[this.points.length-1][0]
+		var self = this;
+		return function(pg) {
+			pg.setup = function() {
+				self.sample = 0;
+				self.idx = 0;
+				pg.size(self.w,self.h);
+				pg.background(100);
+				pg.stroke(255);
+				pg.fill(100)
+				pg.rect(10,10,self.w-20,20);
+				pg.frameRate(30);
+
+				pg.colorMode(pg.HSB, self.maxTime, 100, 100)
+			}
+			pg.draw = function() {
+				var old = self.sample;
+				self.sample += self.sampleRate/30;
+				if(self.sample >= self.maxTime) {
+					return;
+				}
+				pg.stroke(0, 0, 100)
+				pg.fill(0, 0, 100)
+				pg.rect(10+(old*(self.w-20))/(1.0*self.maxTime), 10, self.sampleRate/(30*self.maxTime), 20);
+				for(var i=self.idx;i<self.points.length;i++) {
+					if(self.points[i][0] < self.sample) {
+						pg.stroke(self.points[i][0], 100, 100)
+						pg.fill(self.points[i][0], 100, 100)
+						pg.ellipse(self.points[i][1],self.points[i][2],1,1);
+					}
+					else {
+						self.idx = i;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	var points = [
+	% for t, amp, width in c.taw:
+		[${t},${amp},${width}],
+	% endfor
+	[2600000, 40000, 40000]
+	];
+	var anim = new GalaxyAnim(600,400);
+	var p2d = new Processing($('#canvas')[0], anim.sketch(points));
+</script>
+</%def>

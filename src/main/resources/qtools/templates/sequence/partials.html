@@ -1,0 +1,433 @@
+
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="assay_basics(assay, show_location=False, show_snp=False)">
+<div class="row split_table">
+	<div class="span6" style="width: 380px;">
+		<table class="condensed-table unlined">
+			<tr>
+				<td>Name</td>
+				<td>${assay.name}</td>
+			</tr>
+			<tr>
+				<td>Gene</td>
+				<td>${assay.gene or h.literal('&nbsp;')}</td>
+			</tr>
+			<tr>
+				<td>Owner</td>
+				<td>${c.owner.full_name if c.owner else h.literal('&nbsp;')}</td>
+			</tr>
+			<tr>
+				<td>Status</td>
+				<td>${c.status}</td>
+			</tr>
+			% if show_location:
+			<tr>
+				<td>Chromosome</td>
+				<td>${c.chromosome}</td>
+			</tr>
+			<tr>
+				<td>Location</td>
+				<td>${c.location}</td>
+			</tr>
+			% endif
+			% if show_snp:
+			<tr>
+				<td>SNP Target</td>
+				<td>${c.snp_rsid}</td>
+			</tr>
+			% endif
+		</table>
+	</div>
+	<div class="span6" style="width: 380px;">
+		<table class="condensed-table unlined">
+			<tr>
+				<td>Assay Type</td>
+				<td>${c.assay_type if c.assay_type else h.literal('&nbsp;')}</td>
+			</tr>
+			<tr>
+				<td>Chemistry Type</td>
+				<td>${c.chemistry_type}</td>
+			</tr>
+			% if c.tags:
+			<tr>
+				<td>Categories</td>
+				<td>${', '.join([t.name for t in c.tags])}
+			</tr>
+			% else:
+			<tr>
+				<td>Categories</td>
+				<td>&nbsp;</td>
+			</tr>
+			% endif
+			<tr>
+				<td>Entered</td>
+				<td>${h.ymd(assay.added) if hasattr(assay, 'added') else h.literal('&nbsp;')}</td>
+			</tr>
+			% if show_location or show_snp:
+			<tr>
+				<td>Amplicon Size</td>
+				<td>${c.amplicon_length}</td>
+			</tr>
+			% endif
+		</table>
+	</div>
+</div>
+</%def>
+
+<%def name="assay_notes(assay)">
+% if assay.notes or assay.reference_source:
+	<table class="condensed-table">
+		% if assay.notes:
+		<tr>
+			<td>Notes</td>
+			<td>${assay.notes}</td>
+		</tr>
+		% endif
+		% if assay.reference_source:
+		<tr>
+			<td>Reference Source</td>
+			<td>${assay.reference_source}</td>
+		</tr>
+		% endif
+	</table>
+% else:
+	<div class="well">There are no notes or reference sources for this assay.</div>
+% endif
+</%def>
+
+<%def name="assay_protocols(assay)">
+	<div class="span6" style="width: 380px;">
+		<table class="condensed-table unlined">
+			<tr>
+				<td>Approved for Release</td>
+				<td>${h.yesno(assay.approved_for_release)}</td>
+			</tr>
+		</table>
+	</div>
+</%def>
+
+
+
+<%def name="primer_assay(assay)">
+	<table class="multi-row condensed-table">
+		<tr class="row-parent">
+			<td rowspan="${len(assay.forward_primers)}">Forward Primers</td>
+			% for idx, fp in enumerate(assay.forward_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>
+				% if fp['primary']:
+				<strong>5'-${fp['sequence']}-3'</strong>
+				% else:
+				5'-${fp['sequence']}-3'
+				% endif
+			</td>
+			<td class="oligo_label">${fp['barcode_label']}</td>
+		</tr>
+			% endfor
+		<tr class="row-parent">
+			<td rowspan="${len(assay.reverse_primers)}">Reverse Primers</td>
+			% for idx, rp in enumerate(assay.reverse_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>
+				% if rp['primary']:
+				<strong>5'-${rp['sequence']}-3'</strong>
+				% else:
+				5'-${rp['sequence']}-3'
+				% endif
+			</td>
+			<td class="oligo_label">${rp['barcode_label']}</td>
+		</tr>
+			% endfor
+		% if hasattr(assay, 'probes') and assay.probes:
+		<tr class="row-parent">
+			<td rowspan="${len(assay.probes)}">Probes</td>
+			% for idx, p in enumerate(assay.probes):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>
+				% if p['primary']:
+				<strong>5'-${p['dye']}-${p['sequence']}-${p['quencher']}-3'</strong>
+				% else:
+				5'-${p['dye']}-${p['sequence']}-${p['quencher']}-3'
+				% endif
+			</td>
+			<td class="oligo_label">${p['barcode_label']}</td>
+		</tr>
+			% endfor
+		% endif	
+	</table>
+</%def>
+
+<%def name="location_assay(assay)">
+	<table class="multi-row condensed-table">
+		<tr class="row-parent">
+			<td rowspan="${len(assay.forward_primers)}">Forward Primers</td>
+			% for idx, fp in enumerate(assay.forward_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>&nbsp;</td>
+			<td class="oligo_label">
+				% if fp['primary']:
+					<strong>${fp['barcode_label']}</strong>
+				% else:
+					${fp['barcode_label']}
+				% endif
+			</td>
+		</tr>
+			% endfor
+		<tr class="row-parent">
+			<td rowspan="${len(assay.reverse_primers)}">Reverse Primers</td>
+			% for idx, rp in enumerate(assay.reverse_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>&nbsp;</td>
+			<td class="oligo_label">
+				% if rp['primary']:
+					<strong>${rp['barcode_label']}</strong>
+				% else:
+					$rp['barcode_label']}
+				% endif
+			</td>
+		</tr>
+			% endfor
+		% if hasattr(assay, 'probes') and assay.probes:
+		<tr class="row-parent">
+			<td rowspan="${len(assay.probes)}">Probes</td>
+			% for idx, p in enumerate(assay.probes):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>
+				% if p['primary']:
+				<strong>${p['dye']}, ${p['quencher']}</strong>
+				% else:
+				${p['dye']}, ${p['quencher']}
+				% endif
+			</td>
+			<td class="oligo_label">
+				% if p['primary']:
+					<strong>${p['barcode_label']}</strong>
+				% else:
+					$p['barcode_label']}
+				% endif
+			</td>
+		</tr>
+			% endfor
+		% endif
+	</table>
+</%def>
+
+<%def name="snp_assay(assay)">
+	<table class="multi-row condensed-table">
+		<tr class="row-parent">
+			<td rowspan="${len(assay.forward_primers)}">Forward Primers</td>
+			% for idx, fp in enumerate(assay.forward_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td colspan="2">${"Allele: %s" % fp['allele'] if fp['allele'] else h.literal('&nbsp;')}</td>
+			<td class="oligo_label">
+				% if fp['primary']:
+					<strong>${fp['barcode_label']}</strong>
+				% else:
+					${fp['barcode_label']}
+				% endif
+			</td>
+		</tr>
+			% endfor
+		<tr class="row-parent">
+			<td rowspan="${len(assay.reverse_primers)}">Reverse Primers</td>
+			% for idx, rp in enumerate(assay.reverse_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td colspan="2">${"Allele: %s" % rp['allele'] if rp['allele'] else h.literal('&nbsp;')}</td>
+			<td class="oligo_label">
+				% if rp['primary']:
+					<strong>${rp['barcode_label']}</strong>
+				% else:
+					$rp['barcode_label']}
+				% endif
+			</td>
+		</tr>
+			% endfor
+		% if hasattr(assay, 'probes') and assay.probes:
+		<tr class="row-parent">
+			<td rowspan="${len(assay.probes)}">Probes</td>
+			% for idx, p in enumerate(assay.probes):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>
+				% if p['primary']:
+					<strong>${"Allele: %s" % p['allele'] if p['allele'] else h.literal('&nbsp;')}</strong>
+				% else:
+					${"Allele: %s" % p['allele'] if p['allele'] else h.literal('&nbsp;')}
+				% endif
+			</td>
+			<td>
+				% if p['primary']:
+				<strong>${p['dye']}, ${p['quencher']}</strong>
+				% else:
+				${p['dye']}, ${p['quencher']}
+				% endif
+			</td>
+			<td class="oligo_label">
+				% if p['primary']:
+					<strong>${p['barcode_label']}</strong>
+				% else:
+					${p['barcode_label']}
+				% endif
+			</td>
+		</tr>
+			% endfor
+		% endif
+	</table>
+</%def>
+
+<%def name="seq_result(seq, verified=False)">
+<p><strong>Amplicon Region:</strong>&nbsp; ${h.ucsc_sequence_amplicon_link(seq)} (${len(seq.positive_display_sequence)}bp)&nbsp;&nbsp;
+	% if verified:
+		<em style="color: #090;">determined by primer matching</em>
+	% else:
+		<em style="color: #c90;">estimated; determined by SNP or location, not by primer matching</em>
+	% endif
+</p>
+<div class="raw_sequence">
+<pre class="positive_sequence">+: <span class="prime5">5'-</span><span class="basestring">${h.wrapped(seq.positive_display_sequence.upper() if verified else seq.positive_display_sequence, 100, overhang=6)}</span><span class="prime3">-3'</span></pre>
+<pre class="negative_sequence">-: <span class="prime3">3'-</span><span class="basestring">${h.wrapped(seq.negative_display_sequence.upper() if verified else seq.negative_display_sequence, 100, overhang=6)}</span><span class="prime5">-5'</span></pre>
+</div>
+</%def>
+
+<%def name="transcript_result(genomic_region, transcripts, verified=False)">
+<p><strong>Transcript Genomic Region:</strong>&nbsp; ${h.ucsc_transcript_genomic_link(transcripts[0])} (${len(transcripts[0].positive_display_sequence)}bp)&nbsp;&nbsp;
+	% if verified:
+		<em style="color: #090;">determined by primer matching</em>
+	% else:
+		<em style="color: #c90;">estimated; determined by SNP or location, not by primer matching</em>
+	% endif
+	<br/>
+	<strong>Known Transcripts:</strong>
+		${h.literal(', ').join([h.ucsc_transcript_local_link(t) for t in transcripts])}
+</p>
+<div class="raw_sequence">
+<pre class="positive_sequence">+: <span class="prime5">5'-</span><span class="basestring">${h.wrapped(transcripts[0].positive_display_sequence.upper() if verified else transcripts[0].positive_display_sequence, 100, overhang=6)}</span><span class="prime3">-3'</span></pre>
+<pre class="negative_sequence">-: <span class="prime3">3'-</span><span class="basestring">${h.wrapped(transcripts[0].negative_display_sequence.upper() if verified else transcripts[0].negative_display_sequence, 100, overhang=6)}</span><span class="prime5">-5'</span></pre>
+</div>
+</%def>
+
+<%def name="snp_results(snps)">
+% if snps and len(snps) > 0:
+<h3>SNPs in Sequence</h3>
+<table class="datagrid condensed-table zebra-striped">
+	<thead>
+	  <tr>
+		<th>Name</th>
+		<th>Chr</th>
+		<th>Start</th>
+		<th>End</th>
+		<th>Strand</th>
+		<th>refUCSC</th>
+		<th>Observed</th>
+		<th>Class</th>
+		<th>Validity</th>
+		<th>avHet</th>
+		<th>avHetSE</th>
+	  </tr>
+	</thead>
+	<tbody>
+	% for idx, snp in enumerate(snps):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${snp['name']}</td>
+			<td>${snp['chrom']}</td>
+			<td>${snp['chromStart']}</td>
+			<td>${snp['chromEnd']}</td>
+			<td>${snp['strand']}</td>
+			<td>${snp['refUCSC']}</td>
+			<td>${snp['observed']}</td>
+			<td>${snp['class']}</td>
+			<td>${snp['valid']}</td>
+			<td>${snp['avHet']}</td>
+			<td>${snp['avHetSE']}</td>
+		</tr>
+	% endfor
+	</tbody>
+</table>
+% endif
+</%def>
+
+<%def name="save_now(action, title='Save and Exit')">
+	${boot.secondary_action(title, klass='success', id='save_now')}
+	<script type="text/javascript">
+		$(function() {
+			$('#save_now').click(function() {
+				var form = $(this).parents('form')
+				form.attr('action', "${action}")
+				return true;
+			});
+		});
+	</script>
+</%def>
+
+	${boot.secondary_action(title, klass='danger', name='do_revert')}
+
+<%def name="other_actions(save_now_action=None)">
+	% if c.flow == 'sequence.new':
+		${boot.secondary_action('Reset',klass='danger',name="do_action")}
+	% else:
+		${save_now(save_now_action)}
+		${boot.secondary_action('Revert', klass='danger', name="do_action")}
+	% endif
+</%def>
+
+<%def name="job_css()">
+<style type="text/css">
+	table.table-job-status {
+		font-size: 12px !important;
+		background-color: white;
+		border: 1px solid #ddd;
+	}
+
+	table.table-job-status tr.job_status-1 td {
+		background-color: #fee;
+	}
+</style>
+</%def>
+
+<%def name="job_details(job)">
+	<table class="condensed-table table-job-status">
+		<thead>
+			<tr>
+				<th>Job Type</th>
+				<th>Status</th>
+				<th>Started</th>
+				<th>Updated</th>
+			</tr>
+		</thead>
+		<tbody>
+			${job_details_recursive(job)}
+		</tbody>
+	</table>
+</%def>
+
+<%def name="job_details_recursive(job, indent=0)">
+	<% from qtools.constants.job import JOB_TYPE_DISPLAY_DICT, JOB_STATUS_DISPLAY_DICT %>
+	<tr class="job_status${job.status}">
+		<td>${h.literal('&nbsp;')*indent}${JOB_TYPE_DISPLAY_DICT.get(job.type, "Unknown")}</td>
+		<td>${JOB_STATUS_DISPLAY_DICT.get(job.status, "Unknown")}</td>
+		<td>${h.time_ago_in_words(job.date_created)} ago</td>
+		<td>${h.time_ago_in_words(job.date_updated)} ago</td>
+	</tr>
+	% for kid in job.children:
+	${job_details_recursive(kid, indent=indent+3)}
+	% endfor
+</%def>
+			

@@ -1,0 +1,108 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Plate Batch List</%def>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		#content.tw_bootstrap .pagination {
+			margin-top: 0;
+		}
+		#filter_div div {
+			height: 36px;
+			line-height: 36px;
+			vertical-align: middle;
+		}
+		#filter_div .input {
+			margin-left: 0;
+		}
+
+		#filter label {
+			width: auto;
+			line-height: 36px;
+			padding-top: 0px;
+			margin-right: 10px;
+		}
+
+		#plate_type {
+			width: 200px;
+		}
+
+	</style>
+</%def>
+
+<div class="upper_link">
+	<a class="btn primary" href="${url(controller='product', action='batch_new')}">New Batch</a>
+</div>
+
+
+<form id="filter" action="${url(controller='product', action='batch_filter')}" method="get">
+	<div class="row">
+		<div class="span8">
+			${boot.pager(c.paginator, radius=1, **(c.pager_kwargs))}
+		</div>
+		<div id="filter_div" class="span5">
+			${boot.select('plate_type', c.plate_type_field, label='Plate Type', id="plate_type")}
+		</div>
+	</div>
+</form>
+<table class="condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th>Name/Plates</th>
+			<th>Type</th>
+			<th>QC'd?</th>
+			<th>Size OK?</th>
+			<th>DG Method</th>
+			<th>Maker</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, batch in enumerate(c.paginator):
+		<tr>
+			<td><a href="${url(controller='product', action='batch_plates', id=batch.id)}">${batch.name}</td>
+			<td>${batch.plate_type.name}</td>
+			<td>
+				% if batch.qc_plate_record():
+				<strong>Yes</strong>
+				% else:
+				No
+				% endif
+			</td>
+			<td>
+				% if batch.all_correctly_sized:
+				Yes
+				% elif batch.all_correctly_sized == False:
+				<span style="color: #900;">No</span>
+				% else:
+				&nbsp;
+				% endif
+			</td>
+			<td>${batch.default_dg_method_display}</td>
+			<td>${batch.creator.full_name if batch.creator else ''}</td>
+			<td><a href="${url(controller='product', action='batch_edit', id=batch.id)}">Edit Info</a></td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		$(function() {
+			$('#plate_type').change(function() {
+				var val = $(this).val()
+				if(val == '') {
+					window.location.href = "${url(controller='product', action='batch_list')}";
+					return false;
+				}
+				else {
+					$('#filter').submit();
+					return true;
+				}
+			})
+		})
+	</script>
+</%def>

@@ -1,0 +1,29 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Assay Category List</%def>
+
+<div class="upper_link">
+	<a class="btn primary" href="${url(controller='assay_group', action='new')}">New Category</a>
+</div>
+<table class="condensed-table zebra-striped" style="margin-top: 20px">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Creator</th>
+			<th>Notes</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for tag in c.tags:
+		<tr>
+			<td><a href="${url(controller='sequence', action='list_filter', category=tag.id)}">${tag.name}</a></td>
+			<td>${tag.owner.name_code if tag.owner else h.literal('&nbsp;')}</td>
+			<td>${tag.notes[:60]}${'...' if tag.notes and len(tag.notes) > 60 else ''}</td>
+			<td><a href="${url(controller='assay_group', action='edit', id=tag.id)}">Edit</a>&nbsp;|
+			    <a href="${url(controller='sequence', action='list_filter', category=tag.id)}">Assays</a></td>
+		</tr>
+	% endfor
+	</tbody>
+</table>

@@ -1,0 +1,39 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagetitle()">${c.subtitle}: ${c.plate.name}</%def>
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+	<style type="text/css">
+		#content .autoselect_toggle {
+			margin-left: 10px;
+		}
+	</style>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+</%def>
+
+<form action="${c.action}" method="get">
+	${boot.select('box2_id', c.box2s, label='Reader/Detector', autocomplete='off', klass="span4 autoselect", help_block='In autocomplete mode, type in a serial and then select with your mouse.')}
+	${boot.checkbox("qc_plate", label="QC Plate?", value=c.plate.qc_plate, required=True, klass="span4")}
+	<div>
+		To register a new reader, <a href="${url(controller='admin', action='register', id='reader')}">click here.</a><br/>
+		To register a new fluidics module, <a href="${url(controller='admin', action='register', id='module')}">click here.</a><br/>
+	    To register a new detector module, <a href="${url(controller='admin', action='register', id='detector')}">click here.</a>
+    </div>
+	<div class="actions">
+		${boot.submit(c.call_to_action)}
+		<a href="${url(controller='product', action='batch_plates', id=c.plate.mfg_batch_id)}" class="btn">Back to Batch</a>
+	</div>
+</form>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	${auto.detect_autoselect('#box2_id', toggleInputText='Type/AutoComplete')}
+</%def>

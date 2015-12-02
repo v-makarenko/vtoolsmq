@@ -1,0 +1,27 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/base/includes.html" name="incl" import="*" />
+
+<%def name="pagetitle()">Save Circuit Name</%def>
+<%def name="selected_page()">readers</%def>
+<%def name="explanation()">
+<p>The log for ${c.dr.name} has been saved.  Please name this new configuration circuit below.</p>
+</%def>
+<%def name="css()">
+	${parent.css()}
+	${incl.jqueryui_css()}
+	<style type="text/css" media="screen">
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+
+${c.form.start_with_layout(url(controller='admin', action='save_circuit', id=c.log.id), method='post')}
+${c.form.field('name', 'text',
+	label="Circuit Name",
+	required=True
+)}
+<tr class="formbutton">
+	<td><input type="hidden" name="log_id" value="${c.log.id}" />${c.form.submit('submit', "Save Circuit")}</td>
+</tr>
+${c.form.end_with_layout()}

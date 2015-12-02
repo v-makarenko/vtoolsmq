@@ -1,0 +1,87 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/base/includes.html" name="incl" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Name &amp; Create a ${'Beta/Validation' if c.validation_mode else ''} Plate</%def>
+<%def name="selected_page()">nameplate</%def>
+<%def name="explanation()">
+% if c.validation_mode:
+<p>Select from one of the Beta project types and plate types below.  To download a template, click 'Name My Plate'
+and then select 'Download a Validation Template'.</p>
+% else:
+<p>Enter the plate information and press the "Name Plate" button.  You can choose to add metadata now (<em>please do so if you know it</em>), or later.  After the plate is named, you will have the option to create
+a QLT template with QTools.</p>
+% endif
+</%def>
+<%def name="css()">
+	${parent.css()}
+	${incl.jqueryui_css()}
+    ${boot.css()}
+    <style type="text/css">
+        a.autoselect_toggle {
+            margin-left: 1em;
+        }
+
+        form.smallform label,
+        form.smallform input,
+        form.smallform select,
+        form.smallform textarea,
+        form.smallform span.help-block,
+        form.smallform a.autoselect_toggle {
+            font-size: 11px;
+            line-height: 15px;
+        }
+    </style>
+	<noscript>
+		<style type="text/css" media="screen">
+			form .autoselect {
+				display: inline;
+			}
+		</style>
+	</noscript>
+</%def>
+
+<%def name="contentclass()">omega grid_13 tw_bootstrap</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${incl.jqueryui_js()}
+	<script src="${url('/js/uitools.js')}"></script>
+</%def>
+
+<form action="${url(controller='plate', action='create_template', mode='validation' if c.validation_mode else '')}" method="post" class="smallform">
+    <h3>Mandatory Fields</h3>
+    ${boot.select('project', c.project_field, label="Project", id="project", help_block='New projects will be added when you save the plate', klass="span5 autoselect", required=True)}
+    ${boot.select('user', c.user_field, label="Owner", id="user", klass="span5")}
+    % if c.validation_mode:
+        ${boot.select('experiment_name', c.experiment_name_field, label="Plate Type")}
+    % else:
+        ${boot.text('experiment_name', label="Experiment Name", help_block='36 characters max')}
+    % endif
+    <p style="font-style: italic; margin-left: 2em; color: #555;">You can specify a plate type by selecting 'Download Validation Template' after clicking 'Name My Plate!'</p>
+    <h3>Metadata</h3>
+    <!-- skip plate type: move on to pick template -->
+    ${boot.select('physical_plate_id', c.physical_plate_field, label="Physical Plate Type", klass="span5")}
+    ${boot.select('dg_used_id', c.dg_used_field, label="Droplet Generator Used", klass="span5")}
+    ${boot.select('droplet_generation_method', c.droplet_method_field, label="Physical Plate Type", klass="span5")}
+    ${boot.select('dg_oil', c.dg_oil_field, label='Droplet Generator Oil', klass='span3')}
+    ${boot.select('dr_oil', c.dr_oil_field, label='Droplet Reader Oil', klass='span3')}
+    ${boot.select('master_mix', c.master_mix_field, label='Master Mix', klass='span5')}
+    ${boot.select('droplet_maker', c.user_field, label='Droplet Maker (Person)', klass='span5')}
+    <div class="actions">
+        ${boot.submit('Name my Plate!')}
+    </div>
+</form>
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#project").each(function() {
+				$(this).autoselect({'toggleSelect': true, 'toggleMode': 'select', 'toggleInputText': 'Other', 'attrs': {'maxlength': 12, 'size': 12}})
+			})
+			$("form").submit(function() {
+				$(this).submit_autoselect()
+			})
+		})
+	</script>
+</%def>

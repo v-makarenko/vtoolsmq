@@ -1,0 +1,26 @@
+<%inherit file="/product/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Upload Log File</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    ${boot.upload_submit_css()}
+</%def>
+
+<%def name="explanation()">
+    <p>Upload the QLCommDllLog.txt file from a QuantaSoft run folder.  If there are errors in that comm file, they
+    will show up on the subsequent page.  Logfiles may take a few seconds to process.</p>
+</%def>
+
+<form action="${url(controller='product', action='logfile_process')}" method="post" enctype="multipart/form-data" id="form">
+    ${boot.file('upload', label='Log File', klass="span4", id="logfile")}
+    ${boot.upload_submit_html(label='Upload File', message='Uploading log file...')}
+</form>
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    ${boot.upload_submit_js('#form')}
+</%def>

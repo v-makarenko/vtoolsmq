@@ -1,0 +1,39 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">${c.title}</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+<form action="${c.submit_action}" method="post">
+    ${boot.select('type', c.type, label='Type', klass="span4", id="type")}
+    ${boot.text('name', label='Name', autocomplete='off', klass="span6", id="name")}
+    <div class="actions">
+        ${boot.submit(c.call_to_action)}
+        <a href="${url(controller='reagents', action='lines')}" class="btn">Cancel</a>
+        % if c.record_exists:
+        <a href="${url(controller='reagents', action='parts', id=c.line_id)}" class="btn">View Part Numbers</a>
+        % if c.allow_delete:
+        <a href="${url(controller='reagents', action='line_delete', id=c.line_id)}" class="btn danger" id="line_delete">Delete Product Line</a>
+        % endif
+        % endif
+    </div>
+</form>
+
+<%def name="pagescript()">
+<script type="text/javascript">
+    $(function() {
+        $('#line_delete').click(function() {
+            var form = $(this).parents('form')
+            form.attr('action', $(this).attr('href'))
+            if(confirm('Are you sure you want to delete this product line?')) {
+                form.submit()
+            }
+            return false;
+        });
+    });
+</script>
+</%def>

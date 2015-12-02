@@ -1,0 +1,29 @@
+<%inherit file="/plate/list_base.html" />
+
+<%def name="plate_filter_fields()">
+    <table class="gridfield">
+        <tr>
+        <td class="field_col">
+            <table>
+                ${c.form.field('box2_id', 'dropdown',
+                  label="Unit",
+                  attributes=dict(id="box2_id")
+            )}
+            </table>
+        </td>
+        <td class="field_col">
+            <table>
+                ${c.form.field('plate_type_id','dropdown',
+                  label="Plate Type",
+                  attributes=dict(id="plate_type_id")
+                )}
+            </table>
+        </td>
+        <td class="field_col">
+            <a href="${url(controller='plate', action='list')}">Reset</a>
+            <input type="hidden" name="analysis_group_id" value="${c.analysis_group_id}" />
+            <input type="hidden" name="onsite" value="${c.onsite}" />
+        </td>
+        </tr>
+    </table>
+</%def>

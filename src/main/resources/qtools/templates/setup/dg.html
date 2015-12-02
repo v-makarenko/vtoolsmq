@@ -1,0 +1,49 @@
+<%inherit file="/setup/steps.html"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagesubtitle()">Droplet Generator</%def>
+<%def name="stepclass()">dg</%def>
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+</%def>
+
+${c.form.start_with_layout(url(controller='setup', action='save_dg', id=c.setup.id, beta=c.beta), method='post', attributes=dict(id='setupform'))}
+${c.form.field('droplet_generation_method', 'dropdown',
+	label='Droplet Generation Method',
+	required=True
+)}
+${c.form.field('droplet_generator_id', 'dropdown',
+	label='Droplet Generator',
+	required=True
+)}
+${c.form.field('droplet_generation_day', 'text',
+	label='Droplet Generation Date',
+	attributes=dict(id='droplet_generation_day')
+)}
+${c.form.field('droplet_generation_time', 'text',
+	label="Droplet Generation Time",
+	field_desc='like "3:40pm"'
+)}
+${c.form.end_with_layout()}
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		$(function() {
+			$("#droplet_generation_day").datepicker();
+		});
+	</script>
+</%def>
+
+<%def name="setupSaveHandler()">
+	function(evt) {
+		$('#setupform').submit();
+	}
+</%def>

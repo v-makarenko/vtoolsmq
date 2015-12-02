@@ -1,0 +1,16 @@
+<%inherit file="/setup/name.html"/>
+<%namespace file="components/step_icon.html" name="comp" import="*" />
+
+<%def name="pagetitle()">Create New App Test Plate</%def>
+
+<%def name="steps()">
+	<li id="step_name"><a href="${url(controller='setup', action='new')}">
+		<img src="${url('/images/red_glossy/x.png')}" /><br/>Name/Operator
+		</a>
+	</li>
+	${step_inactive_icon('consumable', desc='Consumables')}
+	${step_inactive_icon('reagents')}
+	${step_inactive_icon('dg', desc='Droplet Generator')}
+	${step_inactive_icon('cycler', desc='Thermal Cycler')}
+	${step_inactive_icon('reader', desc='Get Name')}
+</%def>

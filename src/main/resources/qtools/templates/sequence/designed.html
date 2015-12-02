@@ -1,0 +1,109 @@
+<%inherit file="/sequence/components.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<form action="${url(controller='sequence', action='save_designed', flow=c.flow)}" method="post">
+${self.form_section_header('forward_primers', 'Forward Primers' if h.wowo('sequence_multiple_oligos') else 'Forward Primer')}
+<div id="forward_primers" class="oligos">
+	<table>
+		<thead>
+			<tr>
+				<th class="span14">Sequence</th>
+				% if h.wowo('sequence_multiple_oligos'):
+				<th class="span3">Primary?</th>
+				<th class="span3 col_actions">Actions</th>
+				% endif
+			</tr>
+		</thead>
+		<tbody>
+			% for idx in range(getattr(c, 'forward_primers_length', 1)):
+			<tr class="primer">
+				<td class="span14">${boot.text("forward_primers-%s.sequence" % idx, "", inline=True, autocomplete='off', klass="span7 field_sequence")}</td>
+
+				% if h.wowo('sequence_multiple_oligos'):
+				<td>${boot.checkbox("forward_primers-%s.primary" % idx, value=0, inline=True, variable_decode=True, klass="field_primary")}</td>
+				<td class="col_actions"><button class="btn delete danger">Delete</button></td>
+				% endif
+			</tr>
+			% endfor
+		</tbody>
+	</table>
+
+	% if h.wowo('sequence_multiple_oligos'):
+	<div class="actions">
+		<button class="btn add_oligo">Add Forward Primer</button>
+	</div>
+	% endif
+</div>
+<hr/>
+
+${self.form_section_header('reverse_primers', 'Reverse Primers' if h.wowo('sequence_multiple_oligos') else 'Reverse Primer')}
+<div id="reverse_primers" class="oligos">
+	<table>
+		<thead>
+			<tr>
+			<th class="span14">Sequence</th>
+				% if h.wowo('sequence_multiple_oligos'):
+				<th class="span3">Primary?</th>
+				<th class="span3 col_actions">Actions</th>
+				% endif
+			</tr>
+		</thead>
+		<tbody>
+			% for idx in range(getattr(c, 'reverse_primers_length', 1)):
+			<tr class="primer">
+				<td class="span14">${boot.text("reverse_primers-%s.sequence" % idx, "", inline=True, autocomplete='off', klass="span7 field_sequence")}</td>
+				% if h.wowo('sequence_multiple_oligos'):
+				<td>${boot.checkbox("reverse_primers-%s.primary" % idx, value=0, inline=True, variable_decode=True, klass="field_primary")}</td>
+				<td class="col_actions"><button class="btn delete danger">Delete</button></td>
+				% endif
+			</tr>
+			% endfor
+		</tbody>
+	</table>
+	% if h.wowo('sequence_multiple_oligos'):
+	<div class="actions">
+		<button class="btn add_oligo">Add Reverse Primer</button>
+	</div>
+	% endif
+</div>
+<hr/>
+
+% if c.include_probes:
+${self.form_section_header('probes', 'Probes' if h.wowo('sequence_multiple_oligos') else 'Probe')}
+<div id="probes" class="oligos">
+	<table>
+		<thead>
+			<tr>
+				<th class="span8">Sequence</th>
+				<th class="span3">Dye</th>
+				<th class="span3">Quencher</th>
+				% if h.wowo('sequence_multiple_oligos'):
+				<th class="span3">Primary?</th>
+				<th class="span3 col_actions">Actions</th>
+				% endif
+			</tr>
+		</thead>
+		<tbody>
+			% for idx in range(getattr(c, 'probes_length', 1)):
+			<tr class="probe">
+				<td>${boot.text("probes-%s.sequence" % idx, inline=True, autocomplete='off', klass="span7 field_sequence")}</td>
+				<td>${boot.select('probes-%s.dye' % idx, c.assay_dye_types, inline=True, klass="span2 field_dye")}</td>
+				<td>${boot.select('probes-%s.quencher' % idx, c.assay_quencher_types, inline=True, klass="span3 field_quencher")}</td>
+
+				% if h.wowo('sequence_multiple_oligos'):
+				<td>${boot.checkbox("probes-%s.primary" % idx, value=0, inline=True, variable_decode=True, klass="field_primary")}</td>
+				<td class="col_actions"><button class="btn delete danger">Delete</button></td>
+				% endif
+			</tr>
+			% endfor
+		</tbody>
+	</table>
+	% if h.wowo('sequence_multiple_oligos'):
+	<div class="actions">
+		<button class="btn add_oligo">Add Probe</button>
+	</div>
+	% endif
+</div>
+% endif
+${self.action_region(url(controller='sequence', action='save_designed', flow=c.flow, save_now=1))}
+</form>

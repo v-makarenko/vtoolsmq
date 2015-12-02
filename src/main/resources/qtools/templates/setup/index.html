@@ -1,0 +1,21 @@
+<%inherit file="/setup/base.html"/>
+
+<%def name="pagetitle()">Plate Setup Pages</%def>
+<%def name="selected_page()">exphome</%def>
+
+<%def name="explanation()">
+<p>During the machine testing/validation phase, every prepared plate should have a <em>setup</em>&ndash; 
+information about how the droplets that went into the plate were created, and what is
+being tested in the wells themselves.  Click on one of the links below to create a new
+setup, access an existing setup, or search for existing setups.</p>
+</%def>
+
+<h2>Plate Setup Links</h2>
+<ul>
+	<li><a href="${url(controller='setup', action='list', beta=True)}"><strong>Test Plates</strong></a></li>
+	<li><a href="${url(controller='setup', action='list', beta=False)}">List All Test Plates</a></li>
+	<li><a href="${url(controller='setup', action='new')}">Create New App Test Plate</a></li>
+	<!--
+	<li><a href="${url(controller='setup', action='search')}">Search for Setups</a></li>
+	-->
+</ul>

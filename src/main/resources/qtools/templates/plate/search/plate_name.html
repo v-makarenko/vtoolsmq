@@ -1,0 +1,14 @@
+<%inherit file="/plate/search/form.html"/>
+<%namespace file="/components/query_form.html" import="column_field"/>
+
+<%def name="pagetitle()">Search for Plates: By Name</%def>
+<%def name="explanation()">
+<p>
+Looking for a plate?  Search for it by name.  Enter text in the field below, and click 'Search for Plates'.
+</p>
+</%def>
+
+${column_field(c.form, 0, 'name', 'text', 'Plate Name Contains')}
+
+<input type="hidden" name="order_by" value="run_time" />
+<input type="hidden" name="order_by_direction" value="desc" />

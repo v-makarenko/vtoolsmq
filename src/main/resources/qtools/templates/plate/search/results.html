@@ -1,0 +1,32 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/plate_list.html" import="*"/>
+
+<%def name="pagetitle()">Plate Search Results</%def>
+<%def name="selected_page()">platesearch</%def>
+<%def name="css()">
+	${parent.css()}
+	${plate_list_css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function() {
+			$("a.pager_link").click(function() {
+				$('#pager_form').attr('action', $(this).attr('href'));
+				$('#pager_form').submit()
+				return false;
+			});
+		});
+	</script>
+</%def>
+
+<p><strong>Query:</strong> ${', '.join(["%s = %s" % (cond['field'], cond['display_value']) for cond in c.query_conditions])}<br/>
+	<strong><a href="${url(controller='plate', action='search', id=c.search_id)}">Reset Search</a></strong></p>
+
+${plate_list_table(paginator=c.paginator)}
+<form id="pager_form" action="${url(controller='plate', action='search_results', id=c.search_id)}" method="post">
+	% for name, value in sorted(c.form_params.items()):
+	<input type="hidden" name="${name}" value="${value}" />
+	% endfor
+</form>

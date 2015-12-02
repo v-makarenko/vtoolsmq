@@ -1,0 +1,34 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Reprocess Commands</%def>
+<%def name="selected_page()">algorithm</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="explanation()">
+    <p><strong>NOTE:</strong> The purpose of this feature is to launch reprocess
+    jobs on analysis groups from qtools. This feature is currently experimantal
+    and may not be fully functinal yet. Please to do not attempt to lauch a repocess
+    request more then once. If your reqeusted group/algorithm does not appear in qtools
+    with in a few hours, please ask Niels to follow up, rather then relaunching the reqeust</p>
+</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+<h2>Commands sent to qltest for processing was ${c.reprocess_launch_success} </h2>
+
+% if ( c.reprocess_launch_success == 'Successful' ):
+<p>qtools is attempting to reprocess the "${c.ag.name}" group with the  ${c.rp.code} reprocessor</p>
+<p>This process can take some time before your reprocessed plates are available in qtools</p>
+
+% else:
+<p>qtools was unable to launch a reprocess of this group at this time</p>
+
+% endif
+
+<p> reprocess message: ${c.reprocess_launch_message} </p>
+
+<h5><a href="${url(controller='product', action='algcommand')}">&lt;&lt; Get Commands for Another Algorithm or Analysis Group</a></h5>

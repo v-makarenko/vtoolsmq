@@ -1,0 +1,22 @@
+<%inherit file="/metrics/certification.html"/>
+
+<%def name="stats_prefix()">
+<p class="nav_exp">
+    % if c.prev_index is not None:
+    <a href="${url(controller='metrics', action='history', box_code=c.box_code, plate_type=c.plate_type_code, plate_order=c.prev_index, mode='plate', reprocess_config_id=c.rp_code)}">&lt;&lt; Prev ${c.plate_type_name} Plate</a>&nbsp;|&nbsp;
+    % endif
+    <strong><a href="${url(controller='plate', action='view', id=c.id)}">View Plate</a></strong>
+    % if c.plate.box2.is_prod:
+        &nbsp;|&nbsp;<strong><a href="${h.dr_url(c.plate.box2, controller='metrics', action='certification', id=c.box_code)}">Latest ${c.plate.box2.name} Metrics</a></strong>
+    % endif
+    % if c.next_index is not None:
+    &nbsp;|&nbsp;<a href="${url(controller='metrics', action='history', box_code=c.box_code, plate_type=c.plate_type_code, plate_order=c.next_index, mode='plate', reprocess_config_id=c.rp_code)}">Next ${c.plate_type_name} Plate &gt;&gt;</a>
+    % endif
+</p>
+
+% if c.plate_error:
+<p class="plate_error">ALERT: ${c.plate_error}</p>
+% elif c.plate_warning:
+<p class="plate_warning">WARNING: ${c.plate_warning}</p>
+% endif
+</%def>

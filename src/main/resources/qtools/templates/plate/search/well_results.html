@@ -1,0 +1,84 @@
+<%inherit file="/plate/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/minigrid.html" name="grid" import="*" />
+
+<%def name="pagetitle()">Search Results</%def>
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    ${grid.css()}
+    <style type="text/css">
+        #content.tw_bootstrap .pagination {
+            margin-top: 0;
+        }
+
+        #content.tw_bootstrap td.col_wells {
+            padding-left: 20px;
+        }
+
+        #content.tw_bootstrap td.col_wells a {
+            text-decoration: none;
+            color: black;
+        }
+
+        #content {
+            position: relative;
+        }
+
+        #content .upper_link {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            z-index: 2;
+        }
+    </style>
+</%def>
+
+<%def name="contentclass()">grid_13 tw_bootstrap omega</%def>
+<div class="upper_link">
+    <a class="btn primary" href="${url(controller='plate', action='search', id='well')}"><b>Change Search</b></a>
+</div>
+<p>
+    % if c.pager_kwargs.get('sample_name', None):
+    <strong>Sample Name Contains: </strong>${c.pager_kwargs['sample_name']}<br/>
+    % endif
+    % if c.pager_kwargs.get('any_assay', None):
+            <strong>Any Assay Contains: </strong>${c.pager_kwargs['any_assay']}<br/>
+    % endif
+    % if c.pager_kwargs.get('fam_assay', None):
+            <strong>FAM Assay Contains: </strong>${c.pager_kwargs['fam_assay']}<br/>
+    % endif
+    % if c.pager_kwargs.get('vic_assay', None):
+            <strong>VIC Assay Contains: </strong>${c.pager_kwargs['vic_assay']}<br/>
+    % endif
+</p>
+
+${boot.pager(c.paginator, radius=1, hide_if_single_page=True, single_page_content=h.literal('&nbsp;'), **(c.pager_kwargs))}
+% if c.paginator and len(c.paginator):
+<table class="condensed-table zebra-striped">
+<thead>
+    <tr>
+        <th>Name</th>
+        <th>Operator</th>
+        <th>Unit</th>
+        <th>Date</th>
+        <th class="col_wells">Wells</th>
+    </tr>
+</thead>
+<tbody>
+% for idx, (plate, well_results) in enumerate(c.paginator):
+    <tr>
+        <td><a href="${url(controller='plate', action='view', id=plate.id)}">${plate.name}</a></td>
+        <td>${plate.operator.name_code if plate.operator else h.literal('&nbsp;')}</td>
+        <td>${plate.box2.name}</td>
+        <td>${h.ymd(plate.run_time)}</td>
+        <td class="col_wells"><a href="${url(controller='plate', action='view', id=plate.id)}">${grid.grid96(*(well_results.split(',')))}</a></td>
+    </tr>
+% endfor
+</tbody>
+</table>
+    % else:
+<div class="well">
+No plates matched your searcn.
+</div>
+% endif

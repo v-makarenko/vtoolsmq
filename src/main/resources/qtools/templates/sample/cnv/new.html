@@ -1,0 +1,27 @@
+<%inherit file="/assay/base.html" />
+<%namespace file="fields.html" name="fields" import="*"/>
+
+<%def name="css()">
+${parent.css()}
+	<style type="text/css" media="screen"> 
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+<%def name="pagetitle()">Enter New Sample/Assay CNV Record</%def>
+<%def name="selected_page()">cnvnew</%def>
+<%def name="explanation()">
+<p>
+If you have confirmed a CNV of a particular assay for a particular sample, indicate so below.  You can
+specify a plate ID or an external URL as evidence for the CNV.  If you specify the plate, please add
+the wells that indicate the CNV number in the notes.
+</p>
+</%def>
+
+${c.form.start_with_layout(url(controller='sample', action='cnv_create'), method="post")}
+	${fields.body()}
+	<tr><td>
+	${c.form.submit("submit","Save CNV Record")}
+	</td></tr>
+${c.form.end_with_layout()}

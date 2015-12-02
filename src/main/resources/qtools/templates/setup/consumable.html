@@ -1,0 +1,179 @@
+<%inherit file="/setup/steps.html"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="stepclass()">consumable</%def>
+<%def name="css()">
+${parent.css()}
+${auto.css()}
+<link rel="stylesheet" href="${url('/css/consumable.css')}" media="screen" />
+</%def>
+
+<%def name="js()">
+${parent.js()}
+${auto.js()}
+<script type="text/javascript" src="${url('/js/json2.js')}"></script>
+<script type="text/javascript" src="${url('/js/consumable.js')}"></script>
+</%def>
+
+<%def name="pagesubtitle()">Consumable</%def>
+
+<div class="consumable_plate_bag">
+	Please place these consumables into a bag numbered <strong>#${c.setup.id}</strong>.  It may also be useful
+	to add the setup name &ndash; <strong>${c.setup.prefix}</strong>.
+</div>
+<div class="consumable_ui" id="section_assign_consumable">
+<div class="consumable_palette" id="section_consumable">
+	<div class="consumable_palette_panel consumable_palette_start">
+		<input class="consumable_start_button consumable_hook_state" rel="consumable" type="submit" value="Start" />
+	</div>
+	<!-- accordion? -->
+	<div class="consumable_palette_panel consumable_palette_bag">
+		<label>Lot Number:</label>
+		<input type="text" class="consumable_lot_number" value="${c.default_lot_number}" />
+		<label>Chip Date:</label>
+		<!-- TODO date picker -->
+		<label>Bonding Temp:</label>
+		<input type="text" class="consumable_bonding_temp" value="${c.default_bonding_temp}" />
+
+	</div>
+	<div class="consumable_palette_panel consumable_palette_consumable">
+		<div class="consumable_palette_section">
+			<input type="submit" class="consumable_hook_add" value="Add Consumable" rel="consumable" />
+		</div>
+		<div class="consumable_palette_section">
+			<div class="consumable_chip_number"></div>
+			<div class="consumable_chip">
+			<table>
+				<tr><td class="single" rel="1">1</td></tr>
+				<tr><td class="single" rel="2">2</td></tr>
+				<tr><td class="single" rel="3">3</td></tr>
+				<tr><td class="single" rel="4">4</td></tr>
+				<tr><td class="single" rel="5">5</td></tr>
+				<tr><td class="single" rel="6">6</td></tr>
+				<tr><td class="single" rel="7">7</td></tr>
+				<tr><td class="single" rel="8">8</td></tr>
+				<tr><td rel="9">All</td></tr>
+				<tr><td rel="0">X</td></tr>
+			</table>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="consumable_palette_section">
+			<input type="submit" value="Rotate Left" rel="rotateLeft" class="consumable_hook_action" />
+			<input type="submit" value="Rotate Right" rel="rotateRight" class="consumable_hook_action" />
+		</div>
+	</div>
+	<div class="consumable_palette_usage">
+		Used consumable UI
+	</div>
+</div>
+<div class="consumable_plate_container">
+<div class="consumable_plate" id="section_plate">
+<table class="consumable_cursor">
+</table>
+<table class="consumable_plate_map" id="plate_map">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>01</th>
+			<th>02</th>
+			<th>03</th>
+			<th>04</th>
+			<th>05</th>
+			<th>06</th>
+			<th>07</th>
+			<th>08</th>
+			<th>09</th>
+			<th>10</th>
+			<th>11</th>
+			<th>12</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for i in range(8):
+		<tr>
+			<td class="row_name">${chr(ord('A')+i)}</td>
+			% for j in range(1,13):
+			<td id="${'well_%s%s' % (chr(ord('A')+i), (j if j > 9 else ('0%s' % j)))}">
+			</td>
+			% endfor
+		</tr>
+		% endfor
+	</tbody>
+</table>
+</div>
+<div class="consumable_action">
+	<h3>Plate Actions:</h3>
+	<input type="submit" class="consumable_hook_action" rel="fillVertical" value="96-Well Vertical" />
+	<input type="submit" class="consumable_hook_action" rel="fillHorizontal" value="96-Well Horizontal" />
+	<input type="submit" class="consumable_hook_action" rel="clear" value="Clear Plate" />
+</div>
+
+</div>
+<div class="clear"></div>
+<table id="consumable_lot_numbers" class="datagrid">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Insert</th>
+			<th>Date</th>
+			<th>Bonding Temp.</th>
+			<th>DG Unit</th>
+			<th>DG Run#</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr id="consumable_info0" class="consumable_info_row">
+			<td class="consumable_info_num"></td>
+			<td>
+				<input type="text" name="batch" class="consumable_batch" value="${c.default_lot_number}" />
+			</td>
+			<td>
+				<input type="text" class="consumable_date" value="" />
+			</td>
+			<td>
+				<input type="text" class="consumable_bonding_temp" value="${c.default_bonding_temp}" />
+			</td>
+			<td>
+				<select class="consumable_dg">
+					% for k, v in c.dgs:
+						<option value="${k}">${v}</option>
+					% endfor
+				</select>
+			</td>
+			<td>
+				<input type="text" class="consumable_dg_run" value="${c.default_dg_run}" />
+			</td>
+			<td>
+				<button class="consumable_hook_action" rel="applyConsumableInfoAll">Apply to All</button>
+				<button class="consumable_hook_action" rel="applyConsumableInfoDown">Apply Below</button>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+		$(document).ready(function() {
+			consumableUI = new ConsumableUI('#section_assign_consumable', ${h.literal(c.data)});	
+		});
+	</script>
+</%def>
+
+<%def name="setupSaveHandler()">
+	function() {
+		$.post("${url(controller='setup', action='save', id=c.setup.id, beta=c.beta)}",
+		       {block: JSON.stringify(consumableUI.getData()), step: 'consumable'},
+		       function(json) {
+		       	 if(json.status != 302) {
+		       	 	alert(json.msg)
+		       	 }
+		       	 else {
+			     	window.location.href = json.next;
+			     }
+		       },
+		       'json');
+	}
+</%def>

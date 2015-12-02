@@ -1,0 +1,33 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Spec History: ${c.part.name}</%def>
+
+% if c.specs:
+<table class="condensed-table zebra-striped">
+    <thead>
+        <tr>
+            <th>Spec Name</th>
+            <th>Date Created</th>
+            <th>Tests</th>
+        </tr>
+    </thead>
+    <tbody>
+        % for spec in c.specs:
+        <tr>
+            <td><a href="${url(controller='reagents', action='spec', id=spec.id)}">${spec.name}</a></td>
+            <td>${h.ymd(spec.date)}</td>
+            <td><a href="${url(controller='reagents', action='spec', id=spec.id, tab='plates')}">Plates</a></td>
+        </tr>
+        % endfor
+    </tbody>
+</table>
+% else:
+<div class="well">
+    There are no specs for this part. <a href="${url(controller='reagents', action='spec_new', id=c.part.id)}">Click here to create a new spec.</a>
+</div>
+% endif
+<div class="actions">
+    <a class="btn" href="${url(controller='reagents', action='lines')}">Back to Product Lines</a>
+    <a class="btn" href="${url(controller='reagents', action='parts', id=c.part.product_line_id)}">Back to Parts</a>
+</div>

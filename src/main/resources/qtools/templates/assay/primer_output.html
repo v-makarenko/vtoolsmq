@@ -1,0 +1,38 @@
+<%inherit file="/assay/output.html"/>
+<%namespace file="components.html" name="comp" import="seq_result,snp_results,seq_save_fields"/>
+
+<%def name="pagetitle()">Forward/Reverse Primer Assay Sequences (${len(c.sequences)} ${len(c.sequences) > 1 and 'matches' or 'match'})</%def>
+
+<%def name="inputs(ctx)">
+	<table class="record">
+		<tr>
+			<td class="col_field">Forward Primer:</td>
+			<td>${ctx.primer_fwd}</td>
+		</tr>
+		<tr>
+			<td class="col_field">Reverse Primer:</td>
+			<td>${ctx.primer_rev}</td>
+		</tr>
+	</table>
+	${parent.inputs(ctx)}
+</%def>
+
+% for idx, seq in enumerate(c.sequences):
+<div class="sequence_match">
+	<h2>Match #${idx+1}:</h2>
+	<table class="record">
+		<tr><td class="col_field">Forward Primer Match:</td><td>${seq.amplicon.longest_forward_match}, 5' position ${seq.amplicon.longest_forward_match_offset}</td></tr>
+		<tr><td class="col_field">Reverse Primer Match:</td><td>${h.reverse_complement(seq.amplicon.longest_reverse_match)}, 3' position ${seq.amplicon.longest_reverse_match_offset}</td></tr>
+	</table>
+	${comp.seq_result(seq)}
+	% if hasattr(seq, 'amplicon_snps'):
+	${comp.snp_results(seq.amplicon_snps)}
+	% endif
+</p>
+% endfor
+
+<%def name="assay_save_fields(ctx)">
+	<input type="hidden" name="primer_fwd" value="${ctx.primer_fwd}" id="primer_fwd" />
+	<input type="hidden" name="primer_rev" value="${ctx.primer_rev}" id="primer_rev" />
+	${comp.seq_save_fields(ctx)}
+</%def>

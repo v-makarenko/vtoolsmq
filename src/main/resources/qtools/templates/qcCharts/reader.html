@@ -1,0 +1,34 @@
+<%inherit file="/qcCharts/select.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Quality Control Chart: By Reader</%def>
+<%def name="explanation()">
+    <p>Select a metric and reader below.  Running this query may take a little bit of time.</p>
+</%def>
+
+<%def name="box2_content()">
+    <form action="${url(controller='qc_chart', action='reader_qcc')}" method="post" id="filter_form">
+    ${boot.group_select('metric', c.metric_field, label='Metric', required=True, klass="span6")}
+    ${boot.select('reader', c.reader_field, label='Reader', klass="span6")}
+    ${boot.select('plate_type', c.plate_type_field, label='Plate Type', klass="span6")}
+    ${boot.select('channel_num', c.channel_field, label='Channel', klass="span2")}
+    ${boot.text('start_date', label="After Date", autocomplete='off', klass="span4 datepicker", id="start_date")}
+    ${boot.text('end_date', label="Before Date", autocomplete='off', klass="span4 datepicker", id="end_date")}
+    ${boot.text('upper_spec', label="Add upper spec line", autocomplete='off', klass="span1")}
+    ${boot.text('lower_spec', label="Add lower spec line", autocomplete='off', klass="span1")}
+    ${boot.text('upper_yaxis', label="Set upper Y axis value", autocomplete='off', klass="span1")}
+    ${boot.text('lower_yaxis', label="Set lower Y axis value", autocomplete='off', klass="span1")}
+    ${boot.checkbox('group_by_plate', 'True', checked=True, label='Average By Plate', klass="span1")}
+        <!--${boot.multi_select('exclude', c.exclusion_field, label='Exclude', help_block='Use the CTRL key to select multiple wells to exclude.', klass="span6")}-->
+        <div class="clearfix">
+            <label for="outlier_operator">Exclude Outliers:</label>
+            <div class="input">
+            ${boot.select('outlier_operator', c.outlier_operator_field, klass="span2", inline=True)}
+            ${boot.text('outlier_value', autocomplete='off', klass="span4", inline=True)}
+            </div>
+        </div>
+        <div class="actions">
+        ${boot.submit('Show Chart')}
+        </div>
+    </form>
+</%def>

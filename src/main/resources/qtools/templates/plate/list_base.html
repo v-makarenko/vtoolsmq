@@ -1,0 +1,30 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/plate_list.html" import="*"/>
+
+<%def name="pagetitle()">${getattr(c, 'custom_title', 'Plate List')}</%def>
+<%def name="selected_page()">${getattr(c, 'custom_pageclass', 'platelist')}</%def>
+<%def name="css()">
+	${parent.css()}
+	${plate_list_css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#filter select').change(function(evt) {
+			$('#filter').submit()
+		})
+	})
+</script>
+</%def>
+
+% if hasattr(c, 'form'):
+<p>To delete a plate, click on the plate
+name link in the table below, and then click the Delete Plate buttons at the bottom of the page.</p>
+
+<form action="${url(controller='plate', action='list_filter')}" method="get" class="formbuild" id="filter">
+	${next.plate_filter_fields()}
+</form>
+% endif
+${plate_list_table(paginator=c.paginator, pager_kwargs=c.pager_kwargs)}

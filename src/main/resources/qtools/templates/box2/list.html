@@ -1,0 +1,46 @@
+<%inherit file="/box2/base.html"/>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		th.col_name, td.col_name {
+			width: 30%;
+		}
+		
+		th.col_time, td.col_time {
+			width: 20%;
+		}
+		
+		table.datagrid th.col_val,
+		table.datagrid td.col_val {
+			text-align: right;
+			white-space: nowrap;
+		}
+	</style>
+</%def>
+
+<p>Query: ${c.field} ${c.compare} ${c.value}</p>
+
+% if not c.grouped_results:
+<table class="datagrid" id="records">
+	<thead>
+		<tr>
+			<th class="col_name">Filename</th>
+			<th class="col_time">Run Date</th>
+			% for name in c.label_names:
+			<th class="col_val">${name}</th>
+			% endfor
+		</tr>
+	</thead>
+	<tbody>
+
+${next.results_rows()}
+
+	</tbody>
+</table>
+% else:
+${next.results_groups()}
+% endif
+<div class="hidden">
+	<!-- put hidden variables here -->
+</div>

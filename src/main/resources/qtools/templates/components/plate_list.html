@@ -1,0 +1,100 @@
+<%def name="plate_list_css()">
+	<style type="text/css" media="screen">
+		#plate_list {
+			font-size: 12px;
+		}
+		th.col_name, td.col_name {
+			width: 30%;
+		}
+		
+		th.col_project, td.col_project {
+			width: 15%;
+		}
+		
+		th.col_operator, td.col_operator {
+			width: 15%;
+		}
+		
+		th.col_box2, td.col_box2 {
+			white-space: nowrap;
+			width: 10%;
+		}
+		
+		th.col_date, td.col_date {
+			width: 10%;
+		}
+		
+		table.datagrid th.col_actions, table.datagrid td.col_actions {
+			width: 20%;
+			text-align: right;
+		}
+	</style>
+</%def>
+
+<%def name="plate_list_table(paginator=None, plate_list=None, pager_kwargs=None)">
+% if paginator and len(paginator):
+<p>${paginator.pager('$link_first $link_previous Plates $first_item to $last_item of $item_count $link_next $link_last', **(pager_kwargs or dict()))}</p>
+% endif
+% if paginator or plate_list:
+<table class="datagrid condensed-table" id="plate_list">
+	<thead>
+		<tr>
+			<th class="col_name">Plate Name</th>
+			<th class="col_project">Project</th>
+			<th class="col_operator">Operator</th>
+			<th class="col_box2">Unit</th>
+			<th class="col_date">Run Date</th>
+			<th class="col_actions">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+% for idx, p in enumerate(paginator or plate_list):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name"><a href="${url(controller='plate', action='view', id=p.id)}">${p.name}</a></td>
+		<td class="col_project">${p.project.name if p.project else h.literal('&nbsp;')}</td>
+		<td class="col_operator">${p.operator.name_code if p.operator else h.literal('&nbsp;')}</td>
+		<td class="col_box2">${p.box2.name if p.box2 else h.literal('&nbsp;')}</td>
+		<td class="col_date">${h.ymd(p.run_time)}</td>
+        <td class="col_actions">
+            % if not getattr(c, 'active_analysis_group', None):
+            <a href="${url(controller='plate', action='edit', id=p.id)}">Edit</a>
+            % else:
+            <a href="${url(controller='plate', action='edit', id=p.id)}">Edit</a>&nbsp;|
+                % if p.id in [pl.id for pl in c.active_analysis_group.plates]:
+                <a class="xhr_post" rel='remove' href="${url(controller='metrics', action='agremove', id=c.active_analysis_group.id, plate_id=p.id)}">Remove from ${c.active_analysis_group.name}</a>
+                % else:
+                <a class="xhr_post" rel='add' href="${url(controller='metrics', action='agadd', id=c.active_analysis_group.id, plate_id=p.id)}">Add to ${c.active_analysis_group.name}</a>
+                % endif
+            % endif
+        </td>
+	</tr>
+% endfor
+	</tbody>
+</table>
+% endif
+% if paginator and len(paginator):
+<p>${paginator.pager('Go to page: ~3~', **(pager_kwargs or dict()	))}</p>
+% endif
+% if not (paginator and len(paginator)) and not plate_list:
+<p>No results found.</p>
+% endif
+
+<script type="text/javascript">
+    $('#plate_list a.xhr_post').click(function() {
+        var self = $(this);
+        $.post($(this).attr('href'),
+               function(data) {
+                   if(data.code == 200) {
+                       if(self.attr('rel') == 'add') {
+                           self.replaceWith($('<span>Plate added</span>'));
+                       }
+                       if(self.attr('rel') == 'remove') {
+                           self.replaceWith($('<span>Plate removed</span>'));
+                       }
+                   }
+               },
+               'json')
+        return false;
+    });
+</script>
+</%def>

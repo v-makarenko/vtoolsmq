@@ -1,0 +1,113 @@
+<%inherit file="/base/onecol.html"/>
+
+<%def name="pagetitle()">QTools Quick Links</%def>
+<%def name="selected_page()">welcome</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		.container_12 div.link_section {
+			border: 1px solid #ccc;
+			width: 297px;
+		}
+
+		.grid_12 h1 {
+			margin-bottom: 0px;
+		}
+
+		.grid_12 {
+			margin-bottom: 20px;
+		}
+
+		.link_section div.content {
+			padding: 10px;
+		}
+	</style>
+</%def>
+
+<div class="grid_12">
+	<div class="link_section grid_4 alpha">
+		<div class="content">
+			<h5>Plates</h5>
+			<ul>
+				<li><a href="${url(controller='plate', action='list')}">Latest Plate List/Plate Search</a></li>
+				<li><a href="${url(controller='plate', action='name')}">Create a New Plate</a></li>
+				<li><a href="${url(controller='plate', action='search', id='plate_name')}">Search for Plates by Name</a></li>
+				<li><a href="${url(controller='plate', action='search', id='plate_metadata')}">Search for Plates by Metadata</a></li>
+                <li><a href="${url(controller='plate', action='unknown')}">Upload a Customer qlp</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="link_section grid_4">
+		<div class="content">
+			<h5>PD Metrics</h5>
+			<ul>
+				<li><a href="${url(controller='metrics', action='index')}">Specs: Analysis Groups</a></li>
+				<li><a href="${url(controller='trend', action='category')}">Trends</a></li>
+                <li><a href="${url(controller='qc_chart', action='category')}">Control Charts</a></li>
+				<li><a href="${url(controller='setup', action='list', beta=True)}">Beta Plate List, More Analyses</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="link_section grid_4 omega">
+		<div class="content">
+			<h5>Digests</h5>
+			<ul>
+				<li><a href="${url(controller='cutter', action='pick')}">Pick Digests for a Single CNV Assay</a></li>
+				<li><a href="${url(controller='cutter', action='multipick')}">Pick Digests for Multiple CNV Assays</a></li>
+				<li><a href="${url(controller='cutter', action='enzymes')}">Show In-Stock Restriction Enzymes</a>
+			</ul>
+		</div>
+	</div>
+	<div class="cf"></div>
+</div>
+
+<div class="grid_12">
+	<div class="link_section grid_2 alpha ">
+	</div>
+	<div class="link_section grid_2">
+		<div class="content">
+			<h5>People</h5>
+			<ul>
+				<li><a href="${url(controller='users', action='index')}">Add New User</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="link_section grid_2 omega">
+	</div>
+</div>
+
+<div class="grid_12">
+	% if h.wowo('show_assays'):
+	<div class="link_section grid_4 alpha">
+		<div class="content">
+			<h5>Assays</h5>
+			<ul>
+				<li><a href="${url(controller='sequence', action='list')}">QL Assay List</a></li>
+				<li><a href="${url(controller='sequence', action='start', flow='sequence.new')}">Enter New Assay</a></li>
+			</ul>
+		</div>
+	</div>
+	% endif
+	<div class="link_section grid_4 ${'alpha' if not h.wowo('show_assays') else ''}">
+		<div class="content">
+			<h5>Statistics</h5>
+			<ul>
+				<li><a href="${url(controller='stats', action='boxes')}">DR Utilization This Week</a></li>
+	<li><a href="${url(controller='stats', action='operators')}">Operator Leaderboard This Week</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="link_section grid_4 omega">
+		<div class="content">
+			<h5>Current Status</h5>
+			<ul>
+				<li><a href="${url(controller='admin', action='readers', admin=False)}">Current DR Status</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="cf"></div>
+</div>
+
+<div class="grid_12">
+<p>More links are available on the left side of each page, and across the top bar.</p>
+</div>

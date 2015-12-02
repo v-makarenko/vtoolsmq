@@ -1,0 +1,1004 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">${c.plate.name if c.plate else 'View Plate'}</%def>
+<%def name="selected_page()">newplate</%def>
+<%def name="explanation()">
+	% if c.reprocess_config:
+	<p><strong>Reprocessing Algorithm:</strong> ${c.reprocess_config.name}&nbsp;|&nbsp;<a href="${url(controller='plate', action='view', id=c.plate.id)}">Original</a></p>
+	% endif
+</%def>
+<%def name="css()">
+${parent.css()}
+<link rel="stylesheet" href="${url('/css/tw/bootstrap.tabs.min.css')}" />
+<link rel="stylesheet" href="${url('/css/plate/view.css')}" />
+% if c.clusters_available:
+<style type="text/css">
+	.thumbnail_2d .cluster_mode_threshold,
+	.thumbnail_1d .cluster_mode_cluster {
+		color: #c00;
+	}
+</style>
+% endif
+</%def>
+
+<%def name="js()">
+${parent.js()}
+<script type="text/javascript" src="${url('/js/tw/bootstrap-tabs.js')}"></script>
+<script type="text/javascript" src="${url('/js/colormap.js')}"></script>
+<script type="text/javascript" src="${url('/js/stats.js')}"></script>
+<script type="text/javascript" charset="utf-8">
+	var cmaps = {'polydispersity': new LinearSegmentedColormap([[[0.0, 0.0, 0.0],
+											  [0.2, 0.0, 0.0],
+	                                          [0.3, 1.0, 1.0],
+	                                          [1.0, 1.0, 1.0],
+	                                          [100.0, 0.5, 0.5]],
+	                                         [[0.0, 1.0, 1.0],
+	                                          [0.2, 0.9, 0.9],
+	                                          [0.3, 0.5, 0.5],
+	                                          [1.0, 0.0, 0.0],
+	                                          [100.1, 0.0, 0.0]],
+	                                         [[0.0, 0.0, 0.0],
+	                                          [0.3, 0.0, 0.5],
+	                                          [1.0, 0.0, 0.0],
+	                                          [100.0, 0.0, 0.0]]]),
+	             'balance_score': new LinearSegmentedColormap(LinearSegmentedColormap.jet,
+	                                                          {min: -3, max: 3,
+		                                                       transferFunc: function(val) { return (val+3)/6.0}}),
+		         'cnv_rise_ratio': new LinearSegmentedColormap(LinearSegmentedColormap.jet,
+		                                                  {min: 0.5, max: 1.5,
+			                                               transferFunc: function(val) { return val - 0.5 }}),
+			     'concentration_rise_ratio': new LinearSegmentedColormap(LinearSegmentedColormap.jet,
+		                                                  {min: 0.5, max: 1.5,
+			                                               transferFunc: function(val) { return val - 0.5 }}),
+			 	 'min_width_gate_stdevs': new LinearSegmentedColormap(LinearSegmentedColormap.jet,
+			 	 	                                                  {min: 0, max: 5,
+			 	 	                                                   transferFunc: function(val) { return (val+1)/6.0 }})}
+	cmaps['revb_polydispersity'] = cmaps['polydispersity']
+	cmaps['max_width_gate_stdevs'] = cmaps['min_width_gate_stdevs']
+
+	var stdmaps = {'width_mean': new StdevSegmentedColormap(LinearSegmentedColormap.jet, 3.5)};
+	stdmaps['accepted_width_mean'] = stdmaps['width_mean']
+	stdmaps['total_events_amplitude_cv_pct'] = stdmaps['width_mean']
+	var basePlateUrl = "${h.dr_url(c.plate.box2, controller='well', action='view', id=-1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}";
+
+	var cellShowing = false;
+	var cellHoverBindOver = function() {
+		if(cellShowing) {
+			return;
+		}
+		var offset = $(this).offset()
+		var id = $(this).attr('id').substring(4);
+		var well_name = $(this).attr('rel');
+		var selected = $('<a href="'+basePlateUrl.replace("-1", id)+'" class="selected_cell"><span class="cell_label_span">'+well_name+'</span><span class="tag_target" title="Add/edit tags"></span></a>')
+		selected.css({top: '-2px', left: '-2px', width: $(this).width()+'px', height: $(this).height()+'px'})
+		$(this).append(selected)
+		populateStatsBox(id)
+		cellShowing = true;
+	}
+	
+	var cellHoverBindOut = function() {
+		cellShowing = false;
+		$('.selected_cell').remove()
+		$('#stats_box').hide();
+	}
+	
+	var bindCellHover = function() {
+		$('#plate_table tbody td.plate_cell div.cell_container').bind('mouseenter', cellHoverBindOver)
+		$('#plate_table tbody td.plate_cell div.cell_container').bind('mousemove', cellHoverBindOver)
+		$('#plate_table tbody td.plate_cell div.cell_container').bind('mouseleave', cellHoverBindOut)
+	}
+	
+	var unbindCellHover = function() {
+		$('#plate_table tbody td.plate_cell div.cell_container').unbind('mouseenter', cellHoverBindOver)
+		$('#plate_table tbody td.plate_cell div.cell_container').unbind('mousemove', cellHoverBindOver)
+		
+		$('#plate_table tbody td.plate_cell div.cell_container').unbind('mouseleave', cellHoverBindOut)
+	}
+	
+	$(document).ready(function() {
+		bindCellHover();
+		$('.tabs').tabs()
+		$('#display_selector').change(onDisplayChange)
+		$('.thumbnail_mode').change(onThumbnailModeChange);
+		$('#thumbnail_selector, #fam_selector, #vic_selector').change(onThumbnailChange)
+		$('.tag_target').live('click', function() {
+			unbindCellHover()
+			populateWellTagBox($(this).parents('.cell_container'));
+			return false;
+		});
+
+		$('#plot_url, #advanced_url').change(function(evt) {
+			var url = $(this).val();
+			if(url != '') {
+				var supp = "analysis_group_id=${c.analysis_group_id or ''}&reprocess_config_id=${c.reprocess_config_id or ''}";
+				if(url.indexOf('?') != -1) {
+					window.location.href = url + '&' + supp
+				}
+				else {
+					window.location.href = url + '?' + supp
+				}
+			}
+			return false;
+		})
+		
+		$('#tag_close').click(function() {
+			bindCellHover()
+			$('#tag_box').hide();
+			return false;
+		});
+		
+		$(".well_tag_checkbox").change(function() {
+			var check = $(this).attr('checked');
+			var poststr = $('#tag_well_id').serialize()+'&'+$('#tagger_id').serialize()+"&tag_id="+$(this).val()
+			var self = $(this)
+			if(check) {
+				$.post("${url(controller='well', action='tag')}", poststr, function(json) {
+					wellData[$('#tag_well_id').val()].tags = json.tag_names
+					$('#stats_tags').text(json.tag_names.join(', '))
+					self.parents('.cell_container').append('<span class="tag_indicator"></span>')
+				}, 'json')
+			}
+			else {
+				$.post("${url(controller='well', action='untag')}", poststr, function(json) {
+					wellData[$('#tag_well_id').val()].tags = json.tag_names
+					$('#stats_tags').text(json.tag_names.join(', '))
+					if(json.tag_names.length == 0) {
+						self.parents('.cell_container').find('.tag_indicator').remove()
+						$('#stats_tags').text('None')
+					}
+				})
+			}
+		})
+	});
+	
+	var wellData = {
+		% for well in c.wells:
+		% if hasattr(well, 'metric'):
+			'${well.id}': {sample_name: "${well.sample_name}",
+			               well_name: "${well.well_name}",
+			               experiment_type: "${well.experiment_type}",
+			               tags: [${h.literal(','.join(['\"%s\"' % tag.name for tag in well.tags]) if well.tags else '\"None\"')}],
+			               accepted_event_count: ${well.metric.accepted_event_count or 0},
+			               total_event_count: ${well.metric.total_event_count or 0},
+			               cnv: "${'%.03f' % well.metric.cnv if well.metric.cnv is not None else '--'}",
+			               vic_fam_cnv_ratio: "${'%.03f' % (well.metric.inverse_cnv) if well.metric.inverse_cnv is not None else '--'}",
+			               cnv_rise_ratio: '${"%.02f" % well.metric.cnv_rise_ratio if well.metric.cnv_rise_ratio else '--'}',
+			               width_mean: '${"%.02f" % well.metric.width_mean if well.metric.width_mean else '--'}',
+			               width_variance: '${"%.02f" % well.metric.width_variance if well.metric.width_variance else '--'}',
+			               width_cv: '${"%.01f%%" % well.metric.width_cv if well.metric.width_cv is not None and well.metric.total_event_count > 0 else '--'}',
+			               accepted_width_mean: '${"%.02f" % well.metric.accepted_width_mean if well.metric.accepted_width_mean else '--'}',
+			               accepted_width_stdev: '${"%.02f" % well.metric.accepted_width_stdev if well.metric.accepted_width_stdev else '--'}',
+			               accepted_width_cv: '${"%.01f%%" % well.metric.accepted_width_cv if well.metric.accepted_width_cv is not None and well.metric.accepted_event_count > 0 else '--'}',
+			               delta_widths: '${"%.02f" % well.metric.delta_widths if well.metric.delta_widths is not None else '--'}',
+                           carryover_peaks: '${well.metric.carryover_peaks if well.metric.carryover_peaks is not None else "--"}',
+			               null_linkage: '${"%.02f" % well.metric.null_linkage if well.metric.null_linkage is not None else '--'}',
+			               balance_score: '${"%.02f" % well.metric.balance_score if well.metric.balance_score is not None else '--'}',
+			               gated_out_event_pct: '${"%.01f%%" % well.metric.gated_out_event_pct if well.metric.gated_out_event_pct is not None and well.metric.total_event_count > 0 else '--'}',
+			               vertical_streak_ratio: '${"%.01f%%" % well.metric.vertical_streak_ratio if well.metric.vertical_streak_ratio is not None and well.metric.total_event_count > 0 else '--'}',
+			               rejected_peak_ratio: '${"%.01f%%" % well.metric.rejected_peak_ratio if well.metric.rejected_peak_ratio is not None else '--'}',
+			               min_amplitude_ratio: '${"%.01f%%" % well.metric.min_amplitude_ratio if well.metric.min_amplitude_ratio is not None else "--"}',
+			               short_interval_count_ratio: '${"%.01f%%" % well.metric.short_interval_count_ratio if well.metric.short_interval_count_ratio is not None else "--"}',
+			               fragmentation_probability: '${"%.01f%%" % well.metric.fragmentation_probability_pct if well.metric.fragmentation_probability_pct is not None else "--"}',
+					 	   cluster_mode: "${h.literal('<span class=\'cluster_mode_cluster\'>Cluster</span>') if well.metric.well_channel_metrics[0].conc_calc_mode else h.literal('<span class=\'cluster_mode_threshold\'>Threshold</span>')}",
+					 	   cluster_conf: "${'%.02f' % well.metric.cluster_conf if well.metric.cluster_conf is not None else '--'}",
+                           diagonal_scatter: "${h.sig2(well.metric.diagonal_scatter) if well.metric.diagonal_scatter is not None else '--'}",
+                           diagonal_scatter_pct: "${'%s%%' % h.sig2(well.metric.diagonal_scatter_pct) if well.metric.diagonal_scatter_pct is not None else '--'}",
+			               
+			               channel_statistics: [
+				% for i, channel in enumerate(well.metric.well_channel_metrics):
+					{threshold: "${int(channel.threshold) or h.literal('<span class=\'data_warning\'>None</span>')}",
+					 threshold_conf: "${h.sig2(channel.threshold_conf) if channel.threshold else '--'}",
+					 concentration: "${h.sig1(channel.concentration) if (channel.concentration or (channel.threshold or 0)) else '--'}",
+					 clusters_automatic: "${channel.clusters_automatic_display}",
+					 baseline_mean: "${h.sig1(channel.baseline_mean) if channel.baseline_mean is not None else '--'}",
+					 baseline_stdev: "${h.sig2(channel.baseline_stdev) if channel.baseline_stdev is not None else '--'}",
+					 positive_peaks: "${channel.positive_peaks if channel.positive_peaks is not None else '--'}",
+					 negative_peaks: "${channel.negative_peaks if channel.negative_peaks is not None else '--'}",
+					 amplitude_mean: "${h.sig0(channel.amplitude_mean) if channel.amplitude_mean is not None else '--'}",
+					 amplitude_stdev: "${h.sig1(channel.amplitude_stdev) if channel.amplitude_stdev is not None else '--'}",
+					 amplitude_cv_pct: "${'%s%%' % h.sig1(channel.amplitude_cv_pct) if channel.amplitude_cv_pct is not None else '--'}",
+					 total_events_amplitude_mean: "${h.sig0(channel.total_events_amplitude_mean) if channel.total_events_amplitude_mean is not None else '--'}",
+					 total_events_amplitude_stdev: "${h.sig1(channel.total_events_amplitude_stdev) if channel.total_events_amplitude_stdev is not None else '--'}",
+					 total_events_amplitude_cv_pct: "${'%s%%' % h.sig1(channel.total_events_amplitude_cv_pct) if channel.total_events_amplitude_cv_pct is not None else '--'}",
+					 s_value: "${h.sig2(channel.s_value) if channel.s_value is not None else '--'}",
+					 s2d_value: "${h.sig2(channel.s2d_value) if channel.s2d_value is not None else '--'}",
+                     high_flier_value: "${h.sig2(channel.high_flier_value) if channel.high_flier_value is not None else '--'}",
+                     high_flier_pct: "${'%s%%' % h.sig2(channel.high_flier_pct) if channel.high_flier_pct is not None else '--'}",
+                     low_flier_value: "${h.sig2(channel.low_flier_value) if channel.low_flier_value is not None else '--'}",
+                     low_flier_pct: "${'%s%%' % h.sig2(channel.low_flier_pct) if channel.low_flier_pct is not None else '--'}",
+                     single_rain_value: "${h.sig2(channel.single_rain_value) if channel.single_rain_value is not None else '--'}",
+                     single_rain_pct: "${'%s%%' % h.sig2(channel.single_rain_pct) if channel.single_rain_pct is not None else '--'}",
+                     double_rain_value: "${h.sig2(channel.double_rain_value) if channel.double_rain_value is not None else '--'}",
+                     double_rain_pct: "${'%s%%' % h.sig2(channel.double_rain_pct) if channel.double_rain_pct is not None else '--'}",
+                     rain_p_plus_pct: "${'%s%%' % h.sig2(channel.rain_p_plus_pct) if channel.rain_p_plus_pct is not None else '--'}",
+					 rain_p_pct: "${'%s%%' % h.sig2(channel.rain_p_pct) if channel.rain_p_pct is not None else '--'}",
+					 rain_p_minus_pct: "${'%s%%' % h.sig2(channel.rain_p_minus_pct) if channel.rain_p_minus_pct is not None else '--'}",
+					 positive_skew: "${h.sig2(channel.positive_skew) if channel.positive_skew is not None else '--'}",
+					 positive_kurtosis: "${h.sig2(channel.positive_kurtosis) if channel.positive_kurtosis is not None else '--'}",
+					 nonpositive_skew: "${h.sig2(channel.nonpositive_skew) if well.metric.accepted_event_count > 0 and channel.nonpositive_skew is not None else '--'}",
+					 nonpositive_kurtosis: "${h.sig2(channel.nonpositive_kurtosis) if well.metric.accepted_event_count > 0 and channel.nonpositive_kurtosis is not None else '--'}",
+					 positive_snr: "${h.sig2(channel.positive_snr) if channel.positive_snr is not None else '--'}",
+					 nonpositive_snr: "${h.sig2(channel.nonpositive_snr) if channel.nonpositive_snr is not None else '--'}",
+					 positive_mean: "${h.sig0(channel.positive_mean) if channel.positive_peaks and channel.positive_mean is not None else '--'}",
+					 nonpositive_mean: "${h.sig0(channel.nonpositive_mean) if well.metric.accepted_event_count > 0 and channel.nonpositive_mean is not None else '--'}",
+                     mean_pos_neg_ratio: "${h.sig2(channel.mean_pos_neg_ratio) if channel.mean_pos_neg_ratio is not None else '--'}",
+					 concentration_rise_ratio: "${h.sig2(channel.concentration_rise_ratio) if channel.concentration_rise_ratio is not None else '--'}",
+					 target: "${well.channels[i].target}",
+					 type: "${well.channels[i].type}",
+					 polydispersity: "${('%.02f%%' % channel.polydispersity_pct) if channel.polydispersity_pct is not None else '--'}",
+					 revb_polydispersity: "${('%.02f%%' % channel.binned_polydispersity_pct) if channel.binned_polydispersity_pct is not None else '--'}",
+					 gap_rain_droplets: '${channel.gap_rain_droplets if channel.gap_rain_droplets is not None else "--"}',
+					 extracluster: "${('%.01f%%' % channel.extracluster_pct) if channel.extracluster_pct is not None else '--'}",
+					 revb_extracluster: "${('%.01f%%' % channel.binned_extracluster_pct) if channel.binned_extracluster_pct is not None else '--'}",
+					 min_width_gate_stdevs: "${'%.02f' % channel.min_width_gate_stdevs if channel.min_width_gate_stdevs else '--'}",
+					 max_width_gate_stdevs: "${'%.02f' % channel.max_width_gate_stdevs if channel.max_width_gate_stdevs else '--'}",
+					 nonpositive_amplitude_cv_pct: "${'%.01f%%' % channel.nonpositive_amplitude_cv_pct if channel.nonpositive_amplitude_cv_pct is not None else '--'}",
+					 nonpositive_stdev: "${h.sig1(channel.nonpositive_stdev) if channel.nonpositive_stdev is not None else '--'}",
+					 positive_amplitude_cv_pct: "${'%.01f%%' % channel.positive_amplitude_cv_pct if channel.positive_amplitude_cv_pct is not None else '--'}",
+					 positive_stdev: "${h.sig1(channel.positive_stdev) if channel.positive_stdev is not None else '--'}",
+                     ntc_positives: "${channel.ntc_positives if channel.ntc_positives is not None else '--'}"
+					},
+				% endfor
+				    {}
+				           ]},
+		% else:
+			'${well.id}': {sample_name: "${well.sample_name}",
+			               well_name: "${well.well_name}",
+			               experiment_type: "${well.experiment_type}",
+			               tags: [${h.literal(','.join(['\"%s\"' % tag.name for tag in well.tags]) if well.tags else '\"None\"')}],
+			               accepted_event_count: ${well.event_count or 0},
+			               total_event_count: '--',
+			               cnv: '${"%.03f" % well.fam_vic_cnv_ratio}',
+			               vic_fam_cnv_ratio: '${"%.03f" % well.vic_fam_cnv_ratio}',
+			               cnv_rise_ratio: '--',
+			               width_mean: '--',
+			               width_variance: '--',
+			               width_cv: '--',
+			               accepted_width_mean: '--',
+			               accepted_width_stdev: '--',
+			               accepted_width_cv: '--',
+			               carryover_peaks: '--',
+			               null_linkage: '--',
+			               balance_score: '--',
+			               gated_out_event_pct: '--',
+			               vertical_streak_ratio: '--',
+			               rejected_peak_ratio: '--',
+			               min_amplitude_ratio: '--',
+			               short_interval_count_ratio: '--',
+			               fragmentation_probability: '--',
+					 	   cluster_mode: "${h.literal('<span class=\'cluster_mode_threshold\'>Threshold</span>')}",
+					 	   cluster_conf: '--',
+                           diagonal_scatter:, '--',
+                           diagonal_scatter_pct:, '--',
+			               channel_statistics: [
+				% for channel in well.channels:
+					{threshold: "${int(channel.quantitation_threshold or 0) or h.literal('<span class=\'data_warning\'>None</span>')}",
+					 threshold_conf: "${h.sig2(channel.quantitation_threshold_conf) or h.literal('<span class=\'data_warning\'>0</span>')}",
+					 clusters_automatic: 'Unknown',
+					 concentration: ${h.sig1(channel.concentration or 0)},
+					 positive_peaks: ${channel.positive_peaks or 0},
+					 negative_peaks: ${channel.negative_peaks or 0},
+					 s_value: '--',
+                     s2d_value: '--',
+                     high_flier_value:, '--',
+                     high_flier_pct:, '--',
+                     low_flier_value:, '--',
+                     low_flier_pct:, '--',
+                     single_rain_value:, '--',
+                     single_rain_pct:, '--',
+                     double_rain_value:, '--',
+                     double_rain_pct:, '--',
+					 rain_p_plus_pct: '--',
+					 rain_p_pct: '--',
+					 rain_p_minus_pct: '--',
+					 positive_skew: '--',
+					 positive_kurtosis: '--',
+					 nonpositive_skew: '--',
+					 nonpositive_kurtosis: '--',
+					 positive_snr: '--',
+					 nonpositive_snr: '--',
+					 positive_mean: '--',
+					 nonpositive_mean: '--',
+					 mean_pos_neg_ratio: "--",
+                     concentration_rise_ratio: '--',
+					 target: "${channel.target}",
+					 type: "${channel.type}",
+					 polydispersity: '--',
+					 revb_polydispersity: '--',
+					 gap_rain_droplets: '--',
+					 extracluster: '--',
+					 revb_extracluster: '--',
+					 min_width_gate_stdevs: '--',
+					 max_width_gate_stdevs: '--',
+					 baseline_mean: '--',
+					 baseline_stdev: '--',
+					 amplitude_mean: '--',
+					 amplitude_stdev: '--',
+					 amplitude_cv_pct: '--',
+					 total_events_amplitude_mean: '--',
+					 total_events_amplitude_stdev: '--',
+					 total_events_amplitude_cv_pct: '--',
+					 nonpositive_amplitude_cv_pct: '--',
+					 nonpositive_stdev: '--',
+					 positive_amplitude_cv_pct: '--',
+					 positive_stdev: '--',
+                     ntc_positives: '--'
+					},
+				% endfor
+				    {}
+				           ]},
+		% endif
+		% endfor
+		'ie_blank': {}
+	}
+	
+	var populateStatsBox = function(well_id) {
+		var well = wellData[well_id]
+		$('#stats_sample_name').text(well.sample_name);
+		$('#stats_experiment_type').text(well.experiment_type);
+		$('#stats_tags').text(well.tags.join(', '));
+		$('#stats_fam_target').text(well.channel_statistics[0]['target'])
+		$('#stats_vic_target').text(well.channel_statistics[1]['target'])
+		$('#stats_event_count').text(well.event_count)
+		$('#stats_box').show()
+		for(var i=0;i<well.channel_statistics.length-1; i++) {
+			for(var key in well.channel_statistics[i]) {
+				$('#channel_'+key+' td:eq('+(i+1)+')').html(well.channel_statistics[i][key])
+			}
+		}
+	}
+	
+	var populateWellTagBox = function(cell_container) {
+		var well_id = $(cell_container).attr('id').substring(4);
+		var well_name = $(cell_container).attr('rel');
+		var well = wellData[well_id]
+		$('.well_tag_checkbox').attr('checked','');
+		for(var i=0;i<well.tags.length;i++) {
+			$('#tag_'+well.tags[i].replace(' ','_')).attr('checked','checked');
+			$('#tag_well_id').val(well_id)
+			$('#tag_well_name').text('Tag '+well_name);
+		}
+		switch(well_name.substring(1)) {
+			case '01':
+			case '02':
+			case '03':
+			case '04':
+			case '05':
+			case '06':
+				$('#tag_box').detach().appendTo(cell_container).css({'left': '104%', 'right': 'auto', 'top': '-2px'}).show();
+				break;
+			default:
+				$('#tag_box').detach().appendTo(cell_container).css({'right': '104%', 'left': 'auto', 'top': '-2px'}).show();
+				break;
+		}
+	}
+
+	var onThumbnailChange = function() {
+		var checked = $(this).attr('checked')
+		var id = $(this).attr('id').split('_')[0]
+		if(!checked) {
+			$('#plate_table').addClass(id+'_off')
+		}
+		else {
+			$('#plate_table').removeClass(id+'_off')
+		}
+	}
+
+	var onThumbnailModeChange = function() {
+		var mode = $('input[name=thumbnail_mode]:checked').val()
+		$('#plate_table').removeClass('thumbnail_2d thumbnail_1d')
+		$('#plate_table').addClass('thumbnail_'+mode)
+	}
+
+	// this method sucks (UI, num -> formatted num?  should be diff property than class)
+	// TODO make this format the channel stats as well
+	var formatStat = function(selectedOption, val) {
+		var fmt = null;
+		if(selectedOption.is('.f_int')) {
+			fmt = Math.round(val)
+		}
+		else if(selectedOption.is('.f_f01')) {
+			fmt = val.toFixed(1);
+		}
+		else if(selectedOption.is('.f_f02')) {
+			fmt = val.toFixed(2);
+		}
+		else if(selectedOption.is('.f_f03')) {
+			fmt = val.toFixed(3)
+		}
+		if(fmt != null && selectedOption.is('.percent')) {
+			fmt = fmt + "%"
+		}
+		return fmt;
+	}
+
+	var updateStatDownloadButton = function(selectedOption) {
+		var url = ''
+		var wellAttrUrl = "${url(controller='plate', action='well_attr_csv', id=c.plate.id, attribute='XXX')}";
+		var wellMetricUrl = "${url(controller='plate', action='well_metric_csv', id=c.plate.id, attribute='XXX')}";
+		var channelAttrUrl = "${url(controller='plate', action='channel_attr_csv', id=c.plate.id, attribute='XXX')}";
+		var channelMetricUrl = "${url(controller='plate', action='channel_metric_csv', id=c.plate.id, attribute='XXX')}";
+		if(selectedOption.is('.s_w')) {
+			url = wellAttrUrl;
+		}
+		else if(selectedOption.is('.s_wm')) {
+			url = wellMetricUrl;
+		}
+		else if(selectedOption.is('.s_c')) {
+			url = channelAttrUrl;
+		}
+		else if(selectedOption.is('.s_cm')) {
+			url = channelMetricUrl;
+		}
+		if(url) {
+			$('#download_stat_form').attr('action', url.replace('XXX', selectedOption.attr('value'))).css('display', 'inline')
+		}
+		else {
+			$('#download_stat_form').css('display', 'none')
+		}
+	}
+	
+	var onDisplayChange = function() {
+		var containers = $('.cell_container');
+		var selectedOption = $(this).find('option:selected');
+		var selected = $(this).val()
+		$('#plate_table').addClass('stats_visible');
+
+		if(selectedOption.is('.channels')) {
+			$('#well_aggregate_stat').hide();
+			$('#plate_table').removeClass('show_wells');
+			var fam_stats = []
+			var vic_stats = []
+			for(var well in wellData) {
+				if(!wellData[well].channel_statistics) {
+					continue;
+				}
+				var cstats = wellData[well].channel_statistics;
+				var famF = parseFloat(cstats[0][selected]);
+				if(!isNaN(famF)) {
+					fam_stats.push(famF)
+				}
+				var vicF = parseFloat(cstats[1][selected]);
+				if(!isNaN(vicF)) {
+					vic_stats.push(vicF)
+				}
+			}
+			if(fam_stats.length > 0) {
+				var fam_mean = mean.apply(null, fam_stats)
+				var fam_stdev = stddev.apply(null, fam_stats)
+			}
+			else {
+				var fam_mean = 0;
+				var fam_stdev = 0;
+			}
+
+			if(vic_stats.length > 0) {
+				var vic_mean = mean.apply(null, vic_stats)
+				var vic_stdev = stddev.apply(null, vic_stats)
+			}
+			else {
+				var vic_mean = 0;
+				var vic_stdev = 0;
+			}
+
+			containers.each(function(i, obj) {
+				var id = $(obj).attr('id').substring(4);
+				var well = wellData[id];
+				var channelStats = well.channel_statistics;
+				for(var i=0;i<channelStats.length-1;i++) {
+					var stat = $(obj).find('.channel_stat:eq('+i+')')
+					stat.html(channelStats[i][selected])
+					var theFloat = parseFloat(channelStats[i][selected]);
+					if(isNaN(theFloat)) {
+						continue;
+					}
+					if(cmaps[selected]) {
+						var rgb = cmaps[selected].rgb(theFloat)
+						if(rgb[0] >= 0) {
+							stat.css('background-color', 'rgb('+rgb.join(',')+')')
+						}
+					}
+					else if(stdmaps[selected]) {
+						var rgb = null;
+						if(i == 0 && fam_stdev != 0) {
+							var rgb = stdmaps[selected].rgbStdev(theFloat, fam_mean, fam_stdev);
+						}
+						else if(i == 1 && vic_stdev != 0) {
+							var rgb = stdmaps[selected].rgbStdev(theFloat, vic_mean, vic_stdev);
+						}
+						if(rgb && rgb[0] >= 0) {
+							stat.css('background-color', 'rgb('+rgb.join(',')+')')
+						}
+					}
+				}
+				
+			});
+			if(fam_stats.length > 0) {
+				$('#fam_aggregate_stat .stats_mean').html(formatStat(selectedOption, fam_mean))
+				$('#fam_aggregate_stat .stats_stdev').html(formatStat(selectedOption, fam_stdev))
+				$('#fam_aggregate_stat').show()
+			}
+			if(vic_stats.length > 0) {
+				$('#vic_aggregate_stat .stats_mean').html(formatStat(selectedOption, vic_mean))
+				$('#vic_aggregate_stat .stats_stdev').html(formatStat(selectedOption, vic_stdev))
+				$('#vic_aggregate_stat').show()
+			}
+			if(!(cmaps[selected]) && !(stdmaps[selected])) {
+				$('.channel_stat').css('background-color','');
+			}
+			$('#plate_table').addClass('show_channels')
+		}
+		else if(selectedOption.is('.well')) {
+			$('#fam_aggregate_stat, #vic_aggregate_stat').hide()
+			$('#plate_table').removeClass('show_channels')
+			var well_stats = []
+
+			for(var well in wellData) {
+				if(typeof(wellData[well][selected]) == undefined) {
+					continue;
+				}
+				var theFloat = parseFloat(wellData[well][selected]);
+				if(!isNaN(theFloat)) {
+					well_stats.push(theFloat)
+				}
+			}
+			if(well_stats.length > 0) {
+				var well_mean = mean.apply(null, well_stats)
+				var well_stdev = stddev.apply(null, well_stats);
+			}
+			else {
+				var well_mean = 0;
+				var well_stdev = 0;
+			}
+
+			containers.each(function(i, obj) {
+				var id = $(obj).attr('id').substring(4);
+				var well = wellData[id];
+				var stat = $(obj).find('.well_stat')
+				stat.html(well[selected])
+				var theFloat = parseFloat(well[selected])
+				
+				// todo replace with heatmap class attr?
+				var theFloat = parseFloat(well[selected])
+				if(isNaN(theFloat)) {
+					return;
+				}
+				if(cmaps[selected]) {
+					var rgb = cmaps[selected].rgb(theFloat)
+					if(rgb[0] >= 0) {
+						stat.css('background-color', 'rgb('+rgb.join(',')+')');
+					}
+				}
+				else if(stdmaps[selected] && well_stdev != 0) {
+					var rgb = stdmaps[selected].rgbStdev(theFloat, well_mean, well_stdev);
+					if(rgb[0] >= 0) {
+						stat.css('background-color', 'rgb('+rgb.join(',')+')');
+					}
+				}
+			});
+			if(well_stats.length > 0) {
+				$('#well_aggregate_stat .stats_mean').html(formatStat(selectedOption, well_mean))
+				$('#well_aggregate_stat .stats_stdev').html(formatStat(selectedOption, well_stdev))
+				$('#well_aggregate_stat').show()
+			}
+			if(!(cmaps[selected]) && !(stdmaps[selected])) {
+				$('.well_stat').css('background-color','');
+			}
+			$('#plate_table').addClass('show_wells');
+		}
+		else {
+			$('#plate_table').removeClass('stats_visible').removeClass('show_channels').removeClass('show_wells')
+		}
+		if(!selectedOption.is('.astat')) {
+			$('#well_aggregate_stat, #fam_aggregate_stat, #vic_aggregate_stat').hide()
+		}
+
+		updateStatDownloadButton(selectedOption);
+	}
+</script>
+</%def>
+
+% if c.plate.qlbplate:
+<div id="tag_box">
+	<h5 id="tag_well_name"></h5>
+	<form id="tag_form">
+		<input type="hidden" name="well_id" id="tag_well_id" value="" />
+		% for tag in c.well_tags:
+		<input type="checkbox" class="well_tag_checkbox" name="tag" value="${tag.id}" id="tag_${tag.name.replace(' ','_')}" checked="" />
+		<label for="tag_${tag.name.replace(' ','_')}">${tag.name}</label><br/>
+		% endfor
+		<div class="tag_tagger">
+		${c.tag_form.field('tagger_id', 'dropdown',
+			label="Submitted By",
+			attributes=dict(id='tagger_id')
+		)}
+		</div>
+		<input type="Submit" value="Close" id="tag_close" />
+	</form>
+</div>
+<div id="stats_box">
+	<h5 id="stats_sample_name"></h5>
+	<table id="well_stats">
+		<tr><td><strong>Exp. Type:</strong></td>
+			<td id="stats_experiment_type"></td>
+		</tr>
+		<tr><td><strong>FAM Target:</strong></td>
+			<td id="stats_fam_target"></td>
+		</tr>
+		<tr><td><strong>VIC Target:</strong></td>
+			<td id="stats_vic_target"></td>
+		</tr>
+		<tr><td><strong>Events:</strong></td>
+			<td id="stats_event_count"></td>
+		</tr>
+		<tr><td><strong>Tags:</strong></td>
+			<td id="stats_tags"></td>
+		</tr>
+	</table>
+	<table id="channel_stats" class="datagrid">
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>FAM</th>
+				<th>VIC</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="even" id="channel_threshold">
+				<td>Threshold</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="odd" id="channel_quality">
+				<td>Quality</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="even" id="channel_concentration">
+				<td>Conc.</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="odd" id="channel_positive_peaks">
+				<td>Positives</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr class="even" id="channel_negative_peaks">
+				<td>Negatives</td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+% endif
+<ul class="tabs">
+	<li class="active"><a href="#display_options">Display Settings</a></li>
+	<li><a href="#plate_info">Info/Consumable</a></li>
+	<li><a href="#plate_analysis">Analysis</a></li>
+	<li><a href="#actions">Actions</a></li>
+	% if c.reprocess_urls:
+	<li><a href="#versions">Versions</a></li>
+	% endif
+	<li style="float: right;"><a class="btn" href="${h.dr_url(c.plate.box2, controller='plate', action='download', id=c.plate.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">Download QLP</a></li>
+	<li style="float: right;"><a class="btn" href="${url(controller='plate', action='tabular', id=c.plate.id, show_thumbs=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">View Data Table</a></li>
+</ul>
+<div class="tab-content">
+<div id="display_options" class="active">
+<div class="grid_5">
+	<h6>Statistics Overlay</h6>
+	<select id="display_selector">
+		<option class="blank" value="none" selected="selected">None</option>
+		<optgroup label="Metadata">
+			<option class="well s_w" value="sample_name">Sample Name</option>
+			<option class="channels s_c" value="target">Targets</option>
+			<option class="channels s_c" value="type">Target Types</option>
+		</optgroup>
+        <optgroup label="New Droplet Metrics">
+            <option class="channels astat f_int s_cm" value="high_flier_value">High Flier Count</option>
+            <option class="channels astat f_f02 s_cm percent" value="high_flier_pct">High Flier %</option>
+            <option class="channels astat f_int s_cm" value="low_flier_value">Low Flier Count</option>
+            <option class="channels astat f_f02 s_cm percent" value="low_flier_pct">Low Flier %</option>
+            <option class="channels astat f_int s_cm" value="single_rain_value">Single Rain Count</option>
+            <option class="channels astat f_f02 s_cm percent" value="single_rain_pct">Single Rain %</option>
+            <option class="channels astat f_int s_cm" value="double_rain_value">Double Rain Count</option>
+            <option class="channels astat f_f02 s_cm percent" value="double_rain_pct">Double Rain %</option>
+            <option class="well astat f_int s_wm " value="diagonal_scatter">Diagonal Scatter Count</option>
+            <option class="well astat f_f02 s_wm percent" value="diagonal_scatter_pct">Diagonal Scatter %</option>
+            <option class="channels stat f_f02 s_cm" value="s2d_value">S2D value</option>
+        </optgroup>
+		<optgroup label="Well Metrics">
+			<!-- TODO have this come from fl.comparable_metric_field -->
+			<option class="well astat f_int s_wm" value="accepted_event_count">Accepted Events</option>
+			<option class="well astat f_f01 s_wm percent" value="accepted_width_cv">Accepted Width CV%</option>
+			<option class="well astat f_f02 s_wm" value="accepted_width_mean">Accepted Width Mean</option>
+			<option class="well astat f_f02 s_wm" value="accepted_width_stdev">Accepted Width Sigma</option>
+			<option class="well astat f_f02 s_wm" value="balance_score">B-Score</option>
+			<option class="well astat f_f01 s_wm percent" value="min_amplitude_ratio">Below Min Amplitude %</option>
+			<option class="well astat f_f02 s_wm" value="carryover_peaks">Carryover Peaks</option>
+			<option class="well astat s_wm" value="cluster_mode">Clustering Mode</option>
+			<option class="well astat f_f02 s_wm" value="cluster_conf">Clustering Data Quality</option>
+			<option class="well astat f_f03 s_wm" value="cnv">CNV (FAM->VIC)</option>
+			<option class="well astat f_f03" value="vic_fam_cnv_ratio">CNV (VIC->FAM)</option>
+			<option class="well astat f_f02 s_wm" value="cnv_rise_ratio">CNV 4Q/1Q Ratio</option>
+			<option class="well astat f_f01 s_wm percent" value="fragmentation_probability">Fragmentation Probability</option>
+			<option class="well astat f_f01 s_wm percent" value="gated_out_event_pct">Gated Out Events %</option>
+			<option class="well astat f_f01 s_wm percent" value="short_interval_count_ratio">Narrow Droplet Spacing %</option>
+			<option class="well astat f_f01 s_wm percent" value="rejected_peak_ratio">Rejected Events %</option>
+			<option class="well astat f_int s_wm" value="total_event_count">Total Events (Accepted+Gated)</option>
+			<option class="well astat f_f01 s_wm percent" value="vertical_streak_ratio">Vertical Streak Event %</option>
+			<option class="well astat f_f02 s_wm" value="width_mean">Width Mean</option>
+			<option class="well astat f_f02 s_wm" value="width_variance">Width Sigma</option>
+			<option class="well astat f_f01 s_wm percent" value="width_cv">Width CV%</option>
+		</optgroup>
+		<optgroup label="Channel Metrics">
+			<option class="channels astat f_f02 s_cm percent" value="amplitude_cv_pct">Amplitude CV%</option>
+			<option class="channels astat f_int s_cm" value="amplitude_mean">Amplitude Mean</option>
+			<option class="channels astat f_f01 s_cm" value="amplitude_stdev">Amplitude Stdev</option>
+			<option class="channels astat f_f01 s_cm" value="baseline_mean">Baseline Mean</option>
+			<option class="channels astat f_f02 s_cm" value="baseline_stdev">Baseline Stdev</option>
+			<option class="channels astat f_f01 s_cm exczero" value="concentration">Concentration (cp/&mu;L)</option>
+			<option class="channels astat f_f02 s_cm" value="concentration_rise_ratio">Concentration 4Q/1Q Ratio</option>
+			<option class="channels astat s_cm" value="clusters_automatic">Clusters/Threshold Automatic?</option> 
+			<option class="channels astat f_f01 s_cm percent" value="extracluster">Extracluster Droplet %</option>
+			<option class="channels astat f_f01 s_cm percent" value="revb_extracluster">Extracluster Droplet % (RevB measure)</option>
+			<option class="channels astat f_int s_cm" value="gap_rain_droplets">Gap Rain Droplets (Air Droplet Measure)</option>
+            <option class="channels astat f_f02 s_cm" value="mean_pos_neg_ratio">Mean Amplitude Ratio (Mean(Pos)/Mean(Neg))</option>
+			<option class="channels astat f_int s_cm" value="negative_peaks">Negative Peaks</option>
+			<option class="channels astat f_f01 s_cm percent" value="nonpositive_amplitude_cv_pct">Non-Positive Amplitude CV%</option>
+			<option class="channels astat f_int s_cm" value="nonpositive_mean">Non-Positive Amplitude Mean</option>
+			<option class="channels astat f_f01 s_cm" value="nonpositive_stdev">Non-Positive Amplitude Stdev</option>
+			<option class="channels astat f_f02 s_cm" value="nonpositive_kurtosis">Non-Positive Kurtosis</option>
+			<option class="channels astat f_f02 s_cm" value="nonpositive_snr">Non-Positive SNR (Mean/Stdev)</option>
+			<option class="channels astat f_f02 s_cm" value="nonpositive_skew">Non-Positive Skew</option>
+            <option class="channels astat f_int s_cm" value="ntc_positives">NTC Contamination Peaks</option>
+			<option class="channels astat f_f02 s_cm percent" value="polydispersity">Polydispersity %</option>
+			<option class="channels astat f_f02 s_cm percent" value="revb_polydispersity">Polydispersity % (RevB measure)</option>
+			<option class="channels astat f_int s_cm" value="positive_peaks">Positive Peaks</option>
+			<option class="channels astat f_f01 s_cm percent" value="positive_amplitude_cv_pct">Positive Amplitude CV%</option>
+			<option class="channels astat f_f02 s_cm" value="positive_mean">Positive Amplitude Mean</option>
+			<option class="channels astat f_f01 s_cm" value="positive_stdev">Positive Amplitude Stdev</option>
+			<option class="channels astat f_f02 s_cm" value="positive_kurtosis">Positive Kurtosis</option>
+			<option class="channels astat f_f02 s_cm" value="positive_snr">Positive SNR (Mean/Stdev)</option>
+			<option class="channels astat f_f02 s_cm" value="positive_skew">Positive Skew</option>
+			<option class="channels astat f_f02 s_cm percent" value="rain_p_plus_pct">Rain: Positive%</option>
+			<option class="channels astat f_f02 s_cm percent" value="rain_p_pct">Rain: Middle%</option>
+			<option class="channels astat f_f02 s_cm percent" value="rain_p_minus_pct">Rain: Negative/1-Cluster%</option>
+			<option class="channels astat f_f02 s_cm" value="s_value">S-Value</option>
+			<option class="channels astat f_int s_cm" value="threshold">Threshold</option>
+			<option class="channels astat f_f02 s_cm exczero" value="threshold_conf">Threshold Data Quality</option>
+			<option class="channels astat f_f02 s_cm percent" value="total_events_amplitude_cv_pct">Total Events Amplitude CV%</option>
+			<option class="channels astat f_f01 s_cm" value="total_events_amplitude_mean">Total Events Amplitude Mean</option>
+			<option class="channels astat f_f01 s_cm" value="total_events_amplitude_stdev">Total Events Amplitude Stdev</option>
+		</optgroup>
+	</select>
+	<div class="row" style="margin-top: 1em;"><strong>Metrics Help:</strong>&nbsp;&nbsp;<a href="${url(controller='help', action='well_metrics')}">Well</a>&nbsp;&nbsp;<a href="${url(controller='help', action='well_channel_metrics')}">Channel</a></div>
+</div>
+<div class="grid_5">
+	<h6>Options</h6>
+	% if c.clusters_available:
+	<label for="show_clusters"><strong>Thumbnail Mode:</strong></label>
+	<input type="radio" class="thumbnail_mode" name="thumbnail_mode" value="2d" checked="checked"> 2D</input>&nbsp;
+	<input type="radio" class="thumbnail_mode" name="thumbnail_mode" value="1d"> 1D</input><br/>
+	% endif
+	<label for="thumbnail_selector"><strong>Show Thumbnails:</strong></label>
+	<input type="checkbox" id="thumbnail_selector" checked="checked"/><br/>
+	<strong>Show Stats:</strong>&nbsp;&nbsp;<label for="fam_selector">FAM</label> <input type="checkbox" id="fam_selector" checked="checked" />&nbsp;&nbsp;<label for="vic_selector">VIC</label> <input type="checkbox" id="vic_selector" checked="checked" />
+</div>
+<div class="grid_3 omega">
+	<h6>Legend</h6>
+	<span style="background: #eef">&nbsp; &nbsp;</span>&nbsp; FAM&nbsp;&nbsp;&nbsp;<span style="background: #fee">&nbsp; &nbsp;</span>&nbsp; VIC<br/>
+   <span style="background: #ffd"
+>&nbsp; &nbsp;</span>&nbsp;<span style="background: #eed">&nbsp; &nbsp;</span>&nbsp; Manual Thresholds
+	% if c.clusters_available:
+	<br/><span style="background: #efe">&nbsp; &nbsp;</span>&nbsp; 2D Clusters
+   % endif
+</div>
+<div class="clear"></div>
+</div>
+<div id="plate_info">
+	<div class="grid_4">
+		<strong>Reader:</strong> ${c.plate.box2.name}<br/>
+		<strong>Type:</strong> ${c.plate.plate_type.name if c.plate.plate_type_id else 'None Specified'}
+	</div>
+	<div class="grid_4">
+		<strong>Consumable:</strong> ${c.dg_method_text}<br/>
+        <strong>QS version:</strong> ${c.plate.program_version if c.plate.program_version is not None else 'Unknown'}
+	</div>
+	<div class="grid_5 omega">
+		<strong>Operator:</strong> ${c.plate.operator.full_name if c.plate.operator else 'Unknown'}<br/>
+		<strong>Date/Time:</strong> ${c.plate.run_time.strftime('%m/%d/%Y %H:%M')}
+	</div>
+	<div class="clear"></div>
+	<div class="grid_4" style="margin-top: 10px">
+		<a class="btn small" href="${url(controller='plate', action='edit', id=c.plate.id)}">Edit Metadata</a>
+	% if c.plate.setup:
+    	<a class="btn small" href="${url(controller='setup', action='consumable', id=c.plate.setup.id, beta=False)}">View Setup</a>
+    % endif
+	</div>
+	<div class="grid_9 omega" style="margin-top: 10px">
+		<a class="btn small" href="${url(controller='plate', action='edit', id=c.plate.id)}">Edit Consumable</a>
+	</div>
+    <div class="clear"></div>
+</div>
+<div id="plate_analysis">
+	<div class="grid_4">
+		<h6>Plots</h6>
+		<select id="plot_url">
+			<option value=''>Select one...</option>
+			<option value="${h.dr_url(c.plate.box2, controller='plate', action='galaxy', id=c.plate.id, channel=0)}">FAM Galaxy</option>
+			<option value="${h.dr_url(c.plate.box2, controller='plate', action='galaxy', id=c.plate.id, channel=1)}">VIC Galaxy</option>
+			<option value="${h.dr_url(c.plate.box2, controller='plate', action='carryover', id=c.plate.id, channel=0)}">FAM Carryover</option>
+			<option value="${h.dr_url(c.plate.box2, controller='plate', action='carryover', id=c.plate.id, channel=1)}">VIC Carryover</option>
+	</select>
+	</div>
+	<div class="grid_4">
+		<h6>Numerical Analysis</h6>
+		<select id="advanced_url">
+			<option value=''>Select one...</option>
+			% if c.plate.plate_type and c.plate.plate_type.code in ('bcarry','bcc','betaec','mfgco','fvtitr','mfgcc','scc','av','probeec','evaec'):
+			<option value="${url(controller='metrics', action='per_plate', id=c.plate.id, mode='plate', reprocess_config_id=c.reprocess_config.code if c.reprocess_config else '')}">Production Metrics</option>
+			% endif
+			<option value="${url(controller='plate', action='replicates', id=c.plate.id)}">Replicate Analysis</option>
+			<option value="${url(controller='plate', action='experiment', id=c.plate.id)}">Control/Experiment Analysis</option>
+            % if c.plate.plate_type and c.plate.plate_type.code == 'scc':
+			<option value="${url(controller='plate', action='colorcal', id=c.plate.id)}">Single-Well ColorCal Analysis</option>
+            % endif
+			<option value="${url(controller='plate', action='mip_cnv', id=c.plate.id)}">MIP CNV Real World Error</option>
+			<option value="${url(controller='plate', action='frag', id=c.plate.id)}">Fragmentation</option>
+			<option value="${url(controller='plate', action='grid', id=c.plate.id)}">Multi-Well Select (Alpha)</option>
+		</select>
+	</div>
+	<div class="grid_5 omega">
+		% if c.show_stats_metrics:
+		<h6>Metrics</h6>
+		<a class="btn btn-small small" href="${url(controller='metrics', action='stats', id=c.plate.id, mode='plate_non_cert', reprocess_config_id=c.reprocess_config.code if c.reprocess_config else '')}">Show ${c.plate.plate_type.name} Stats</a>
+		% elif c.show_prod_metrics:
+		<h6>Metrics</h6>
+		<a class="btn btn-small small" href="${url(controller='metrics', action='per_plate', id=c.plate.id, mode='plate', reprocess_config_id=c.reprocess_config.code if c.reprocess_config else '')}">Show Pass/Fail Stats</a>
+		% endif
+	</div>
+	<div class="clear"></div>
+</div>
+<div id="actions">
+	<div class="grid_5">
+		<h6>CSV/Export</h6>
+		<form action="${h.dr_url(c.plate.box2, controller='plate', action='csv', id=c.plate.id)}" method="get">
+			<input class="btn small" type="submit" value="CSV Data Table" />
+			<input type="hidden" name="reprocess_config_id" value="${c.reprocess_config_id or ''}" />
+			<input type="hidden" name="analysis_group_id" value="${c.analysis_group_id or ''}" />
+		</form>
+	</div>
+	<div class="grid_3">
+		<h6>Template</h6>
+		<form action="${h.dr_url(c.plate.box2, controller='template', action='from_plate', id=c.plate.id)}" method="get">
+			<input class="btn small" type="submit" value="Load Template" />
+		</form>
+	</div>
+	<div class="grid_3 omega">
+		<h6>Assays</h6>
+		<form action="${url(controller='sequence', action='add_condition_plate', id=c.plate.id)}" method="get">
+			<input class="btn small" type="submit" value="Enter Assay Info" />
+		</form>
+	</div>
+	<div class="clear"></div>
+</div>
+% if c.reprocess_urls:
+<div id="versions">
+	<div class="grid_6">
+		<h6>Select a Version:</h6>
+		<select id="version_selector">
+			% for uri, title in c.reprocess_urls:
+                %if (c.reprocess_config and title == c.reprocess_config.name ):
+			        <option selected="selected" value="${uri}">${title}</option>
+                %else:
+                    <option value="${uri}">${title}</option>
+                %endif
+			% endfor
+		</select>
+		<script type="text/javascript">
+			$("#version_selector").change(function() {
+				window.location.href = $(this).val()
+			});
+		</script>
+	</div>
+	<div class="clear"></div>
+</div>
+% endif
+</div>
+
+% if any([len(cols) > 0 for k, cols in c.rows.items()]):
+<div id="plate_caption">
+	<span id="well_aggregate_stat">
+		<strong>Plate Mean: </strong>&nbsp;<span class="stats_mean"></span>&nbsp;&nbsp;
+		<strong>Plate Stdev: </strong>&nbsp;<span class="stats_stdev"></span>
+	</span>
+	<span id="fam_aggregate_stat">
+		<strong>Plate FAM Mean: </strong>&nbsp;<span class="stats_mean"></span>&nbsp;&nbsp;
+		<strong>Plate FAM Stdev: </strong>&nbsp;<span class="stats_stdev"></span>
+	</span>&nbsp;&nbsp;&nbsp;&nbsp;
+	<span id="vic_aggregate_stat">
+		<strong>Plate VIC Mean: </strong>&nbsp;<span class="stats_mean"></span>&nbsp;&nbsp;
+		<strong>Plate VIC Stdev: </strong>&nbsp;<span class="stats_stdev"></span>
+	</span>
+	<form id="download_stat_form" style="float: right;" action="" method="get">
+		<input type="hidden" name="analysis_group_id" value="${c.analysis_group_id}" />
+		<input type="hidden" name="reprocess_config_id" value="${c.reprocess_config_id}" />
+		<input type="submit" class="btn small" value="Download Stat CSV" />
+	</form>
+	<div class="cf"></div>
+</div>
+<table id="plate_table" class="plate_grid ${'thumbnail_2d' if c.clusters_available else 'thumbnail_1d'}">
+	<thead>
+		<tr>
+			<th class="col_name">&nbsp;</th>
+			<th>01</th>
+			<th>02</th>
+			<th>03</th>
+			<th>04</th>
+			<th>05</th>
+			<th>06</th>
+			<th>07</th>
+			<th>08</th>
+			<th>09</th>
+			<th>10</th>
+			<th>11</th>
+			<th>12</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for k, cols in sorted(c.rows.items()):
+			% if len(cols) > 0:
+				<tr>
+					<td class="col_name">${k}</td>
+					% for col in ('01','02','03','04','05','06','07','08','09','10','11','12'):
+						% if cols.has_key(col):
+							<td class="plate_cell">
+								<div class="cell_container" id="cell${cols[col].id}" rel="${k}${col}">
+									<div class="well_stat"></div>
+									<div class="channel_stat stat0"></div>
+									% if len(cols[col].tags) > 0:
+										<span class="tag_indicator"></span>
+									% endif
+									% if c.clusters_available:
+										<span class="image_cluster${' cluster_manual' if (c.well_metric_dict.get(cols[col].well_name) and c.well_metric_dict[cols[col].well_name].well_channel_metrics[0].clusters_automatic == 0) else ''}">
+										${h.literal(h.qlb_thumbnail_2d(c.plate.qlbplate.id, cols[col].well_name))}
+										</span>
+									% endif
+										<span class="image_threshold">
+										% for num in range(len(cols[col].channels)):
+											${h.literal(h.qlb_thumbnail(c.plate.qlbplate.id, cols[col].well_name, num))}
+										% endfor
+										</span>
+									<div class="channel_stat stat1"></div>
+								</div>
+							</td>
+						% else:
+							<td class="noop_cell">&nbsp;</td>
+						% endif
+					% endfor
+				</tr>
+			% endif
+		% endfor
+	</tbody>
+</table>
+<div>
+	<strong>Find this on ${'\\\\QLTester\\SharedData\\AnalysisGroups' if c.reprocess_config else '\\\\QLHyperV\\SharedData'}:</strong> ${c.plate_folder}
+</div>
+% else:
+<div style="background: #eee; padding: 15px">
+<h5>This plate does not have any recorded well data.</h5>
+<p>
+	There may be few reasons for this:</strong>
+</p>
+<ul>
+	<li><strong>New Plate:</strong> The plate has just been loaded into the server, and the well data has not yet been parsed (come back in a few minutes)</li>
+	<li><strong>Cancelled Run:</strong> This plate run was cancelled.  Look for a similarly named, newer plate.</li>
+	<li><strong>Duplicate Plate:</strong> The plate was copied from one folder to another, and the server didn't process the wells.  (Please don't do this.)</li>
+</ul>
+<p>
+	If you feel there should be well data for this plate, please note the plate name and number (<strong>${c.plate.id}</strong>) and send email to <a href="mailto:qtools_support@digitalbiology.mygbiz.com">qtools_support@digitalbiology.mygbiz.com</a>.
+</p>
+</div>
+% endif

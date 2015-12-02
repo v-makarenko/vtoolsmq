@@ -1,0 +1,23 @@
+<%inherit file="/product/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Comm DLL Log File Errors</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+<%def name="explanation()">
+    <p>The errors in the log file are shown below.
+</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+% if c.file_contents:
+<pre>
+    ${c.file_contents}
+</pre>
+% else:
+<div class="well">
+    No errors in this logfile.
+</div>
+% endif

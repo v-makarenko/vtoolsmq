@@ -1,0 +1,40 @@
+<%inherit file="/assay/base.html" />
+<%namespace file="fields.html" name="fields" import="*"/>
+
+<%def name="css()">
+${parent.css()}
+	<style type="text/css" media="screen"> 
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+<%def name="pagetitle()">Edit Sample/Assay CNV Record</%def>
+<%def name="selected_page()">cnvedit</%def>
+<%def name="explanation()">
+<p>
+Edit the CNV or notes for this particular sample-assay association, or delete it entirely.
+</p>
+</%def>
+
+${c.form.start_with_layout(url(controller='sample', action='cnv_save', id=c.cnv.id), method="post")}
+	${fields.body()}
+	<tr><td>
+	${c.form.submit("submit","Save CNV Record")}
+	</td></tr>
+${c.form.end_with_layout()}
+
+<div class="action_bar">
+<h3>More Actions:</h3>
+	<div class="action_button">
+	<form id="delete_form" action="${url(controller='sample', action='cnv_delete', id=c.cnv.id)}" method="post">
+		<input type="submit" value="Delete CNV" id="delete_button" />
+		<script type="text/javascript" charset="utf-8">
+			$('#delete_button').click(function() {
+				return confirm('Are you sure you want to delete this CNV record?')
+			})
+		</script>
+	</form>
+	</div>
+	<div class="clear"></div>
+</div>

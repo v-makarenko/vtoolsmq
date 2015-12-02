@@ -1,0 +1,16 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Product Development Tools</%def>
+<%def name="selected_page()">pdhome</%def>
+
+<p>Here are some analysis tools for the Product Development Team.</p>
+
+<ul>
+    <li><strong><a href="${url(controller='product', action='reprocess')}">Reprocess Central</a></strong></li>
+	<li><a href="${url(controller='metrics', action='index')}">Plate Metrics: Analysis Groups</a></li>
+	<li><a href="${url(controller='product', action='batch_list')}">Manufacturing Plate Batches</a></li>
+	<li><a href="${url(controller='product', action='carryover')}">Carryover Event Counter</a></li>
+    <li><a href="${url(controller='groove', action='list')}">Groove Test Plates</a></li>
+	<li><a href="${url(controller='consumable', action='list')}">Consumable Batches</a></li>
+    <li><a href="${url(controller='product', action='logfile')}">Logfile Analyzer</a></li>
+</ul>

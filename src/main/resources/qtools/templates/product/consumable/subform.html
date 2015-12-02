@@ -1,0 +1,12 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/components/name_description.html" name="name_desc" import="*" />
+
+<%def name="pagetitle()">${c.title}</%def>
+<%def name="selected_page()">consumable</%def>
+
+${c.form.start_with_layout(c.submit_action, method='post')}
+${name_desc.body()}
+<tr class="formbutton">
+	<td>${c.form.submit('submit', 'Create Style')}
+</tr>
+${c.form.end_with_layout()}

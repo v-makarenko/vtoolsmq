@@ -1,0 +1,66 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Algorithm Release Notes</%def>
+<%def name="explanation()">
+<p>
+	<strong>Last updated:</strong> March 3, 2011
+</p>
+</%def>
+<%def name="selected_page()">algorithms</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		th.col_version, td.col_version {
+			width: 10%;
+		}
+		
+		th.col_date, td.col_date {
+			width: 10%;
+		}
+		
+		th.col_reltype, td.col_reltype {
+			width: 10%;
+		}
+		
+		td.col_summary {
+			width: 70%;
+		}
+	</style>
+</%def>
+
+<table class="datagrid" id="versions">
+	<thead>
+		<tr>
+			<th class="col_name">Version</th>
+			<th class="col_software">Date</th>
+			<th class="col_analyses">Type</th>
+			<th class="col_summary">Summary</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, (num, date, reltype, summary) in enumerate(c.versions):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_version">${num}</td>
+		<td class="col_date">${date}</td>
+		<td class="col_reltype">
+			% if reltype == 'Major':
+				<strong>${reltype}</strong>
+			% else:
+				${reltype}
+			% endif
+		</td>
+		<td class="col_summary">
+			% if isinstance(summary, list):
+			<ul>
+				% for sub in summary:
+				<li>${sub}</li>
+				% endfor
+			</ul>
+			% else:
+			${summary}
+			% endif
+		</td>
+	</tr>
+	% endfor
+	</tbody>
+</table>

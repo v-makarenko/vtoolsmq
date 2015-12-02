@@ -1,0 +1,169 @@
+<%inherit file="/trend/base.html" />
+<%namespace file="/components/flot.html" name="flot" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Trend Results</%def>
+
+<%def name="explanation()">
+    <p>Here is the trend and 10-day moving average for the plates and wells specified looking at the ${c.metric_name} metric.  
+    The red histogram is the number of data points per day.</p>
+    <p>The mean value for all wells/plates observed is ${c.mean_value} with a std of ${c.std_value}</p>
+</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    <style type="text/css">
+        #plot table {
+            width: inherit;
+            border-spacing: inherit;
+            padding: inherit;
+        }
+
+        #plot table td {
+            border-top: inherit;
+            padding: 3px 2px 2px;
+            vertical-align: middle;
+            line-height: inherit;
+            margin: inherit;
+        }
+    </style>
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    ${flot.js()}
+</%def>
+
+<div id="plot" style="width: 780px; height: 390px">
+</div>
+
+<form action="${c.back_url}" method="get">
+<div class="actions">
+        <input type="hidden" name="metric" value="" />
+        <input type="hidden" name="channel_num" value="" />
+        <input type="hidden" name="start_date" value="" />
+        <input type="hidden" name="end_date" value="" />
+        <input type="hidden" name="group_by_plate" value="" />
+        <input type="hidden" name="outlier_operator" value="" />
+        <input type="hidden" name="outlier_value" value="" />
+        <input type="hidden" name="reader" value="" />
+        <input type="hidden" name="reader_category" value="" />
+        <input type="hidden" name="sample_category" value="" />
+        <input type="hidden" name="assay_category" value="" />
+        <input type="hidden" name="plate_name" value="" />
+        <input type="hidden" name="sample_name" value="" />
+        <input type="hidden" name="assay_name" value="" />
+
+        ${boot.submit('Change Criteria')}
+</div>
+</form>
+
+
+<%def name="pagescript()">
+${parent.pagescript()}
+<script type="text/javascript">
+    var time_points = ${c.stats};
+    var moving_avg = ${c.moving_avg};
+    var densities = ${c.densities};
+
+    var showTooltip = function(x, y, name, value) {
+        $('<div id="plot_tip">'+name+'<br/><strong>'+value+'</strong></div>').css({
+            position: 'absolute',
+            display: 'none',
+            top: y+5,
+            left: x+5,
+            border: '1px solid #fdd',
+            padding: '2px',
+            'background-color': '#fee',
+            'font-size': '11px',
+            opacity: 0.80
+        }).appendTo("body").fadeIn(200);
+    }
+
+    var previousPoint = null;
+    var MA_LABEL = '10-Day MA';
+
+    $(function() {
+        if($.isEmptyObject(time_points)) {
+            $('#plot').append($('<div class="well">No matching data found.</div>'))
+            return;
+        }
+        $.plot('#plot', [
+            {
+                data: time_points,
+                lines: {show: false},
+                points: {show: true},
+                label: "${c.yaxis_title}"
+            },
+            {
+                data: moving_avg,
+                label: MA_LABEL
+            },
+            {
+                data: densities,
+                bars: {show: true},
+                yaxis: 2
+            }
+        ], {grid: {clickable: true,
+                   hoverable: true},
+            xaxes: [{mode: 'time'}],
+            yaxes: [{},
+                    {min: 0,
+                     max: ${c.max_density_axis},
+                     alignTicksWithAxis: 1,
+                     position: 'right'}]});
+
+        $("#plot").bind('plotclick', function(event, pos, item) {
+            if(item) {
+                window.location.href = urls[item.dataIndex];
+            }
+        });
+
+        $('#plot').bind('plothover', function(event, pos, item) {
+            if(item) {
+                if(previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
+                    $('#plot_tip').remove();
+                    var value = item.datapoint[1].toFixed(2);
+                    if(item.series.label == MA_LABEL) { // better way to detect?
+                        var name = $.plot.formatDate(new Date(item.datapoint[0]), '%m/%d/%y');
+                    }
+                    else {
+                        var name = names[item.dataIndex];
+                    }
+                    showTooltip(item.pageX, item.pageY, name, value);
+                }
+            }
+            else {
+                $('#plot_tip').remove();
+                previousPoint = null;
+            }
+        })
+    });
+
+    var urls = ${c.urls};
+    var names = ${c.names};
+</script>
+</%def>
+
+<!--  This seems to blow up the amount of time the borwser needs to load quite remarably!
+<div style="display:none">
+<table class="notable_data">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Value</th>
+            <th>Time Point</th>
+        </tr>
+    <tbody>
+        % for name, value, postion in c.table_data:
+        <tr>
+            <td>${name}</td>
+            <td>${value}</td>
+            <td>${postion}</td>
+        </tr>
+        %endfor
+    </tbody>
+</table>
+</div>
+-->

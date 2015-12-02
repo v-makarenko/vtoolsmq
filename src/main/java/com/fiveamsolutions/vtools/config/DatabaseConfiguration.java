@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Configuration
-@Profile("!" + Constants.SPRING_PROFILE_CLOUD)
-@EnableMongoRepositories("com.fiveamsolutions.vtools.repository")
-@Import(value = MongoAutoConfiguration.class)
-@EnableMongoAuditing(auditorAwareRef = "springSecurityAuditorAware")
+//@Configuration
+//@Profile("!" + Constants.SPRING_PROFILE_CLOUD)
+//@EnableMongoRepositories("com.fiveamsolutions.vtools.repository")
+//@Import(value = MongoAutoConfiguration.class)
+//@EnableMongoAuditing(auditorAwareRef = "springSecurityAuditorAware")
 public class DatabaseConfiguration extends AbstractMongoConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(DatabaseConfiguration.class);

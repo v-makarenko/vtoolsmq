@@ -1,0 +1,145 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Plates: ${c.batch.name}</%def>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		#batchplates .col_notes a {
+			text-decoration: none;
+		}
+
+
+		#batchplates .col_actions {
+			white-space: nowrap;
+		}
+
+		
+	</style>
+</%def>
+
+% if c.batch.plate_type.code == 'fvtitr':
+<style type="text/css">
+	#batchplates {
+		font-size: 12px;
+	}
+</style>
+% endif
+
+<%def name="js()">
+	${parent.js()}
+	<script type="text/javascript">
+		$(function() {
+			$('.discard_link').click(function() {
+				var ok = confirm('Are you sure you want to discard this QC plate?')
+				if(ok) {
+					$(this).parent('form').submit();
+				}
+				return false;
+			})
+		});
+	</script>
+</%def>
+
+<table id="batchplates" class="condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Plate</th>
+			<th>DG Method</th>
+			<th>QC Plate?</th>
+			<th>Notes</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, plate in enumerate(c.plates):
+		<tr>
+			<td><a href="${url(controller='product', action='batch_editplate', id=plate.id)}">${plate.name}</td>
+			<td>
+			% if plate.batch.plate_type.code in ('fvtitr',):
+				F+/V+:
+				% if plate.plate:
+					<a href="${url(controller='metrics', action='per_plate', id=plate.plate_id)}">${h.ellipsis(plate.plate.name, 20)}</a>
+				% endif
+				<br/>
+				CC:
+				% if plate.secondary_plate:
+					<a href="${url(controller='metrics', action='per_plate', id=plate.secondary_plate_id)}">${h.ellipsis(plate.secondary_plate.name, 20)}</a>
+				% endif
+				% if not (plate.plate or plate.secondary_plate):
+					&nbsp;
+				% endif
+			% else:
+				% if plate.plate:
+					<a href="${url(controller='metrics', action='per_plate', id=plate.plate_id)}">${plate.plate.name}</a>
+				% else:
+					&nbsp;
+				% endif
+			% endif
+			</td>
+			<td>${plate.dg_method_display}</td>
+			<td>
+			% if plate.qc_plate:
+				<strong>Yes</strong>
+			% else:
+				No
+			% endif
+			</td>
+			<td class="col_notes">
+				% if plate.plate_notes:
+				<a href="${url(controller='product', action='batch_editplate', id=plate.id)}"><img src="${url('/images/icons/page_edit.png')}" title="${plate.plate_notes}"></a>
+				% else:
+				<a href="${url(controller='product', action='batch_editplate', id=plate.id)}"><img src="${url('/images/icons/page_add.png')}" /></a>
+				% endif
+			</td>
+			<td class="col_actions">
+				% if not (plate.plate and (plate.batch.plate_type.code != 'fvtitr' or plate.secondary_plate)):
+					% if plate.batch.plate_type.code in ('mfgcc','scc') or (plate.batch.plate_type.code == 'fvtitr' and not plate.qc_plate):
+						<a href="${url(controller='product', action='batch_plate_name', id=plate.id)}">Get Name</a>
+					% else:
+						<a href="${url(controller='product', action='batch_plate_template', id=plate.id)}">Get Template</a>
+					% endif
+					% if plate.batch.plate_type.code == 'fvtitr':
+					&nbsp;|&nbsp; <strong>Upload:</strong>
+					% if not plate.plate:
+						<a href="${url(controller='product', action='batch_plate_upload', id=plate.id)}">F+/V+ (QC)</a>&nbsp;|&nbsp;
+					% endif
+					% if not plate.secondary_plate:
+						<a href="${url(controller='product', action='batch_plate_upload', id=plate.id, plate_type_code='mfgcc')}">ColorComp</a>
+					% endif
+					% else:
+					&nbsp;|&nbsp;<a href="${url(controller='product', action='batch_plate_upload', id=plate.id)}">Upload Plate</a>
+					% endif
+				% else:
+					<a href="${url(controller='plate', action='view', id=plate.secondary_plate_id if plate.secondary_plate else plate.plate.id)}">View</a>&nbsp;|&nbsp;
+					<a href="${url(controller='metrics', action='per_plate', id=plate.secondary_plate.id if plate.secondary_plate else plate.plate.id, mode='plate')}">Metrics</a>
+					% if plate.batch.plate_type.code == 'fvtitr' and plate.qc_plate:
+					<form action="${url(controller='product', action='batch_csfv_unhook')}" method="post" style="display: inline;">
+						<input type="hidden" name="batch_plate_id" value="${plate.id}" />
+						|&nbsp;<a href="#" class="discard_link" href="">Discard</a>
+					</form>
+					% endif
+				% endif
+			</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+<div class="actions">
+	<a href="${url(controller='product', action='batch_list')}" class="btn">Back to Batch List</a>
+	% if c.batch.plate_type.code == 'scc':
+		% if c.batch.qc_plate_record(0) and c.batch.qc_plate_record(0).plate:
+			<a href="${url(controller='metrics', action='per_plate', id=c.batch.qc_plate_record(0).plate.id)}" class="btn">QC Plate (FAM/VIC)</a>
+		% endif
+		% if c.batch.qc_plate_record(1) and c.batch.qc_plate_record(1).plate:
+			<a href="${url(controller='metrics', action='per_plate', id=c.batch.qc_plate_record(1).plate.id)}" class="btn">QC Plate (FAM/HEX)</a>
+		% endif
+	% else:
+		% if c.batch.qc_plate_record() and c.batch.qc_plate_record().plate:
+			<a href="${url(controller='metrics', action='per_plate', id=c.batch.qc_plate_record().plate.id)}" class="btn">QC Plate Metrics</a>
+		% endif
+	% endif
+	<a href="${url(controller='product', action='batch_edit', id=c.batch.id)}" class="btn">Edit Batch</a>
+</div>

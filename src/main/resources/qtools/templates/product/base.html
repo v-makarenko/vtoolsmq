@@ -1,0 +1,51 @@
+<%inherit file="/base/index.html"/>
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.metrics li#subnav_metrics,
+		#subnav nav.batch li#subnav_batch,
+		#subnav nav.carryover li#subnav_carryover,
+		#subnav nav.dg li#subnav_dg,
+		#subnav nav.consumable li#subnav_consumable {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav.metrics li#subnav_metrics a,
+		#subnav nav.batch li#subnav_batch a,
+		#subnav nav.carryover li#subnav_carryover a,
+		#subnav nav.dg li#subnav_dg,
+		#subnav nav.consumable li#subnav_consumable a {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">product</%def>
+<%def name="subnav_title()">PD Links</%def>
+<%def name="subnav()">
+	<ul>
+        <li><strong><a href="${url(controller='product', action='reprocess')}">Reprocess Central</a></strong></li>
+		<li id="subnav_metrics"><a href="${url(controller='metrics', action='index')}">Plate Metrics</a></li>
+		<li id="subnav_batch"><a href="${url(controller='product', action='batch_list')}">MFG Plate Batches</a></li>
+		<li id="subnav_groove"><a href="${url(controller='groove', action='list')}">Groove Test Plates</a></li>
+		<li id="subnav_carryover"><a href="${url(controller='product', action='carryover')}">Carryover Utilities</a></li>
+		<li id="subnav_consumable"><a href="${url(controller='consumable', action='list')}">Consumable Batches</a></li>
+		<li id="subnav_logfile"><a href="${url(controller='product', action='logfile')}">Logfile Analyzer</a></li>
+	</ul>
+</%def>
+
+<%def name="relatednav()">
+	<ul>
+		<li><a href="${url(controller='admin', action='readers', admin=False)}">Reader Status</a></li>
+		<li><a href="${url(controller='setup', action='list', beta=True)}">Validation</a></li>
+	</ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.pagefooter()}
+</div>
+
+<%def name="pagefooter()"></%def>

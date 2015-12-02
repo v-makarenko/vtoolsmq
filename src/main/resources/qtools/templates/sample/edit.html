@@ -1,0 +1,13 @@
+<%inherit file="/assay/base.html"/>
+<%namespace file="fields.html" name="fields" import="*"/>
+
+<%def name="pagetitle()">Edit Sample: ${c.sample.name}</%def>
+<%def name="selected_page()">sampleedit</%def>
+
+${c.form.start_with_layout(url(controller='sample', action='save', id=c.sample.id), method="post")}
+	${fields.body()}
+	
+	<tr><td>
+	${c.form.submit("submit","Save Sample")}
+	</td></tr>
+${c.form.end_with_layout()}

@@ -1,0 +1,50 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Metric Wells: ${c.name}, Baselines</%def>
+<%def name="selected_page()">metrics</%def>
+
+<%include file="/metrics/nav_back.html" />
+<%include file="/metrics/nav_snippet.html" />
+<%include file="/metrics/nav_filter.html" />
+<table class="datagrid" style="font-size: 11px;">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Plate Type</th>
+			<th>Well Name</th>
+			<th>Total Events</th>
+			<th>#Events Accepted</th>
+			<th>FAM Baseline Mean</th>
+			<th>FAM Baseline Stdev</th>
+			<th>VIC Baseline Mean</th>
+			<th>VIC Baseline Stdev</th>
+			<th>Sum Baseline Mean</th>
+			<th>Sum Baseline Stdev</th>
+			<th>Droplet Reader</th>
+			<th>Sample Name</th>
+			<th>Plate</th>
+			<th>Well</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, wm in enumerate(c.well_metrics):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${h.ymd(wm.well.host_datetime)}</td>
+			<td>${wm.well.plate.plate.plate_type.name if wm.well.plate.plate.plate_type else ''}</td>
+			<td>${wm.well.well_name}</td>
+			<td>${wm.total_event_count}</td>
+			<td>${wm.accepted_event_count}</td>
+			<td>${h.sig2(wm.well_channel_metrics[0].baseline_mean) if wm.well_channel_metrics[0].baseline_mean else 'N/A'}</td>
+			<td>${h.sig2(wm.well_channel_metrics[0].baseline_stdev) if wm.well_channel_metrics[0].baseline_stdev else 'N/A'}</td>
+			<td>${h.sig2(wm.well_channel_metrics[1].baseline_mean) if wm.well_channel_metrics[1].baseline_mean else 'N/A'}</td>
+			<td>${h.sig2(wm.well_channel_metrics[1].baseline_stdev) if wm.well_channel_metrics[1].baseline_stdev else 'N/A'}</td>
+			<td>${h.sig2(wm.sum_baseline_mean) if wm.sum_baseline_mean else 'N/A'}</td>
+			<td>${h.sig2(wm.sum_baseline_stdev) if wm.sum_baseline_stdev else 'N/A'}</td>
+			<td>${wm.well.plate.plate.box2.name}</td>
+			<td>${wm.well.sample_name}</td>
+			<td><a href="${url(controller='plate', action='view', id=wm.well.plate.plate.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or '')}" title="${wm.well.plate.plate.name}">View</a></td>
+			<td><a href="${url(controller='well', action='view', id=wm.well.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or 0)}">View</a> <a href="${url(controller='well', action='galaxy', id=wm.well.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or '')}">Gxy</a> <a href="${url(controller='well', action='temporal', id=wm.well.id, analysis_group_id=c.analysis_group_id, reprocess_config_id=c.rp_id or 0)}">Tmp</a></td>
+		</tr>
+	% endfor
+	</tbody>
+</table>

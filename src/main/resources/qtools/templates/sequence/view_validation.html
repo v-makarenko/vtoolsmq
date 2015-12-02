@@ -1,0 +1,137 @@
+<%inherit file="/sequence/view_base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/sequence/partials.html" name="part" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	<link rel="stylesheet" href="${url('/css/tw/bootstrap.multirow.css')}" />
+</%def>
+
+<h2>Primers/Probe</h2>
+<table class="multi-row condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th colspan="2">Components</th>
+			<th>Melting Temp (&deg;C)</th>
+			<th>Folding &Delta;G</th>
+			<th>GC Content%</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="row-parent">
+			<td rowspan="${len(c.sequence_group.forward_primers)}"><strong>Forward Primers</strong></td>
+			% for idx, fp in enumerate(c.sequence_group.forward_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>${fp.barcode_label}</td>
+			% if fp.sequence:
+			<td>${h.sig1(fp.tm)}</td>
+			<td>${h.sig2(fp.dg)}</td>
+			<td>${h.sig0(fp.sequence.percent_gc)}%</td>
+			% else:
+			<td colspan="3">Exact sequence unknown.</td>
+			% endif
+		</tr>
+			% endfor
+
+		<tr class="row-parent">
+			<td rowspan="${len(c.sequence_group.reverse_primers)}"><strong>Reverse Primers</strong></td>
+			% for idx, rp in enumerate(c.sequence_group.reverse_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>${rp.barcode_label}</td>
+			% if rp.sequence:
+			<td>${h.sig1(rp.tm)}</td>
+			<td>${h.sig2(rp.dg)}</td>
+			<td>${h.sig0(rp.sequence.percent_gc)}%</td>
+			% else:
+			<td colspan="3">Exact sequence unknown.</td>
+			% endif
+		</tr>
+			% endfor
+		
+		% if c.sequence_group.probes:
+		<tr class="row-parent">
+			<td rowspan="${len(c.sequence_group.probes)}"><strong>Probes</strong></td>
+			% for idx, p in enumerate(c.sequence_group.probes):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td>${p.barcode_label} (${p.quencher})</td>
+			% if p.sequence:
+			<td>${h.sig1(p.tm)}</td>
+			<td>${h.sig2(p.dg)}</td>
+			<td>${h.sig0(p.sequence.percent_gc)}%</td>
+			% else:
+			<td colspan="3">Exact sequence unknown.</td>
+			% endif
+		</tr>
+			% endfor
+		% endif
+	</tbody>
+</table>
+
+% if c.sequence_group.analyzed:
+	% if not (c.sequences or c.transcripts):
+		<div class="well">
+			<div style="text-align: center">
+				% if c.display_mode == 'transcript':
+					No transcripts found.
+				% else:
+					No amplicons found.
+				% endif
+			</div>
+		</div>
+	% elif c.sequences:
+<h2>Amplicons</h2>
+<strong>Matched regions:</strong>&nbsp;${len(c.sequences)}<br/>&nbsp;
+<table class="condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th>Amplicon</th>
+			<th>Length</th>
+			<th>Folding &Delta;G</th>
+			<th>GC Content%</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for seq in c.sequences:
+		<tr>
+			<td>chr${seq.chromosome}:${seq.start_pos}-${seq.end_pos}</td>
+			<td>${len(seq.positive_amplicon)}</td>
+			<td>${seq.folding_dg}</td>
+			<td>${h.sig0(seq.percent_gc)}</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+	% elif c.transcripts:
+<h2>Transcripts</h2>
+<strong>Distinct Genomic Regions:</strong>&nbsp; ${len(c.transcripts)}<br/>&nbsp;
+<table class="condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th>Transcript</th>
+			<th>Length</th>
+			<th>&Delta;G</th>
+			<th>GC Content%</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for genomic_region, transcripts in c.transcripts:
+		<tr>
+			<td>${transcripts[0].exon_regions}</td>
+			<td>${len(transcripts[0].positive_sequence)}</td>
+			<td>${transcripts[0].folding_dg}</td>
+			<td>${h.sig0(transcripts[0].percent_gc)}</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+	% endif
+% endif
+
+
+			

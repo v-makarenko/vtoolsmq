@@ -1,0 +1,28 @@
+<%inherit file="/assay/output.html"/>
+<%namespace file="components.html" name="comp" import="seq_result,snp_results,seq_save_fields"/>
+
+<%def name="pagetitle()">Probe Location Assay Sequence</%def>
+
+<%def name="inputs(ctx)">
+	<table class="record">
+		<tr><td class="col_field">Chromosome:</td><td>${ctx.chromosome}</td></tr>
+		<tr><td class="col_field">Location:</td><td>${ctx.location}</td></tr>
+		<tr><td class="col_field">Amplicon Width:</td><td>${ctx.width}</td></tr>
+	</table>
+	${parent.inputs(ctx)}
+</%def>
+
+<div class="sequence_match">
+	<h2>Match:</h2>
+	${comp.seq_result(c.sequence)}
+	% if hasattr(c.sequence, 'amplicon_snps'):
+	${comp.snp_results(c.sequence.amplicon_snps)}
+	% endif
+</p>
+
+<%def name="assay_save_fields(ctx)">
+	<input type="hidden" name="chromosome" value="${ctx.chromosome}" id="chromosome" />
+	<input type="hidden" name="probe_pos" value="${ctx.location}" id="probe_pos" />
+	<input type="hidden" name="amplicon_width" value="${ctx.width}" id="amplicon_width" />
+	${comp.seq_save_fields(ctx)}
+</%def>

@@ -1,0 +1,31 @@
+<%inherit file="/plate/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Upload Plate: ${c.dr.name}</%def>
+<%def name="selected_page()">upload</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    ${boot.upload_submit_css()}
+</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+<%def name="explanation()">
+<p>Use this form to upload a QLP from a production reader at a manufacturing/assembly site.  Please select a type, if applicable.  <strong>The plate may take a minute or two to finish uploading</strong>.</p>
+<div class="alert-message warning">
+<strong>Note:</strong> If you are uploading a plate that came from a manufacturing batch, please use the <a style="color: #2777bc;" href="${url(controller='product', action='batch_list')}">batch pages</a> to upload your plate.
+</div>
+</%def>
+
+<form action="${url(controller='plate', action='dropship_upload', id=c.dr.code)}" method="post" enctype="multipart/form-data" id="upload">
+    ${boot.file('plate', label='Plate', klass='span4', required=True, help_block='This file will be uploaded to Bio-Rad QL/'+c.dr.src_dir)}
+    ${boot.select('plate_type', c.plate_types, label='Plate Type', required=False)}
+    <input type="hidden" name="box2_id" />
+    ${boot.upload_submit_html()}
+</form>
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    ${boot.upload_submit_js('#upload')}
+</%def>

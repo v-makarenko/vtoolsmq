@@ -1,0 +1,25 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/admin/components.html" name="comp" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Droplet Reader Status &amp; Configuration</%def>
+<%def name="selected_page()">readers</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="css()">
+${parent.css()}
+${boot.css()}
+</%def>
+
+<h4>Reader Statuses &amp; Change Requests</h4>
+<p>The lab reader status page has been replaced by the ${h.wiki_link('Engineering Support', space='dbc')} page,
+    on the DBC wiki, managed by Nestor Castillo.  You will need to log in with your Bio-Rad GLOBAL username and
+    password, and be on the DBC user list to request changes and view status.
+    To view status in qtools <a href="${url(controller='admin', action='reader_status_table')}">Click here</a>
+</p>
+
+<h4>Registering a new Lab Reader in QTools</h4>
+<p>To add a new lab reader, <a href="${url(controller='admin', action='register_lab')}">click here.</a></p>
+
+<h4>Production Readers</h4>
+<p><a href="${url(controller='admin', action='prod')}">Click here</a> to look at the production reader list.</p>

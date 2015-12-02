@@ -1,0 +1,25 @@
+<%inherit file="/cutter/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${boot.css()}
+</%def>
+
+<%def name="pagetitle()">Restriction Site Viewer</%def>
+<%def name="selected_page()">cutseq</%def>
+<%def name="explanation()">
+<p>Select an assay below and a padding on either side.  After you click 'Load Sequence', you will be able to tell
+whether or not certain restriction enzymes cut the assay's amplicon, or around the amplicon.</p>
+</%def>
+
+<form id="main_form" action="${url(controller='cutter', action='sequence')}" method="get">
+	${boot.select('assay', c.assays, label='Assay', required=True, klass="span5")}
+	${boot.text("left_padding", label='Left Padding', required=True, klass="span3")}
+	${boot.text("right_padding", label='Right Padding', required=True, klass="span3")}
+	${boot.select('enzymes', c.enzymes, label='Enzyme Set', required=True, klass="span3")}
+	${boot.checkbox("allow_methylation", "allow_methylation", label="Allow Methylation-Blocked Enzymes?", required=True, klass="span5", id="allow_methylation")}
+	<div class="actions">
+		${boot.submit('Check Enzymes')}
+	</div>
+</form>

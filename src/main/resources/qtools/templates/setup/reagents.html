@@ -1,0 +1,25 @@
+<%inherit file="/setup/steps.html"/>
+
+<%def name="pagesubtitle()">Reagents</%def>
+<%def name="stepclass()">reagents</%def>
+
+<p><strong>Well-specific reagents and lot numbers are coming soon.</strong>  For now, just enter
+the types of oils and master mix used for this plate, where applicable.</p>
+
+${c.form.start_with_layout(url(controller='setup', action='save_reagents', id=c.setup.id), method='post', attributes=dict(id='setupform'))}
+${c.form.field('dg_oil', 'dropdown',
+	label='DG Oil'
+)}
+${c.form.field('dr_oil', 'dropdown',
+	label='DR Oil'
+)}
+${c.form.field('master_mix', 'dropdown',
+	label='Master Mix'
+)}
+${c.form.end_with_layout()}
+
+<%def name="setupSaveHandler()">
+	function(evt) {
+		$('#setupform').submit();
+	}
+</%def>

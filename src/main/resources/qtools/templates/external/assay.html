@@ -1,0 +1,192 @@
+<%inherit file="/base/external.html" />
+<%def name="title()">Assay: Amylase_T4</%def>
+<%def name="bodyclass()">assay</%def>
+<%def name="header()">
+	<div id="header" class="fill">
+		<div class="container">
+			<h1>Assays</h1>
+		</div>
+	</div>
+</%def>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		h3.chromosome_title small {
+			color: #444;
+		}
+		div.location_overlay_top,
+		div.location_overlay_bottom {
+			position: relative;
+			width: 100%;
+			height: 18px;
+		}
+
+		div.location_overlay_top a,
+		div.location_overlay_bottom a {
+			position: absolute;
+			width: 13px;
+			height: 13px;
+			background-repeat: no-repeat;
+			background-position: top left;
+			display: block;
+		}
+
+		div.location_overlay_top a.active,
+		div.location_overlay_bottom a.active {
+			z-index: 999;
+		}
+
+		div.location_overlay_top a {
+			background-image: url(${url('/images/external/tri13.png')});
+			top: 3px;
+		}
+
+		div.location_overlay_bottom a {
+			background-image: url(${url('/images/external/tri13_bottom.png')});
+		}
+
+		div.location_overlay_top a.active {
+			background-image: url(${url('/images/external/tri13_red.png')});
+		}
+
+		div.chromosome small {
+			font-size: 11px;
+		}
+
+		div.chromosome_region {
+			background: #36f;
+			height: 10px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		div.chrom_start {
+			text-align: right;
+		}
+	</style>
+</%def>
+
+<div class="row">
+	<div class="span3 columns">
+		<h4>Assay Links</h4>
+		<ul>
+			<li><a href="#">Assay List</a></li>
+			<li><a href="#">Design New Assay</a></li>
+			<li><a href="#">New Manual Assay</a></li>
+		</ul>
+		<h4>My Nearby Assays</h4>
+		<ul>
+			<li><a href="#">Amylase_T1</a></li>
+			<li><a href="#">Amylase_T3</a></li>
+		</ul>
+		<h4>Recent Assays</h4>
+		<ul>
+			<li><a href="#">Amylase_T3</a></li>
+			<li><a href="#">Amylase_T1</a></li>
+			<li><a href="#">Amylase_T2</a></li>
+			<li><a href="#">MRGPRX1</a></li>
+		</ul>
+	</div>
+	<div class="span13 columns">
+		<section>
+		<h1>Amylase_T2</h1>
+		<ul class="tabs">
+			<li class="active"><a href="${url(controller='external', action='assay')}">Summary</a></li>
+			<li><a href="#">Sequences &amp; SNPs</a></li>
+			<li><a href="#">Digests</a></li>
+			<li><a href="${url(controller='external', action='validation')}">Validation</a></li>
+			<li><a href="#">Notes</a></li>
+		</ul>
+		<div class="chromosome">
+		<div class="row">
+			<div class="span13 columns"><h3 class="chromosome_title">Region <small>Chr1:104,180,000-104,320,000</small></h3></div>
+		</div>
+		<div class="row">
+			<div class="span2 columns"><small>Your Assays</small></div>
+			<div class="span11 columns location_overlay_top">
+				<a href="#" title="Amylase_T1" style="left: 13.1%; z-index: 2"></a>
+				<a href="#" title="Amylase_T2" class="active" style="left: 13%"></a>
+				<a href="#" title="Amylase_T3" style="left: 13.2%; z-index: 3"></a>
+
+				<a href="#" title="Amylase_T1" style="left: 41.9%; z-index: 2"></a>
+				<a href="#" title="Amylase_T2" class="active" style="left: 41.8%"></a>
+				<a href="#" title="Amylase_T3" style="left: 42%; z-index: 3"></a>
+
+				<a href="#" title="Amylase_T1" style="left: 80.3%; z-index: 2"></a>
+				<a href="#" title="Amylase_T2" class="active" style="left: 80.2%"></a>
+				<a href="#" title="Amylase_T3" style="left: 80.4%; z-index: 3"></a>
+			</div>
+		</div>
+		<div class="row">
+			<div class="span2 columns">&nbsp;</div>
+			<div class="span11 columns">
+				<div class="chromosome_region rounded"></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="span2 columns"><small>Known Assays</small></div>
+			<div class="span11 columns location_overlay_bottom">
+				<a href="#" title="Amylase_T4" style="left: 13.1%; z-index: 2"></a>
+				<a href="#" title="Amylase_T4" style="left: 41.9%; z-index: 2"></a>
+				<a href="#" title="Amylase_T4" style="left: 54.9%; z-index: 2"></a>
+				<a href="#" title="Amylase_T1" style="left: 79.3%; z-index: 3"></a>
+				<a href="#" title="Amylase_T4" style="left: 80.3%; z-index: 2"></a>
+			</div>
+		</div>
+		<p style="margin-top: 10px">
+			<strong style="color: #404040">Genes:</strong> AMY1A
+		</p>
+		</div>
+		</section>
+		<section>
+		<h3>Assay Components</h3>
+		<table class="common-table">
+			<thead>
+				<tr>
+					<th>Oligo</th>
+					<th>Sequence</th>
+					<th>Dye</th>
+					<th>Quencher</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Forward Primer</td>
+					<td>CTGTACATACCTTTGATGTCAGTGTTTAGT</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td><a href="#">Edit</a>&nbsp;|&nbsp;<a href="#">Order</a></td>
+				</tr>
+				<tr>
+					<td>Reverse Primer</td>
+					<td>GACTTGTCTTCCACAAGCACG</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td><a href="#">Edit</a>&nbsp;|&nbsp;<a href="#">Order</a></td>
+				</tr>
+				<tr>
+					<td>Probe #1</td>
+					<td>CACGTGGCTTGGTC</td>
+					<td>FAM</td>
+					<td>MGB</td>
+					<td><a href="#">Edit</a>&nbsp;|&nbsp;<a href="#">Order</a>&nbsp;|&nbsp;<a href="#">Delete</a></td>
+				</tr>
+				<tr>
+					<td>Probe #2</td>
+					<td>CGTGGCTTGGTCAC</td>
+					<td>VIC</td>
+					<td>MGB</td>
+					<td><a href="#">Edit</a>&nbsp;|&nbsp;<a href="#">Order</a>&nbsp;|&nbsp;<a href="#">Delete</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<button class="btn small primary">Order Assay Set</button>&nbsp;
+		<button class="btn small">Add Probe</button>&nbsp;
+		<button class="btn small">Add Forward Primer</button>&nbsp;
+		<button class="btn small">Add Reverse Primer</button>
+		</section>
+
+	</div>
+</div>

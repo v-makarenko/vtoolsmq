@@ -1,0 +1,66 @@
+<%inherit file="/stats/boxes.html"/>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		td.util_graph {
+			background-image: -webkit-gradient(linear, left top, right top,
+				color-stop(.33, rgba(240,240,255,1)),
+				color-stop(.33, white),
+				color-stop(.75, white),
+				color-stop(.75, rgba(240,240,255,1)),
+				color-stop(1, rgba(240,240,255,1)));
+			
+			background-image: -moz-linear-gradient(0deg top left,
+				rgba(240,240,255,1) 33.3%,
+				rgba(255,255,255,1) 33.3%,
+				rgba(255,255,255,1) 75%,
+				rgba(240,240,255,1) 75%,
+				rgba(240,240,255,1) 100%
+			);
+			-webkit-background-size: 100px;
+			-moz-background-size: 100px;
+			
+		}
+	</style>
+</%def>
+
+<%def name="date_header()">
+	<tr>
+		<td class="prev_date"><a href="${url(controller='stats', action='boxes_by_week', weeks_ago=c.week+1)}">&lt;&lt; Previous Week</a></td>
+		<td class="date_display">Week of ${h.ymd(c.first_day)}
+		% if c.week != 0:
+		 | <a href="${url(controller='stats', action='boxes_by_week', weeks_ago=0)}">Go to Current Week</a></td>
+		% endif
+		<td class="next_date">
+			% if c.week > 0:
+				<a href="${url(controller='stats', action='boxes_by_week', weeks_ago=c.week-1)}">Next Week &gt;&gt;</a>
+			% endif
+		</td>
+	</tr>
+</%def>
+
+<%def name="utilization_table()">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			% for day in c.days:
+			<th class="day"><a href="${url(controller='stats', action='boxes_by_day', year=day.year, month=day.month, day=day.day)}">${day.month}/${day.day}</a></th>
+			% endfor
+		</tr>
+	</thead>
+	<tbody>
+		% for machine, util_list in c.run_histories:
+		<tr>
+			<td class="util_machine">${machine}</td>
+			<td class="util_graph" colspan="7">
+				<div class="util_event_container">
+				% for event, left, width in util_list:
+				<a href="${url(controller='plate', action='view', id=event.plate.id)}" title="${event.plate.name}" class="util_event" style="left: ${left}px; width: ${width}px"></a>
+				% endfor
+				</div>
+			</td>
+		</tr>
+		% endfor
+	</tbody>
+</%def>

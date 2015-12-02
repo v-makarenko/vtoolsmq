@@ -1,0 +1,11 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Enter Category</%def>
+
+<form action="${url(controller='assay_group', action='create')}" method="post">
+	<%include file="/sequence/group_fields.html" />
+	<div class="actions">
+		${boot.submit('Create Category')}
+	</div>
+</form>

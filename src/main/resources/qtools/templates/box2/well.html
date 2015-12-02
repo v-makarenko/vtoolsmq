@@ -1,0 +1,14 @@
+<%inherit file="/box2/query.html"/>
+
+<%def name="pagetitle()">Advanced Well Search</%def>
+<%def name="selected_page()">wells</%def>
+
+<p>Search for wells by operating characteristic.  For date and time fields, specify a date in MM/DD/YYYY format.  <strong>TODO:</strong> Group by plate, search by multiple conditions, pagination, additional well data.  <strong>NOTE:</strong> new plates and wells are
+	analyzed every five minutes.</p>
+	
+
+<%def name="custom_fields()">
+${c.form.field('group_by_directory', 'checkbox_group',
+	label="Group by Directory?"
+)}
+</%def>

@@ -1,0 +1,55 @@
+${c.form.field('manufacturer', 'dropdown',
+	label='Manufacturer',
+	required=True,
+	attributes=dict([('class', 'autoselect'),
+	                 ('id','manufacturer')])
+)}
+${c.form.field('insert', 'dropdown',
+	label='Insert',
+	required=True,
+	attributes=dict([('class', 'autoselect'),
+	                 ('id','insert')])
+)}
+<tr><td colspan="2">
+<table class="gridfield">
+	<tr>
+		<td class="field_col">
+			<table>
+		${c.form.field('molding_style', 'dropdown',
+			label='Molding Style'
+		)}
+			</table>
+		</td>
+		<td class="field_col">
+			<a href="${url(controller='consumable', action='new_molding')}">Enter New Molding &gt;</a>
+		</td>
+	</tr>
+</table>
+</td></tr>
+<tr><td colspan="2">
+<table class="gridfield">
+	<tr>
+		<td class="field_col">
+			<table>
+		${c.form.field('bonding_style', 'dropdown',
+			label='Bonding Style'
+		)}
+			</table>
+		</td>
+		<td class="field_col">
+			<a href="${url(controller='consumable', action='new_bonding')}">Enter New Bonding &gt;</a>
+		</td>
+	</tr>
+</table>
+</td></tr>
+${c.form.field('bside', 'dropdown',
+	label='B-Side',
+	required=False,
+	attributes=dict([('class', 'autoselect'),
+	                 ('id','bside')])
+)}
+${c.form.field('manufacture_date', 'text',
+               label='Manufacture Date',
+               required=True,
+               attributes=dict(id='manufacture_date')
+)}

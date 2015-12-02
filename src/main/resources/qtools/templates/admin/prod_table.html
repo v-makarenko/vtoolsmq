@@ -1,0 +1,110 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/components/datagrid.html" name="grid" import="comp_cell" />
+
+<%def name="pagetitle()">Production Unit Status Table</%def>
+<%def name="selected_page()">${'fluidics' if c.active_type == 'modules' else 'detector' if c.active_type == 'detectors' else 'prod_readers'}</%def>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+<%def name="css()">
+${parent.css()}
+${boot.css()}
+<style type="text/css">
+	#readers {
+		font-size: 12px;
+	}
+	td.col_name {
+		white-space: nowrap;
+	}
+
+	th.col_onsite, td.col_onsite {
+		width: 100px;
+	}
+
+	td.col_status {
+		width: 320px;
+	}
+
+	td.col_actions {
+		width: 260px;
+	}
+
+
+</style>
+</%def>
+<ul class="tabs">
+	% if c.active_type == 'readers':
+    <li class="active"><a href="#">Readers</a></li>
+    % else:
+    <li><a href="${url(controller='admin', action='prod', admin=c.admin)}">Readers</a><li>
+    % endif
+    % if c.active_type == 'modules':
+    <li class="active"><a href="#">Fluidics Modules</a></li>
+    % else:
+    <li><a href="${url(controller='admin', action='modules', admin=c.admin)}">Fluidics Modules</a><li>
+    % endif
+    % if c.active_type == 'detectors':
+    <li class="active"><a href="#">Detector Modules</a></li>
+    % else:
+    <li><a href="${url(controller='admin', action='detectors', admin=c.admin)}">Detector Modules</a><li>
+    % endif
+</ul>
+<p>
+	% if c.active_type == 'readers':
+	<strong>Don't see a particular reader?</strong> <a href="${url(controller='admin', action='register', id='reader')}">Register a new reader.</a></strong>
+	% elif c.active_type == 'modules':
+	<strong>Don't see a particular fluidics module?</strong> <a href="${url(controller='admin', action='register', id='module')}">Register a new fluidics module.</a></strong>
+    % elif c.active_type == 'detectors':
+    <strong>Don't see a particular detector module?</strong> <a href="${url(controller='admin', action='register', id='detector')}">Register a new detector module.</a></strong>
+	% endif
+</p>
+
+<table id="readers" class="datagrid condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th>${c.reader_title}</th>
+			<th>Status</th>
+			<th class="col_onsite">Show Plates</th>
+			% if c.admin != 'False':
+			<th>Actions</th>
+			% endif
+		</tr>
+	</thead>
+	<tbody>
+	% for reader in c.readers:
+		<tr class="status${reader.status}">
+			<td class="col_name"><a href="${h.dr_url(reader, controller='metrics', action='certification', id=reader.code)}">${reader.display_name}</a></td>
+			<td class="col_status"><a href="${url(controller='admin', action='reader_history', id=reader.code, admin=c.admin)}">${reader.status_comment}</a></td>
+			% if h.wowo('contractor'):
+			<td class="col_onsite">
+				<a href="${h.dr_url(reader, controller='metrics', action='certification', id=reader.code, tab='plates')}">Plates</a>
+			</td>
+			% else:
+			<td class="col_onsite">
+				<a href="${url(controller='plate', action='list_filter', box2_id=reader.id, onsite=0)}">Lab</a>
+					&nbsp;|&nbsp;<a href="${url(controller='plate', action='list_filter', box2_id=reader.id, onsite=1)}">Customer</a>
+			</td>
+			% endif
+			</td>
+			% if c.admin != "False":
+			<td class="col_actions">
+				% if not h.wowo('contractor'):
+				<a href="${url(controller='admin', action='reader', id=reader.code)}">Edit</a> &nbsp;| 
+				% endif
+				<a href="${url(controller='admin', action='reader_status', id=reader.code)}">Change Status</a>&nbsp;| 
+
+				% if not h.wowo('contractor'):
+				<a href="${url(controller='admin', action='reader_fix', id=reader.code)}">Report Fix</a>&nbsp;| 
+				% endif
+				% if h.wowo('contractor'):
+				<a href="${h.dr_url(reader, controller='plate', action='dropship', id=reader.code)}">Upload Plate</a>
+				% else:
+				<a href="${h.dr_url(reader, controller='plate', action='onsite', id=reader.code)}">Upload</a>
+				% endif
+			</td>
+			% endif
+		</tr>
+	% endfor
+	</tbody>
+</table>

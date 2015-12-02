@@ -1,0 +1,36 @@
+<%def name="htmlattrs(**kwargs)">
+    ${h.literal(' '.join(['%s="%s"' % ('class' if k == 'klass' else k, v) for k, v in kwargs.items()]))}
+</%def>
+
+<%def name="optgroup(name, option_dict, label='', required=False, **kwargs)">
+<tr class="field">
+  <td class="label" valign="top" height="10">
+      % if required:
+      <span>*</span>
+      % endif
+      <label for="${id}">${label}</label>
+  </td>
+  <td class="field" valign="top">
+    <select name="${name}" ${htmlattrs(**kwargs)}>
+    % for value, label in option_dict['options']:
+    % if isinstance(value, tuple) or isinstance(value, list):
+        <optgroup label="${label}">
+            % for key, disp in value:
+                % if key == option_dict['value']:
+                    <option value="${key}" selected="selected">${disp}</option>
+                % else:
+                    <option value="${key}">${disp}</option>
+                % endif
+            % endfor
+        </optgroup>
+    % else:
+        % if value == option_dict['value']:
+            <option value="${value}" selected="selected">${label}</option>
+        % else:
+            <option value="${value}">${label}</option>
+        % endif
+    % endif
+    % endfor
+    </select>
+  </td>
+</%def>

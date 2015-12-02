@@ -1,0 +1,30 @@
+<%inherit file="/plate/search/form.html"/>
+<%namespace file="/components/query_form.html" import="column_field"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagetitle()">Search for Plates: By Reader & Time</%def>
+
+<%def name="css()">
+${parent.css()}
+${auto.css()}
+</%def>
+
+<%def name="js()">
+${parent.js()}
+${auto.js()}
+</%def>
+
+${column_field(c.form, 0, 'box2_id', 'dropdown', 'Reader')}
+${column_field(c.form, 1, 'run_time', 'text', 'Start Date', compare='>=')}
+${column_field(c.form, 2, 'run_time', 'text', 'End Date', compare='<')}
+
+<input type="hidden" name="order_by" value="run_time" />
+<input type="hidden" name="order_by_direction" value="desc" />
+
+<%def name="pagescript()">
+<script type="text/javascript">
+$(function() {
+	$('input[type="text"]').datepicker();
+});
+</script>
+</%def>

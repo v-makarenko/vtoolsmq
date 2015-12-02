@@ -1,0 +1,47 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Plates: ${c.setup.name}</%def>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		#batchplates .col_notes a {
+			text-decoration: none;
+		}
+
+
+		#batchplates .col_actions {
+			white-space: nowrap;
+		}
+	</style>
+</%def>
+
+<table id="batchplates" class="condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th>Plate</th>
+			<th>Completed?</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, ((name, template), plate) in enumerate(c.plate_records):
+		<tr>
+			<td>${name}</td>
+			<td>${h.yesno(plate)}</td>
+			<td>
+				% if plate:
+				<a href="${url(controller='plate',action='view',id=plate.id)}">${plate.name}</a>
+				% else:
+				<a href="${url(controller='groove',action='template',id=c.setup.id,run=idx)}">Download Template</a>
+				% endif
+			</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>
+<div class="actions">
+	<a href="${url(controller='groove', action='list')}" class="btn">Back to Plate List</a>
+	<a href="${url(controller='groove', action='edit', id=c.setup.id)}" class="btn">Edit Plate</a>
+</div>

@@ -1,0 +1,27 @@
+<%inherit file="/sequence/view_base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/sequence/partials.html" name="part" import="*" />
+
+% if c.plate_counts:
+<table class="datagrid condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th>Plate</th>
+			<th>Date</th>
+			<th>#Wells</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for plate, count in c.plate_counts:
+		<tr>
+			<td><a href="${url(controller='plate', action='view', id=plate.id)}">${plate.name}</a></td>
+			<td>${h.ymd(plate.run_time)}</td>
+			<td>${count}</td>
+		</tr>
+	% endfor
+	</tbody>
+</table>
+% else:
+<div class="well">No plates associated with this assay.</div>
+% endif
+		

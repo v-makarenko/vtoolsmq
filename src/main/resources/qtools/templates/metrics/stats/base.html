@@ -1,0 +1,24 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/metrics/helpers.html" name="mh" import="*" />
+<%namespace file="/metrics/stats_tables.html" name="st" import="*" />
+
+<%def name="pagetitle()">Stats: ${c.plate.name} (${c.plate.plate_type.name})</%def>
+
+<p><a href="${url(controller='plate', action='view', id=c.plate.id)}">&lt;&lt; Back to Plate</a></p>
+
+${next.body()}
+
+<h5>Event Count</h5>
+${st.events_table()}
+
+<h5>Gating (#Events > 1000)</h5>
+${st.gating_table()}
+
+<h5>Baselines</h5>
+${st.baseline_table()}
+
+<h5>Channel 1 (Fam) droplet metrics</h5>
+${st.new_droplet_metrics_table(0)}
+
+<h5>Channel 2 (Vic/Hex) droplet metrics</h5>
+${st.new_droplet_metrics_table(1)}

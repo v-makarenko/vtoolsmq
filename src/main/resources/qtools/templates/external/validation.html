@@ -1,0 +1,219 @@
+<%inherit file="/base/external.html" />
+<%def name="title()">Assay: Amylase_T4</%def>
+<%def name="bodyclass()">assay</%def>
+<%def name="header()">
+	<div id="header" class="fill">
+		<div class="container">
+			<h1>Assays</h1>
+		</div>
+	</div>
+</%def>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		td.component_name.pass {
+			background: #DFF1DF;
+			border-color: #BBE2BB;
+		}
+
+		td.pass {
+			font-weight: bold;
+			color: #62bc62;
+		}
+
+		td.component_name.warning {
+			background: #fff0c0;
+			border-color: #ffe38d;
+		}
+
+		td.warning {
+			font-weight: bold;
+			color: #ffb000;
+		}
+
+		tr.component_divider td {
+			border-top: 1px solid #ddd;
+		}
+	</style>
+</%def>
+
+<div class="row">
+	<div class="span3 columns">
+		<h4>Assay Links</h4>
+		<ul>
+			<li><a href="#">Assay List</a></li>
+			<li><a href="#">Design New Assay</a></li>
+			<li><a href="#">New Manual Assay</a></li>
+		</ul>
+		<h4>My Nearby Assays</h4>
+		<ul>
+			<li><a href="#">Amylase_T1</a></li>
+			<li><a href="#">Amylase_T3</a></li>
+		</ul>
+		<h4>Recent Assays</h4>
+		<ul>
+			<li><a href="#">Amylase_T3</a></li>
+			<li><a href="#">Amylase_T1</a></li>
+			<li><a href="#">Amylase_T2</a></li>
+			<li><a href="#">MRGPRX1</a></li>
+		</ul>
+	</div>
+	<div class="span13 columns">
+		<section>
+		<h1>Amylase_T2</h1>
+		<ul class="tabs">
+			<li><a href="${url(controller='external', action='assay')}">Summary</a></li>
+			<li><a href="#">Sequences &amp; SNPs</a></li>
+			<li><a href="#">Digests</a></li>
+			<li class="active"><a href="${url(controller='external', action='validation')}">Validation</a></li>
+			<li><a href="#">Notes</a></li>
+		</ul>
+		<section>
+			<h3>Amplicon Validation</h3>
+			<table class="common-table">
+				<thead>
+					<tr>
+						<th>Test</th>
+						<th>Result</th>
+						<th>Pass/Fail</th>
+						<th>Details</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Amplicon Formed?</td>
+						<td>Yes</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>Amplicon Unique?</td>
+						<td>No; 3 Matches</td>
+						<td class="pass">Pass</td>
+						<td>This assay is a CNV assay, so multiple matches in the reference genome are acceptable.</td>
+					</tr>
+					<tr>
+						<td>Folding</td>
+						<td>&Delta;G 0</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>GC%</td>
+						<td>50%</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+		<section>
+			<h3>Component Validation</h3>
+			<table class="common-table">
+				<thead>
+					<tr>
+						<th>Component</th>
+						<th>Test</th>
+						<th>Result</th>
+						<th>Pass/Fail</th>
+						<th>Details</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="component_divider">
+						<td class="component_name pass" rowspan="3" style="vertical-align: top;"><strong>Forward Primer</strong></td>
+						<td>Folding</td>
+						<td>&Delta;G 0</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>GC%</td>
+						<td>37%</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>Max Run Length</td>
+						<td>3</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr class="component_divider">
+						<td class="component_name pass" rowspan="3" style="vertical-align: top;"><strong>Reverse Primer</strong></td>
+						<td>Folding</td>
+						<td>&Delta;G 0</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>GC%</td>
+						<td>52%</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>Max Run Length</td>
+						<td>2</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr class="component_divider">
+						<td class="component_name warning" rowspan="3" style="vertical-align: top;"><strong>Probe #1</strong></td>
+						<td>Folding</td>
+						<td>&Delta;G 0</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>GC%</td>
+						<td>66%</td>
+						<td class="warning">Caution</td>
+						<td>Oligos that are 65-75% GC-rich may form secondary structures.</td>
+					</tr>
+					<tr>
+						<td>Max Run Length</td>
+						<td>2</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr class="component_divider">
+						<td class="component_name warning" rowspan="3" style="vertical-align: top;"><strong>Probe #2</strong></td>
+						<td>Folding</td>
+						<td>&Delta;G 0</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>GC%</td>
+						<td>66%</td>
+						<td class="warning">Caution</td>
+						<td>Oligos that are 65-75% GC-rich may form secondary structures.</td>
+					</tr>
+					<tr>
+						<td>Max Run Length</td>
+						<td>2</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr class="component_divider">
+						<td class="component_name pass" rowspan="2" style="vertical-align: top;"><strong>Primer/Probe System</td>
+						<td>Primer &Delta;tM</td>
+						<td>0.3&deg;C</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>Probe-Primer &Delta;tM</td>
+						<td>5.6&deg;C</td>
+						<td class="pass">Pass</td>
+						<td>&nbsp;</td>
+					</tr>
+
+				</tbody>
+			</table>
+		</section>
+
+	</div>
+</div>

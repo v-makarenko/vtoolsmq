@@ -1,0 +1,57 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/base/includes.html" name="incl" import="*" />
+
+<%def name="pagetitle()">Update Reader Status: ${c.dr.display_name}</%def>
+<%def name="selected_page()">readers</%def>
+<%def name="explanation()">
+<p>Enter the new status for ${c.dr.name} and an optional comment below.</p>
+</%def>
+<%def name="css()">
+	${parent.css()}
+	${incl.jqueryui_css()}
+	<style type="text/css" media="screen">
+		input[type=text], select {
+			width: 200px;
+		}
+		input[type=radio] {
+			height: 35px;
+			vertical-align: middle;
+		}
+		td.field, td.label {
+			vertical-align: middle;
+		}
+		td.field img {
+			margin-left: 5px;
+			margin-right: 20px;
+			vertical-align: middle;
+		}
+		tr.formbutton td {
+			padding-top: 20px;
+		}
+	</style>
+</%def>
+
+${c.form.start_with_layout(url(controller='admin', action='update_reader_status', id=c.dr.code), method='post')}
+<tr class="field"> 
+  <td class="label" valign="top" height="10"> 
+    <span class="required">*</span><label for="status">Status:</label> 
+  </td> 
+  <td class="field" valign="top"> 
+    <input type="radio" name="status" value="0" ${'checked ' if c.dr.status == 0 else ''}><img src="${url('/images/icons/redlight.png')}" />
+	<input type="radio" name="status" value="1" ${'checked ' if c.dr.status == 1 else ''}><img src="${url('/images/icons/yellowlight.png')}" />
+	<input type="radio" name="status" value="2" ${'checked ' if c.dr.status == 2 else ''}><img src="${url('/images/icons/greenlight.png')}" />
+  </td> 
+  <td rowspan="2" valign="top"></td> 
+</tr>
+${c.form.field('status_comment', 'text',
+    label='Comment',
+    field_desc='Max 140 characters.'
+)}
+${c.form.field('reporter_id', 'dropdown',
+    label='Reporter',
+    required=True
+)}
+<tr class="formbutton">
+	<td><input type="hidden" name="box2_id" value="${c.dr.id}" />${c.form.submit('submit', "Save Status")}</td>
+</tr>
+${c.form.end_with_layout()}

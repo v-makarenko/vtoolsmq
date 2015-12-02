@@ -1,0 +1,151 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/sequence/partials.html" name="part" import="*" />
+
+<%def name="pagetitle()">Enter Assay Components</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		.primer:first-child .delete, .probe:first-child .delete {
+			display: none;
+		}
+
+		#content.tw_bootstrap h2 {
+			line-height: 24px;
+		}
+
+		#content.tw_bootstrap .oligos .actions {
+			padding: 10px 10px 10px 10px;
+			margin-top: 0px;
+		}
+
+		#content.tw_bootstrap .oligos table {
+			margin-bottom: 0px;
+		}
+
+		#content.tw_bootstrap .error h2 {
+			color: #B94A48;
+		}
+
+		.error-message,
+		tr .error-message + br + input {
+			color: #B94A48;
+		}
+
+		tr .error-message + br + input {
+			border-color: #EE5F5B;
+		}
+
+		.tw_bootstrap table th.col_actions,
+		.tw_bootstrap table td.col_actions {
+			text-align: right;
+		}
+
+		#content.tw_bootstrap .oligos table td {
+			vertical-align: bottom;
+		}
+
+		% if not h.wowo('sequence_multiple_oligos'):
+		#content.tw_bootstrap hr {
+			margin-top: 0px;
+		}
+		% endif
+	</style>
+</%def>
+
+<%include file="/sequence/breadcrumbs.html" />
+${next.body()}
+
+<%def name="form_section_header(section_name, title)">
+<form:iferror name="${section_name}">
+	<div class="error">
+</form:iferror>
+<form:iferror name="not ${section_name}">
+	<div>
+</form:iferror>
+		<h2>${title}</h2>
+	</div>
+<form:error name="${section_name}" format="block">
+</%def>
+
+<%def name="assay_list(assays)">
+<table id="assay_table" class="condensed-table zebra-striped">
+	<thead>
+		<tr>
+			<th class="assay_name">Name</th>
+			<th>Gene</th>
+			<th>Quencher</th>
+			<th>Owner</th>
+			<th>Date</th>
+			<th class="assay_type">Assay Type</th>
+			<th>Status</th>
+			<th>Categories</th>
+		</tr>
+	</thead>
+	<tbody>
+	% if not assays:
+		<tr>
+			<td colspan="7" style="padding: 20px; text-align: center">No assays meet this criteria.</td>
+		</tr>
+	% else:
+		% for group in assays:
+			<tr${h.literal(' class="conditioned_row"') if group.conditions else ''}>
+				<td class="assay_name"><a href="${url(controller='sequence', action='view_details', id=group.id)}">${group.name}</a></td>
+				<td>${group.gene}</td>
+				<td>${group.quencher_display}</td>
+				<td>${group.owner.name_code if group.owner else h.literal('&nbsp;')}</td>
+				<td>${h.ymd(group.added)}</td>
+				<td class="assay_type">${group.assay_type_display}</td>
+				<td>${group.status_display}</td>
+				<td>${", ".join([t.name for t in group.tags])}</td>
+			</tr>
+		% endfor
+	% endif
+	</tbody>
+</table>
+</%def>
+
+<%def name="action_region(save_now_action)">
+<div class="actions">
+	${boot.submit('Save Components')}
+	${part.other_actions(save_now_action=save_now_action)}
+	<input type="hidden" name="flow" value="${c.flow}" />
+</div>
+</%def>
+
+<%def name="pagescript()">
+${parent.pagescript()}
+<script type="text/javascript">
+	var nameInputs = function(el) {
+		var inputs = ['field_sequence','field_primary', 'field_barcode_label', 'field_dye', 'field_quencher', 'field_allele'];
+		for(var i=0;i<inputs.length;i++) {
+			$(el).find('.'+inputs[i]).each(function(idx, e) {
+				$(e).attr('name', $(el).attr('id')+'-'+idx+'.'+inputs[i].substring(6));
+			})
+		}
+	};
+
+	var copyLast = function(el, selector) {
+		var template = $(el).find(selector+':last')
+		template.clone().appendTo(template.parent())
+	}
+
+	$(function() {
+		$('.add_oligo').click(function() {
+			var parent = $(this).closest('.oligos')
+			copyLast(parent, 'tbody tr')
+			nameInputs(parent)
+			return false;
+		});
+
+		$('.delete').live('click', function() {
+			var row = $(this).closest('tr')
+			var parent = $(this).closest('.oligos')
+			row.remove()
+			nameInputs(parent)
+			return false;
+		});
+	});
+</script>
+</%def>
+		

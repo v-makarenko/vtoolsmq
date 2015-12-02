@@ -1,0 +1,43 @@
+<%inherit file="/cutter/base.html"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${boot.css()}
+	${auto.css()}
+</%def>
+
+
+<%def name="selected_page()">picker</%def>
+<%def name="pagetitle()">Find Digests</%def>
+<%def name="explanation()">
+<p>Select an assay below and a padding length on either side.  After you click 'Load Sequence', you will be able to tell
+which restriction enzymes are best suited for cutting around the assay's amplicon.</p>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+</%def>
+
+<form id="main_form" action="${url(controller='cutter', action='find_cutters')}" method="get">
+	${boot.select('assay', c.assays, label='Assay', required=True, klass="span5 autoselect", id="assay")}
+	${boot.text("left_padding", label='Left Padding', required=True, klass="span3")}
+	${boot.text("right_padding", label='Right Padding', required=True, klass="span3")}
+	${boot.select('enzymes', c.enzymes, label='Enzyme Set', required=True, klass="span3")}
+	${boot.select('scoring_function', c.scoring_function, label='Order By', required=True, klass="span3")}
+	${boot.checkbox("allow_methylation", "allow_methylation", label="Allow Methylation-Blocked Enzymes?", required=True, klass="span3", id="allow_methylation")}
+	${boot.checkbox("singles_as_doubles", "singles_as_doubles", label="Compute Double Digests for Single-Digest Enzymes?", required=True, klass="span3", id="singles_as_doubles")}
+	<div class="actions">
+		${boot.submit('Select Enzymes')}
+	</div>
+</form>
+<%def name="footer()"></%def>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	% if h.wowo('assay_autocomplete'):
+	${auto.detect_autoselect('#assay', toggleInputText='Type')}
+	% endif
+</%def>

@@ -1,0 +1,29 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+<%def name="pagetitle()">Control/Experiment Analysis: Select Tests &amp; Metrics</%def>
+<%def name="selected_page()">experiment</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+<%def name="explanation()">
+<p>
+    Select the control group that you want to compare the other groups against, and the metrics that you want to compare.  Control and experimental groups are technical replicates, which are wells with the same sample and assay targets.
+</p>
+</%def>
+
+<form action="${url(controller='plate', action='experiment_compute', id=c.plate.id)}" method="get">
+    ${boot.select('control', c.replicate_names, label='Control', klass='span7')}
+    ${boot.select('experiments', c.replicate_names, label='Experiments', size=5, help_block='Use CTRL to select multiple experimental groups from the list; leave blank to compare against all.', multiple='multiple', klass='span7')}
+    ${boot.group_select('metrics', c.columns, label='Metrics', size=10, help_block='Use CTRL to select multiple metrics from the list', multiple='multiple', klass="span7")}
+    ${boot.select('channel', c.channels, label='Channel', klass="span4")}
+    ${boot.text('ignore_wells', label='Exclude Wells:', help_block='e.g., D04,E05,B12')}
+    <div class="actions">
+        ${boot.submit('Compare Groups')}
+    </div>
+    <input type="hidden" name="analysis_group_id" value="${c.analysis_group_id or ''}" />
+    <input type="hidden" name="reprocess_config_id" value="${c.reprocess_config_id or ''}" />
+</form>

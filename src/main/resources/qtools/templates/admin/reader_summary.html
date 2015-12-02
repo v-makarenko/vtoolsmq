@@ -1,0 +1,113 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/admin/components.html" name="comp" import="*" />
+<%namespace file="/components/datagrid.html" name="grid" import="comp_cell" />
+<%namespace file="/components/model_view.html" import="labeled_model_row" />
+
+<%def name="pagetitle()">Reader Summary: ${c.dr.display_name}</%def>
+<%def name="selected_page()">readers</%def>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+	#status_table td {
+		padding: 5px;
+	}
+	</style>
+</%def>
+
+<p>
+	<a href="${url(controller='admin', action='reader_history', id=c.dr.code, admin=c.admin)}">View History</a>
+		&nbsp;|&nbsp;
+	% if c.dr.code.startswith('p'):
+	<a href="${url(controller='metrics', action='certification', id=c.dr.code)}">Certification Stats</a>
+		&nbsp;|&nbsp;
+	% endif
+	% if c.admin:
+	<a href="${url(controller='admin', action='reader', id=c.dr.code)}">Edit Reader</a> &nbsp;|&nbsp;
+	<a href="${url(controller='admin', action='reader_status', id=c.dr.code)}">Change Status</a> &nbsp;|&nbsp;
+	<a href="${url(controller='admin', action='reader_fix', id=c.dr.code)}">Report Fix</a> &nbsp;|&nbsp;
+	% endif
+	<a href="${url(controller='admin', action='readers', admin=c.admin)}">All Readers</a>
+</p>
+% if c.status:
+<div>
+	<table id="status_table">
+		<tr class="status${c.status.status}">
+			<td style="vertical-align: middle; width: 150px"><h5 style="margin: 0;">Current Status:</h5></td>
+			<td style="vertical-align: middle; width: 60px">${comp.traffic_light(c.status)}</td>
+			<td style="vertical-align: middle; width: 420px">
+				% if c.status.status_comment:
+					${c.status.status_comment}<br/>
+				% endif
+				<span style="font-size: 11px;">Updated by ${c.status.reporter.full_name} on ${h.ymd(c.status.time_effective)}</span>
+			</td>
+			<td style="vertical-align: middle; width: 150px; font-weight:bold;">
+				<a href="http://qtools.quantalife.local/projects/projects/dropletreader/issues/new" target="_new">Report a Bug</a>
+			</td>
+		</tr>
+	</table>
+</div>
+% endif
+% if c.config:
+<div>
+<h5>Hardware Circuit Configuration - Effective ${h.ymd(c.config.time_effective)}</h5>
+<div class="grid_6 alpha">
+<table class="record">
+	${labeled_model_row(c.mv, c.config, 'circuit')}
+	${labeled_model_row(c.mv, c.config, 'air_filter_location')}
+	${labeled_model_row(c.mv, c.config, 'biochem_configuration')}
+	${labeled_model_row(c.mv, c.config, 'capillary')}
+	${labeled_model_row(c.mv, c.config, 'door_type')}
+	${labeled_model_row(c.mv, c.config, 'fluidics_circuit')}
+</table>
+</div>
+<div class="grid_6 omega">
+<table class="record">
+	${labeled_model_row(c.mv, c.config, 'peristaltic_tubing')}
+	${labeled_model_row(c.mv, c.config, 'pickup_line')}
+	${labeled_model_row(c.mv, c.config, 'reservoir_line')}
+	${labeled_model_row(c.mv, c.config, 'singulator_material')}
+	${labeled_model_row(c.mv, c.config, 'singulator_type')}
+	${labeled_model_row(c.mv, c.config, 'waste_downspout')}
+</table>
+</div>
+<div class="clear"></div>
+</div>
+<div>
+<h5>Reader-Specific Values - Effective ${h.ymd(c.config.time_effective)}</h5>
+<div class="grid_6 alpha">
+<table class="record">
+	${labeled_model_row(c.mv, c.config, 'detector')}
+	${labeled_model_row(c.mv, c.config, 'tip_lot_number')}
+	${labeled_model_row(c.mv, c.config, 'tip_supplier')}
+	${labeled_model_row(c.mv, c.config, 'tip_material')}
+	${labeled_model_row(c.mv, c.config, 'tip_size')}
+	${labeled_model_row(c.mv, c.config, 'bottle_trough_hold_in_status')}
+	${labeled_model_row(c.mv, c.config, 'lid_sensor_status')}
+	${labeled_model_row(c.mv, c.config, 'plate_sensor_status')}
+	${labeled_model_row(c.mv, c.config, 'skin_on')}
+	${labeled_model_row(c.mv, c.config, 'quantasoft_version')}
+	${labeled_model_row(c.mv, c.config, 'routine_version')}
+</table>
+</div>
+<div class="grid_6 omega">
+<table class="record">
+	${labeled_model_row(c.mv, c.config, 'firmware_mcu9')}
+	${labeled_model_row(c.mv, c.config, 'firmware_dll130')}
+	${labeled_model_row(c.mv, c.config, 'firmware_fpga16')}
+	${labeled_model_row(c.mv, c.config, 'firmware_fluidics')}
+	${labeled_model_row(c.mv, c.config, 'firmware_motor')}
+	${labeled_model_row(c.mv, c.config, 'waste_bottle_empty')}
+	${labeled_model_row(c.mv, c.config, 'waste_bottle_full')}
+	${labeled_model_row(c.mv, c.config, 'carrier_bottle_empty')}
+	${labeled_model_row(c.mv, c.config, 'carrier_bottle_full')}
+</table>
+</div>
+<div class="clear"></div>
+</div>
+% else:
+<div>
+<h5>Current Configuration</h5>
+No configuration records for ${c.dr.name} exist yet.
+</div>
+% endif

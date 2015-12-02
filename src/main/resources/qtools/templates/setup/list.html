@@ -1,0 +1,66 @@
+<%inherit file="/setup/base.html"/>
+<%namespace file="components/setup_list.html" import="*"/>
+
+<%def name="pagetitle()">${'Test Plate List' if c.beta else 'App Test Plate List'}</%def>
+<%def name="selected_page()">${'betalist' if c.beta else 'explist'}</%def>
+<%def name="css()">
+	${parent.css()}
+	${setup_list_css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#project_id, #author_id').change(function(evt) {
+			$('#filter').submit()
+		});
+
+		$('.done_form a').click(function(evt) {
+			$(this).parent('form').submit();
+			return false;
+		});
+	})
+</script>
+</%def>
+
+% if hasattr(c, 'form'):
+% if c.beta:
+	<p>Here is a the list of beta test plates which are in progress or yet to be started.  To edit the status or change the properties of
+	a plate, click on the links below.</p>
+% else:
+	<p>Here is the list of plates to be run in the beta test which come from other projects.</p>
+% endif
+<form action="${url(controller='setup', action='list_filter', beta=c.beta)}" method="get" class="formbuild" id="filter">
+	<table class="gridfield">
+		<tr>
+		% if not c.beta:
+		<td class="field_col">
+			<table>
+				${c.form.field('project_id', 'dropdown',
+					label="Project",
+					attributes=dict(id="project_id")
+				)}
+			</table>
+		</td>
+		% endif
+		<td class="field_col">
+			<table>
+				${c.form.field('author_id', 'dropdown',
+					label="Reader Operator",
+					attributes=dict(id="author_id")
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<a href="${url(controller='setup', action='list', beta=c.beta)}">Reset</a>
+		</td>
+		</tr>
+	</table>
+</form>
+% endif
+% if c.beta:
+${beta_list_table(c.paginator, c.pager_kwargs)}
+% else:
+${setup_list_table(c.paginator, c.pager_kwargs)}
+% endif

@@ -1,0 +1,32 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Enter Category</%def>
+
+<form action="${url(controller='assay_group', action='save', id=url.environ['pylons.routes_dict']['id'])}" method="post">
+	<%include file="/sequence/group_fields.html" />
+	${boot.span('creation_date', h.ymd(c.tag.creation_date), "Created", klass="span5")}
+	<div class="actions">
+		${boot.submit('Save Category')}
+		${boot.secondary_action('Delete',klass='danger',name="do_action",id="delete")}
+	</div>
+</form>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		$(function() {
+			$('#delete').click(function() {
+				var doit = confirm('Are you sure you want to delete this category?')
+				if(doit) {
+					$(this).parents('form').attr('action', "${url(controller='assay_group', action='delete', id=url.environ['pylons.routes_dict']['id'])}");
+					$(this).parents('form').submit()
+					return false;
+				}
+				else {
+					return false;
+				}
+			});
+		});
+	</script>
+</%def>

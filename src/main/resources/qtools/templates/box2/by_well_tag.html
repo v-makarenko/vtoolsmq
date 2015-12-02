@@ -1,0 +1,17 @@
+<%inherit file="/box2/base.html"/>
+<%namespace name="well" file="/components/well.html" import="*"/>
+
+<%def name="pagetitle()">Search for Wells By Tag: ${c.tag_name}</%def>
+<%def name="selected_page()">well_tag</%def>
+<%def name="explanation()">
+TODO: Is there a list of additional columns you would commonly want to see?  Or a list of columns to select?  Let me know.
+</%def>
+
+${well.well_tag_select(url(controller='box2', action='by_well_tag'),
+                       url(controller='box2', action='well_tag'))}
+
+% if c.group_by_plate:
+${well.well_plot_list_by_plate(c.well_groups, c.label_names, c.tag_id)}
+% else:
+${well.well_plot_list(c.wells, c.label_names)}
+% endif

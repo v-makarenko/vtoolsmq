@@ -1,0 +1,5 @@
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+${boot.select('owner_id', c.people, label='Creator', required=False, klass="span5")}
+${boot.text('name', label='Name', autocomplete='off', required=True, klass="span8")}
+${boot.textarea('notes', label='Notes', autocomplete='off', rows="4", klass="span8", help_block='Describes the category.')}

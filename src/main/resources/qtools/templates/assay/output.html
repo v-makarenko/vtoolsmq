@@ -1,0 +1,32 @@
+<%inherit file="/assay/base.html"/>
+
+<%def name="css()">
+${parent.css()}
+<style type="text/css" media="screen">
+	#inputs {
+		font-size: 15px;
+	}
+</style>
+</%def>
+
+<p id="inputs">
+	${self.inputs(c)}
+</p>
+${next.body()}
+
+% if (hasattr(c, 'sequences') or hasattr(c, 'sequence')) and not getattr(c, 'hide_save', False):
+<h2>Save Assay</h2>
+${c.assay_form.start_with_layout(url(controller='assay', action='create'), method="post")}
+	${c.assay_form.field("name", "text",
+		label="Name",
+		required=True
+	)}
+	${next.assay_save_fields(c)}
+	<tr><td>
+	${c.assay_form.submit("submit","Save Assay")}
+	</td></tr>
+${c.assay_form.end_with_layout()}
+% endif
+
+<%def name="inputs(ctx)">
+</%def>

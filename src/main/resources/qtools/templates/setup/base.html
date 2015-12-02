@@ -1,0 +1,44 @@
+<%inherit file="/base/index.html"/>
+<%namespace file="/components/beta_plates.html" name="beta" import="*" />
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.betalist li#subnav_betalist,
+		#subnav nav.explist li#subnav_explist,
+		#subnav nav.newexp li#subnav_newexp,
+		#subnav nav.expsearch li#subnav_expsearch {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav.betalist li#subnav_betalist a,
+		#subnav nav.explist li#subnav_explist a,
+		#subnav nav.newexp li#subnav_newexp a,
+		#subnav nav.expsearch li#subnav_expsearch {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">${'beta_test' if c.beta else 'setup'}</%def>
+<%def name="subnav_title()">Setup Links</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_betalist"><a href="${url(controller='setup', action='list', beta=True)}">Plates to Run</a></li>
+		<li id="subnav_explist"><a href="${url(controller='setup', action='list')}">App Plates</a></li>
+		<li id="subnav_newexp"><a href="${url(controller='setup', action='new')}">New App Plate</a></li>
+		<!--
+		<li id="subnav_expsearch"><a href="${url(controller='setup', action='search')}">Search</a></li>
+		-->
+	</ul>
+	<strong>Plates</strong>
+	${beta.beta_plate_links()}
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.pagefooter()}
+</div>
+
+<%def name="pagefooter()"></%def>

@@ -1,0 +1,16 @@
+<%inherit file="/admin/base.html"/>
+
+<%def name="pagetitle()">Register New ${c.reader_title}</%def>
+<%def name="selected_page()">readers</%def>
+
+${c.form.start_with_layout(url(controller='admin', action='create', id=c.path_id), method='post')}
+${c.form.field('serial', 'text',
+    label='Serial',
+    field_desc='e.g., %s' % c.reader_help,
+    attributes=dict(autocomplete='off')
+)}
+<input type="hidden" name="reader_type" value="${c.reader_type}" />
+<tr class="formbutton">
+	<td>${c.form.submit('submit', "Register")}</td>
+</tr>
+${c.form.end_with_layout()}

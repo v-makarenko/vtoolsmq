@@ -1,0 +1,27 @@
+<%inherit file="/cutter/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${boot.css()}
+</%def>
+
+<%def name="selected_page()">multipick</%def>
+<%def name="pagetitle()">Find Digests (Multiple Assays)</%def>
+<%def name="explanation()">
+<p>This tool will allow you to pick enzymes that will cut around multiple assays (such as a target and a reference), without cutting the amplicon.  Select multiple assays below and a padding on either side for each assay.  After you click 'Pick Enzymes', you will be able to tell which restriction enzymes are best suited for cutting around all the assays.  <strong>NOTE:</strong> Selecting more than four assays at a time is not recommended.</p>
+</%def>
+
+<form id="main_form" action="${url(controller='cutter', action='multi_cutters')}" method="get">
+	${boot.multi_select('assays', c.assays, label='Assays', size=5, help_block='use CTRL to select multiple assays', klass="span5")}
+	${boot.text("left_padding", label='Left Padding', required=True, klass="span3")}
+	${boot.text("right_padding", label='Right Padding', required=True, klass="span3")}
+	${boot.select('enzymes', c.enzymes, label='Enzyme Set', required=True, klass="span3")}
+	${boot.select('scoring_function', c.scoring_function, label='Order By', required=True, klass="span3")}
+	${boot.checkbox("allow_methylation", "allow_methylation", label="Allow Methylation-Blocked Enzymes?", required=True, klass="span3", id="allow_methylation")}
+	${boot.checkbox("singles_as_doubles", "singles_as_doubles", label="Compute Double Digests for Single-Digest Enzymes?", required=True, klass="span3", id="singles_as_doubles")}
+	<div class="actions">
+		${boot.submit('Select Enzymes')}
+	</div>
+</form>
+<%def name="footer()"></%def>

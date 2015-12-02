@@ -1,0 +1,82 @@
+% if hasattr(c, 'form'):
+<p>
+	<form action="${url(controller='metrics',
+	                    action=url.environ['pylons.routes_dict']['action'],
+	                    id=c.id,
+	                    mode=c.mode,
+	                    reprocess_config_id=url.environ['pylons.routes_dict']['reprocess_config_id'])}"
+	                    method="get" class="formbuild" id="filter">
+	<table class="gridfield">
+		<tr>
+		<td class="field_col">
+			<table>
+				${c.form.field('dr_id', 'dropdown',
+					label="Reader",
+					attributes=dict(id="dr_id")
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.form.field('dg_id', 'dropdown',
+					label="DG",
+					attributes=dict(id="dg_id")
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.form.field('pt_id', 'dropdown',
+					label="Plate Type",
+					attributes=dict(id="pt_id")
+				)}
+				<input type="hidden" name="wells" value="${request.params.get('wells','')}" />
+				<input type="hidden" name="sample" value="${request.params.get('sample','')}" />
+				% if getattr(c, 'conc', None):
+				<input type="hidden" name="conc" value="${c.conc}" />
+				% endif
+				% if getattr(c, 'num', None):
+				<input type="hidden" name="num" value="${c.num}" />
+				% endif
+				% if getattr(c, 'cpd', None):
+				<input type="hidden" name="cpd" value="${c.cpd}" />
+				% endif
+			</table>
+		</td>
+		</tr>
+		<tr>
+		<td class="field_col">
+			<table>
+				${c.form.field('channel', 'dropdown',
+					label="Channel",
+					attributes=dict(id="channel")
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.form.field('pattern', 'dropdown',
+					label="Region",
+					attributes=dict(id="pattern")
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.form.field('operator_id', 'dropdown',
+					label="Operator",
+					attributes=dict(id="operator")
+				)}
+			</table>
+		</tr>
+	</table>
+</form>
+</p>
+<script type="text/javascript">
+	$(function() {
+		$('#dr_id, #dg_id, #pt_id, #gated_filter, #channel, #pattern, #operator').change(function(evt) {
+			$('#filter').submit();
+		})
+	});
+</script>
+% endif

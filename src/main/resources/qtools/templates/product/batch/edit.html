@@ -1,0 +1,99 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagetitle()">${c.title}</%def>
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+</%def>
+
+<form action="${c.submit_action}" method="post">
+	% if c.record_exists:
+		${boot.text('name', label='Name', autocomplete='off', klass="span4 disabled", id="name", disabled="disabled")}
+		${boot.select('plate_type', c.plate_type, label='Plate Type', klass="span4 disabled", id="plate_type", disabled='disabled')}
+		${boot.text('creation_date', label='Creation Date', autocomplete='off', klass="span4 disabled", id="creation_date", disabled="disabled")}
+		${boot.select('dg_method', c.dg_method, label='DG Method', klass="span4 disabled", id="dg_method", disabled="disabled")}
+	% else:
+		${boot.text('name', label='Name', autocomplete='off', required=True, klass="span4", id="name", help_block='This will be automatically set if you select a date, plate type and method.')}
+		${boot.select('plate_type', c.plate_type, label='Plate Type', required=True, klass="span4", id="plate_type")}
+		${boot.text('creation_date', label='Creation Date', autocomplete='off', required=True, klass="span4 datepicker", id="creation_date")}
+		${boot.select('dg_method', c.dg_method, label='DG Method', required=True, klass="span4", id="dg_method")}
+	% endif
+	
+	
+	${boot.select('creator_id', c.people, label='Maker', required=True, klass="span4")}
+	% if c.record_exists:
+		${boot.text('quantity', label='Quantity', required=False, klass="span2 disabled", disabled="disabled")}
+	% else:
+		${boot.text('quantity', label='Quantity', required=True, klass="span2", id="quantity")}
+	% endif
+
+	${boot.text('fam_hi_size', label=h.literal('FAM HI Size (&mu;m)'), autocomplete='off', klass="span4", help_block='Size out of range!' if c.record_exists and c.batch.dye_correctly_sized('FAM') == False else None)}
+	${boot.text('vic_hi_size', label=h.literal('VIC HI Size (&mu;m)'), autocomplete='off', klass="span4", help_block='Size out of range!' if c.record_exists and c.batch.dye_correctly_sized('VIC') == False else None)}
+	${boot.text('hex_hi_size', label=h.literal('HEX HI Size (&mu;m)'), autocomplete='off', klass="span4", help_block='Size out of range!' if c.record_exists and c.batch.dye_correctly_sized('HEX') == False else None)}
+	${boot.textarea('notes', label="Notes", autocomplete='off', rows="4", klass="span8", help_block='Add any additional details about the batch here.')}
+	<div class="actions">
+		${boot.submit(c.call_to_action)}
+		<a href="${url(controller='product', action='batch_list')}" class="btn">Cancel</a>
+		% if c.record_exists:
+		<a href="${url(controller='product', action='batch_plates', id=c.batch.id)}" class="btn">View Plates</a>
+		% if c.allow_delete:
+		<a href="${url(controller='product', action='batch_delete', id=c.batch.id)}" class="btn danger" id="batch_delete">Delete Batch</a>
+		% endif
+		% endif
+	</div>
+</form>
+
+<%def name="pagescript()">
+<script type="text/javascript">
+	var tryNaming = function() {
+		var plateType = $('#plate_type').val()
+		var date = $('#creation_date').val() // todo coerce
+		var dgMethod = $('#dg_method').val()
+		if(plateType == 'CC') {
+			$('#quantity').val(24)
+		}
+		else if(plateType == 'QP') {
+			$('#quantity').val(16);
+		}
+		else if(plateType == 'CSFV') {
+			$('#quantity').val(48)
+		}
+		if(plateType && date) {
+			if(plateType == 'CC') {
+				$('#name').val('CS' + '_' + date + '_01');
+			}
+			else if(plateType == 'CSFV') {
+				$('#name').val('CalVer' + '_' + date + '_01')
+			}
+			else if(plateType == 'CO') {
+				$('#name').val('FluVer' + '_' + date);
+			}
+			else if(plateType == 'QP') {
+				$('#name').val('DyeCal' + '_' + date + '_01');
+			}
+		}
+		return true;
+	}
+	$(function() {
+		$('input.datepicker').datepicker({dateFormat: 'yymmdd'});
+		$('input[name="creation_date"], select[name="plate_type"], #dg_method').change(tryNaming);
+		$('input[name="creation_date"], select[name="plate_type"], #dg_method').blur(tryNaming);
+		$('#batch_delete').click(function() {
+			var form = $(this).parents('form')
+			form.attr('action', $(this).attr('href'))
+			if(confirm('Are you sure you want to delete this batch?')) {
+				form.submit()
+			}
+			return false;
+		});
+	});
+</script>
+</%def>

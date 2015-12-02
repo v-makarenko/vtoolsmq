@@ -1,0 +1,31 @@
+<%inherit file="/reagents/base.html" />
+
+<%def name="pagetitle()">Lot Tests: ${c.lot.number} (${c.lot.part.name})</%def>
+
+% if c.tests:
+<table class="condensed-table zebra-striped">
+    <thead>
+        <tr>
+            <th>Plate</th>
+            <th>Date</th>
+            <th>Instrument</th>
+            <th>Results</th>
+        </tr>
+    </thead>
+    <tbody>
+        % for test in c.tests:
+        <tr>
+            <td><a href="${url(controller='reagents', action='test_result', id=test.id)}">${test.plate.name}</a></td>
+            <td>${h.ymd(test.plate.run_time)}</td>
+            <td>${test.plate.box2.name}</td>
+            <td><a href="${url(controller='plate', action='view', id=test.plate.id)}">View Plate</a></td>
+        </tr>
+        % endfor
+    </tbody>
+</table>
+% else:
+<div class="well">No tests run for this lot number.</div>
+% endif
+<div class="actions">
+    <a class="btn" href="${url(controller='reagents', action='parts', id=c.lot.part.product_line_id)}">Back to Parts</a>
+</div>

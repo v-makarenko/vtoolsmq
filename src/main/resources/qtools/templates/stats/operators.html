@@ -1,0 +1,96 @@
+<%inherit file="/stats/base.html"/>
+
+<%def name="pagetitle()">Operator Leaderboard</%def>
+<%def name="selected_page()">operators</%def>
+<%def name="explanation()">
+<p>
+	The leaderboard shows who ran the most non-NTC/non-stealth wells over the course of a week.  Plates and wells are
+	credited to individuals if they either named a plate according to the QTools plate naming standard, or if the plate
+	was manually credited to an operator via the QTools plate metadata editor.  Right now, a plate can only have a single
+	owner, but this seems to be the most common case at this time.  Unassigned plates may be credited below.
+</p>
+</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#utilization {
+			width: 770px;
+		}
+		
+		#utilization th {
+			background: #eee;
+			border-bottom: 1px solid #ccc;
+		}
+		
+		#utilization th.day {
+			width: 99px;
+			border-left: 1px solid #ccc;
+		}
+		
+		#utilization th.day a {
+			text-decoration: none;
+		}
+		
+		.operator_name {
+			width: 200px;
+		}
+		
+		.operator_points {
+			width: 70px;
+		}
+		
+		.operator_plates {
+			width: 90px;
+		}
+		
+		.operator_data_wells {
+			width: 110px;
+		}
+		
+		.operator_wells {
+			width: 110px;
+		}
+		
+		#utilization tr.even td.operator_points {
+			background: #dfd;
+		}
+		
+		#utilization tr.odd td.operator_points {
+			background: #beb;
+		}
+		
+		.operator_events {
+			width: 200px;
+		}
+		
+		
+		#util_header {
+			width: 770px;
+			margin-bottom: 0px;
+			font-weight: bold;
+		}
+		
+		#util_header td {
+			width: 175px;
+			background: #ddd;
+			padding: 0.5em;
+			border-bottom: 1px solid #ccc;
+		}
+		
+		#util_header td.date_display {
+			width: 400px;
+			text-align: center;
+		}
+		
+		td.next_date {
+			text-align: right;
+		}
+	</style>
+</%def>
+<table id="util_header">
+	${next.date_header()}
+</table>
+<table class="datagrid" id="utilization">
+	${next.leaderboard_table()}
+</table>
+${next.body()}

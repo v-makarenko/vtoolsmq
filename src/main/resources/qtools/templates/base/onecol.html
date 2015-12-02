@@ -1,0 +1,50 @@
+## -*- coding: utf-8 -*-
+<%namespace file="/base/includes.html" name="inc" import="*" />
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!--
+	&copy; ${h.current_year()} Bio-Rad Laboratories.
+	-->
+	<meta charset="utf-8" />
+	<title>${self.title()}</title>
+	<%def name="title()">QTools</%def>
+	
+	${self.css()}
+	<%def name="css()">
+		${inc.default_css()}
+	</%def>
+	
+	${self.js()}
+	<%def name="js()">
+		${inc.default_js()}
+	</%def>
+</head>
+<body id="qtools" class="body">
+	${inc.default_header()}
+	<%def name="contentclass()">container_12</%def>
+	<div id="content" style="width: 960px" class="${self.contentclass()}">
+		${inc.flash()}
+		<nav id="content_nav">${self.content_nav()}</nav>
+		<%def name="pagetitle()">Override pagetitle()!</%def>
+		<%def name="explanation()"></%def>
+		<%def name="header()">
+		<div class="grid_12">
+		<h1>${self.pagetitle()}</h1>
+		</div>
+		${self.explanation()}
+		</%def>
+		${next.header()}
+		${next.body()}
+	</div>
+	<footer class="container_16">
+        Qtools version: ${h.config['version']}. 
+		&copy; ${h.current_year()} Bio-Rad Laboratories.  For help, comments or feedback, send email to <a href="mailto:qtools_support@digitalbiology.mygbiz.com">qtools_support@digitalbiology.mygbiz.com</a>
+	</footer>
+	${self.pagescript()}
+	<%def name="pagescript()"></%def>
+	<%def name="content_nav()"></%def>
+</body>
+
+</html>

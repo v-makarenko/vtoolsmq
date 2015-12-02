@@ -1,0 +1,21 @@
+<%inherit file="/box2/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${boot.css()}
+</%def>
+
+<%def name="pagetitle()">Download Robocopy File</%def>
+
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+<%def name="explanation()">
+<p>Select a reader and press the 'Generate Robocopy File' button.  This will generate a file that you can save to your Desktop which will copy the files from the QuantaLife data folder to the specified drive region on the <strong>usplewip10</strong> server.  At present time, this should only be executed for Pleasanton-based instruments.</p>
+</%def>
+
+<form action="${url(controller='box2', action='robocopy_generate')}" method="post">
+	${boot.select('box2_id', c.box2_field, label='Reader', required=True, klass="span5")}
+	<div class="actions">
+		${boot.submit('Generate Robocopy File')}
+	</div>
+</form>

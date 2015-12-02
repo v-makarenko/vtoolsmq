@@ -1,0 +1,45 @@
+<%inherit file="/sequence/view_base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/sequence/partials.html" name="part" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	<link rel="stylesheet" href="${url('/css/tw/bootstrap.multirow.css')}" />
+	<style type="text/css">
+		.tw_bootstrap table td.oligo_label {
+			text-align: right;
+		}
+
+		.tw_bootstrap form.review_only {
+			margin: 0px;
+		}
+
+		.tw_bootstrap div.split_table td:first-child {
+			width: 100px;
+		}
+
+
+	</style>
+</%def>
+
+<h2>Basics</h2>
+${part.assay_basics(c.assay, show_location=c.show_location_table, show_snp=c.show_snp_table)}
+
+<!-- put in partial -->
+<h2>Oligos</h2>
+% if c.show_primer_table:
+${part.primer_assay(c.assay)}
+% elif c.show_location_table:
+${part.location_assay(c.assay)}
+% elif c.show_snp_table:
+${part.snp_assay(c.assay)}
+% endif
+
+<h2>Notes</h2>
+${part.assay_notes(c.assay)}
+</h2>
+
+% if h.wowo('show_assay_protocols'):
+<h2>Approval/Protocols</h2>
+${part.assay_protocols(c.assay)}
+% endif

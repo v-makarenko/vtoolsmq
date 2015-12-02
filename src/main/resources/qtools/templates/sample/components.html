@@ -1,0 +1,29 @@
+<%def name="edit_action(sample)">
+	<div class="action_button">
+	<form action="${url(controller='sample', action='edit', id=sample.id)}" method="get">
+		<input type="submit" value="Edit Sample" />
+	</form>
+	</div>
+</%def>
+
+<%def name="delete_action(sample)">
+	<div class="action_button">
+	<form id="delete_form" action="${url(controller='sample', action='delete', id=sample.id)}" method="post">
+		<input type="submit" value="Delete Sample" id="delete_button" />
+		<script type="text/javascript" charset="utf-8">
+			$('#delete_button').click(function() {
+				return confirm('Are you sure you want to delete the ${c.sample.name} sample?')
+			})
+		</script>
+	</form>
+	</div>
+</%def>
+
+<%def name="cnv_action(sample)">
+	<div class="action_button">
+	<form action="${url(controller='sample', action='cnv_new')}" method="get">
+		<input type="hidden" name="sample_id" value="${sample.id}" />
+		<input type="submit" value="Add Assay CNV" />
+	</form>
+	</div>
+</%def>

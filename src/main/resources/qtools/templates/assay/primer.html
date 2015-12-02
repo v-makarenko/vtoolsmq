@@ -1,0 +1,19 @@
+<%inherit file="/assay/getbase.html"/>
+
+<%def name="pagetitle()">Get Sequence by Forward/Reverse Primers</%def>
+<%def name="selected_page()">getseq</%def>
+
+${c.form.start_with_layout(url(controller='assay', action='process_primer'), method="post")}
+	${c.form.field("primer_fwd", "text",
+		label="Forward Primer",
+		required=True
+	)}
+	
+	${c.form.field("primer_rev", "text",
+		label="Reverse Primer",
+		required=True
+	)}
+	<tr class="form_button"><td>
+	${c.form.submit("submit","Get Sequence")}
+	</td></tr>
+${c.form.end_with_layout()}

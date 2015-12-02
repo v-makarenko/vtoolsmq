@@ -1,0 +1,52 @@
+<%inherit file="/users/base.html"/>
+<%namespace file="/base/includes.html" name="incl" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Add New User</%def>
+<%def name="selected_page()">adduser</%def>
+<%def name="explanation()"> </%def>
+<%def name="css()">
+	${parent.css()}
+	${incl.jqueryui_css()}
+    ${boot.css()}
+    <style type="text/css">
+        a.autoselect_toggle {
+            margin-left: 1em;
+        }
+
+        form.smallform label,
+        form.smallform input,
+        form.smallform select,
+        form.smallform textarea,
+        form.smallform span.help-block,
+        form.smallform a.autoselect_toggle {
+            font-size: 11px;
+            line-height: 15px;
+        }
+    </style>
+	<noscript>
+		<style type="text/css" media="screen">
+			form .autoselect {
+				display: inline;
+			}
+		</style>
+	</noscript>
+</%def>
+
+<%def name="contentclass()">omega grid_13 tw_bootstrap</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${incl.jqueryui_js()}
+	<script src="${url('/js/uitools.js')}"></script>
+</%def>
+
+<form action="${url(controller='users', action='create_user')}" method="post" class="smallform">
+    <h3>Mandatory Fields</h3>
+    ${boot.text('first_name', label="First Name")}
+    ${boot.text('last_name', label="Last Name")}
+    ${boot.text('name_code', label="Code Name")}
+    <div class="actions">
+        ${boot.submit('Add New User!')}
+    </div>
+</form>

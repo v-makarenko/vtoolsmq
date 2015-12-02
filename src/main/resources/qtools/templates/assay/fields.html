@@ -1,0 +1,53 @@
+${c.form.field("name", "text",
+	label="Name",
+	required=True
+)}
+
+${c.form.field("gene", "text",
+	label="Gene"
+)}
+
+${c.form.field("owner_id", "dropdown",
+	label="Entered By"
+)}
+
+<tr><td colspan="2">--- AND ---</td></tr>
+
+${c.form.field("primer_fwd", "text",
+    label="Forward Primer"
+)}
+
+${c.form.field("primer_rev", "text",
+    label="Reverse Primer"
+)}
+
+<tr><td colspan="2">--- OR ---</td></tr>
+
+${c.form.field("chromosome", "dropdown",
+    label="Chromosome"
+)}
+
+${c.form.field("probe_pos", "text",
+	label="Probe Location",
+)}
+
+<tr><td colspan="2">--- OR ---</td></tr>
+
+${c.form.field("snp_rsid", "text",
+    label="SNP rsid"
+)}
+
+<tr><td colspan="2">--- AND ---</td></tr>
+${c.form.field("amplicon_width", "text",
+    label="Amplicon Width"
+)}
+<tr><td colspan="2">--- PLUS ---</td></tr>
+${c.form.field("probe_seq", "text",
+	label="Probe Sequence"
+)}
+${c.form.field("dye","dropdown",
+	label="Dye"
+)}
+${c.form.field("quencher","dropdown",
+	label="Quencher"
+)}

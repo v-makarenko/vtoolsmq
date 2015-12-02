@@ -1,0 +1,11 @@
+<%inherit file="/box2/base.html"/>
+<%namespace name="well" file="/components/well.html" import="well_tag_select"/>
+
+<%def name="pagetitle()">Search for Wells By Tag</%def>
+<%def name="selected_page()">well_tag</%def>
+<%def name="explanation()">
+Select a tag and whether or not you want to group wells by plate, and then click 'Get Wells'.
+</%def>
+
+${well.well_tag_select(url(controller='box2', action='by_well_tag'),
+                       url(controller='box2', action='well_tag'))}

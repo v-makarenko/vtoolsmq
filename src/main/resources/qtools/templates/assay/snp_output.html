@@ -1,0 +1,30 @@
+<%inherit file="/assay/output.html"/>
+<%namespace file="components.html" name="comp" import="seq_result,snp_results,seq_save_fields"/>
+
+<%def name="pagetitle()">SNP Assay Sequence</%def>
+
+<%def name="inputs(ctx)">
+	<table class="record">
+		<tr><td class="col_field">SNP Name:</td><td>${ctx.snp_rsid}</td></tr>
+		<tr><td class="col_field">Amplicon Width:</td><td>${ctx.width}</td></tr>
+	</table>
+	${parent.inputs(ctx)}
+</%def>
+
+% if hasattr(c, 'sequences'):
+% for idx, seq in enumerate(c.sequences):
+<div class="sequence_match">
+	<h1>Match #${idx+1}:</h1>
+	${comp.seq_result(seq)}
+	% if hasattr(seq, 'amplicon_snps'):
+	${comp.snp_results(seq.amplicon_snps)}
+	% endif
+</div>
+% endfor
+% endif
+
+<%def name="assay_save_fields(ctx)">
+	<input type="hidden" name="snp_rsid" value="${ctx.snp_rsid}" id="snp_rsid" />
+	<input type="hidden" name="amplicon_width" value="${ctx.width}" id="amplicon_width" />
+	${comp.seq_save_fields(ctx)}
+</%def>

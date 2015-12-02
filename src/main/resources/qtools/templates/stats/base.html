@@ -1,0 +1,41 @@
+<%inherit file="/base/index.html"/>
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.boxes li#subnav_boxes,
+		#subnav nav.operators li#subnav_operators,
+		#subnav nav.projects li#subnav_projects {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav.boxes li#subnav_boxes a,
+		#subnav nav.operators li#subnav_operators a,
+		#subnav nav.projects li#subnav_projects a {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">stats</%def>
+<%def name="subnav_title()">Statistics</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_boxes"><a href="${url(controller='stats', action='boxes')}">DR Activity</a></li>
+		<li id="subnav_operators"><a href="${url(controller='stats', action='operators')}">Operators</a></li>
+	</ul>
+</%def>
+<%def name="relatednav()">
+<ul>
+	<li><a href="${url(controller='plate', action='list')}">Plate List</a></li>
+	<li><a href="${url(controller='admin', action='readers', admin=False)}">DR Status</a></li>
+</ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.footer()}
+</div>
+
+<%def name="footer()"></%def>

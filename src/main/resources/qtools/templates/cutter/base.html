@@ -1,0 +1,43 @@
+<%inherit file="/base/index.html"/>
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.cutseq li#subnav_cutseq,
+		#subnav nav.picker li#subnav_picker,
+		#subnav nav.multipick li#subnav_multipick,
+		#subnav nav.enzymes li#subnav_enzymes {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav.cutseq li#subnav_cutseq a,
+		#subnav nav.picker li#subnav_picker a,
+		#subnav nav.multipick li#subnav_multipick a,
+		#subnav nav.enzymes li#subnav_enzymes a {
+			font-weight: bold;
+		}
+
+		#content form {
+			margin-top: 20px;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">cutter</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+<%def name="subnav_title()">Digest Links</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_picker"><a href="${url(controller='cutter', action='pick')}">Find Digests</a></li>
+		<li id="subnav_multipick"><a href="${url(controller='cutter', action='multipick')}">Find Digests (Multiple Assays)</a></li>
+		<li id="subnav_cutseq"><a href="${url(controller='cutter', action='index')}">Restriction Site View</a></li>
+	</ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.footer()}
+</div>
+
+<%def name="footer()"></%def>

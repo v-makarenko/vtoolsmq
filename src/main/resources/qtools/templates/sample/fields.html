@@ -1,0 +1,32 @@
+${c.form.field("name", "text",
+	label="Sample Name",
+	required=True
+)}
+
+${c.form.field("sex", "dropdown",
+	label="Sex",
+	required=False
+)}
+
+${c.form.field('ethnicity', 'dropdown',
+	label='Ethnicity',
+	required=False
+)}
+
+${c.form.field('person_id', 'dropdown',
+	label='My Name Is',
+	required=True
+)}
+
+${c.form.field('source', 'text',
+	label='Sample Source',
+	field_desc="Where did the sample come from?  Where to order?",
+	required=False
+)}
+
+${c.form.field('notes', 'textarea',
+	label='Notes',
+	field_desc="Add additional information about the sample here.",
+	required=False,
+	attributes=dict(cols=40, rows=4)
+)}

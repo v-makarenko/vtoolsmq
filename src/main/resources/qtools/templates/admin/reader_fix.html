@@ -1,0 +1,44 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/base/includes.html" name="incl" import="*" />
+
+<%def name="pagetitle()">Update Reader Status: ${c.dr.display_name}</%def>
+<%def name="selected_page()">readers</%def>
+<%def name="explanation()">
+<p>If you fixed a hardware problem on ${c.dr.name}, enter the problem, root cause and fix below.</p>
+</%def>
+<%def name="css()">
+	${parent.css()}
+	${incl.jqueryui_css()}
+	<style type="text/css" media="screen">
+		input[type=text], select {
+			width: 200px;
+		}
+		tr.formbutton td {
+			padding-top: 20px;
+		}
+	</style>
+</%def>
+
+${c.form.start_with_layout(url(controller='admin', action='add_reader_fix', id=c.dr.code), method='post')}
+${c.form.field('reporter_id', 'dropdown',
+	label='Reporter',
+	required=True
+)}
+${c.form.field('problem', 'textarea',
+	label='Problem',
+	attributes=dict(cols=50, rows=4)
+)}
+
+${c.form.field('root_cause', 'textarea',
+	label='Root Cause',
+	attributes=dict(cols=50, rows=4)
+)}
+
+${c.form.field('fix', 'textarea',
+	label='Fix',
+	attributes=dict(cols=50, rows=4)
+)}
+<tr class="formbutton">
+	<td><input type="hidden" name="box2_id" value="${c.dr.id}" />${c.form.submit('submit', "Save Status")}</td>
+</tr>
+${c.form.end_with_layout()}

@@ -1,0 +1,39 @@
+<%inherit file="/assay/base.html" />
+<%namespace file="fields.html" name="fields" import="*"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+	<style type="text/css" media="screen"> 
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+</%def>
+
+<%def name="pagetitle()">Enter New Enzyme Concentration</%def>
+<%def name="selected_page()">enznew</%def>
+<%def name="explanation()">
+<p>
+If you have confirmed an optimal restriction enzyme concentration for a particular assay, indicate so below.  You can
+specify a plate ID as evidence for the result.  If you specify the plate, please add the wells that
+indicate the basis for optimal concentrations in the notes.
+</p>
+</%def>
+
+${c.form.start_with_layout(url(controller='assay', action='enzyme_conc_create'), method="post")}
+	${fields.body()}
+	<tr><td>
+	${c.form.submit("submit","Save Concentration")}
+	</td></tr>
+${c.form.end_with_layout()}
+
+<%def name="pagescript()">
+	${auto.detect_autoselect('#form')}
+</%def>

@@ -1,0 +1,135 @@
+<%inherit file="/cutter/base.html"/>
+<%namespace file="/cutter/partials.html" name="part" import="*" />
+
+<%def name="pagetitle()">Enzyme Picker: Multiple</%def>
+<%def name="selected_page()">multipick</%def>
+<%def name="js()">
+${parent.js()}
+<script src="${url('/js/bases.js')}"></script>
+</%def>
+
+<%def name="css()">
+${parent.css()}
+% if h.wowo('show_enzyme_price_bins'):
+${part.bin_display_css()}
+% endif
+<link rel="stylesheet" href="${url('/css/bases.css')}" type="text/css" media="screen">
+
+<style type="text/css" media="screen">
+	
+</style>
+</%def>
+
+<p>
+<strong>Assays:</strong>&nbsp;${c.assay_names}<br/>
+<strong style="color: #900">Prefix Length:</strong>&nbsp; ${c.left_padding}bp<br/>
+<strong style="color: #009">Suffix Length:</strong>&nbsp; ${c.right_padding}bp<br/>
+</p>
+
+<form action="${url(controller='cutter', action='multi_cutters')}" method="post">
+<table class="gridfield">
+<caption style="text-align: left; font-weight: bold;">Change Padding:</caption>
+	<tr>
+	<td class="field_col">
+		<table>
+			${c.form.field('left_padding', 'text',
+				label='Left'
+			)}
+		</table>
+	</td>
+	<td class="field_col">
+		<table>
+			${c.form.field('right_padding', 'text',
+				label='Right'
+			)}
+		</table>
+	</td>
+	<td class="field_col">
+		<input type="submit" value="Use Different Padding" />
+		<input type="hidden" name="enzymes" value="${c.enzymes}" />
+		<input type="hidden" name="scoring_function" value="${c.scoring_function}" />
+		<input type="hidden" name="allow_methylation" value="${c.allow_methylation}" />
+		<input type="hidden" name="singles_as_doubles" value="${c.singles_as_doubles}" />
+		% for assay_id in c.assay_ids:
+		<input type="hidden" name="assays" value="${assay_id}" />
+		% endfor
+	</td>
+	</tr>
+</table>
+</form>
+
+% if c.found_sequences:
+<h2>Single Digests</h2>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Average # Cuts</th>
+			% if h.wowo('show_enzyme_price_bins'):
+			<th>Cost Tier</th>
+			% else:
+			<th>Cost/100 units</th>
+			% endif
+			<th>Min Fragment Sizes</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, cutter in enumerate(c.around_cutters):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="cutter_name">${cutter['name']}</td>
+		<td class="cutter_cuts">${h.sig1(cutter['cuts'])}</td>
+		% if h.wowo('show_enzyme_price_bins'):
+		<td class="cutter_cost">${part.bin_display(cutter['cost_bin'])}</td>
+		% else:
+		<td class="cutter_cost">${h.format_currency(float(cutter['cost']))}</td>
+		% endif
+		<td class="cutter_frags">${', '.join([str(l) for l in cutter['min_fragment_lengths']])}</td>
+	</tr>
+	% endfor
+	</tbody>
+</table>
+
+<h2>Double Digests</h2>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Average # Cuts</th>
+			% if h.wowo('show_enzyme_price_bins'):
+			<th>Cost Tier</th>
+			% else:
+			<th>Cost/100 units (combined)</th>
+			% endif
+			% if h.wowo('show_dd_enzyme_buffer'):
+			<th>Common Buffer</th>
+			% endif
+			<th>Min Fragment Sizes</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, dd in enumerate(c.double_digests):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="cutter_name">${dd['pair'][0]}+${dd['pair'][1]}</td>
+		<td class="cutter_cuts">${h.sig1(dd['cuts'])}</td>
+		% if h.wowo('show_enzyme_price_bins'):
+		<td class="cutter_cost">${part.bin_display(dd['cost_bin'])}</td>
+		% else:
+		<td class="cutter_cost">${h.format_currency(dd['cost'])}</td>
+		% endif
+		% if h.wowo('show_dd_enzyme_buffer'):
+		<td class="cutter_buffer">${dd['buffer']}</td>
+		% endif
+		<td class="cutter_frags">${', '.join([str(l) for l in dd['min_fragment_lengths']])}</td>
+	</tr>
+	% endfor
+	</tbody>
+</table>
+
+<h2 style="color:red">Amplicon Cutters</h2>
+<p>
+${', '.join(c.amplicon_cutters)}
+</p>
+% else:
+<strong>The sequence for at least one of these assays is unknown.</strong>
+</p>
+% endif

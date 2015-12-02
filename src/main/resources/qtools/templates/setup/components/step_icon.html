@@ -1,0 +1,21 @@
+<%def name="step_icon(which_step, desc=None)">
+<li id="step_${which_step}">
+	<a href="${url(controller='setup', action=which_step, id=c.setup.id if hasattr(c, 'setup') else '', beta=c.beta)}">
+		% if getattr(c, 'experiment_%s' % which_step, False):
+		<img src="${url('/images/greenjelly/check.png')}" title="OK" />
+		% else:
+		<img src="${url('/images/red_glossy/x.png')}" title="Incomplete" />
+		% endif
+		<br/>${desc or which_step.capitalize()}
+	</a>
+</li>
+</%def>
+
+<%def name="step_inactive_icon(which_step, desc=None)">
+<li id="step_${which_step}">
+	<a href="javascript:void(0)">
+		<img src="${url('/images/red_glossy/x_inactive.png')}" title="Name Required" />
+		<br/>${desc or which_step.capitalize()}
+	</a>
+</li>
+</%def>

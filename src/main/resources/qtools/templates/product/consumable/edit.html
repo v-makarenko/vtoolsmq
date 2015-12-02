@@ -1,0 +1,58 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="fields.html" name="fields" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+	<style type="text/css">
+		input[type=text], select {
+			width: 250px;
+		}
+
+		table.gridfield {
+			margin-bottom: 0;
+		}
+
+		table.gridfield td.field_col {
+			padding-right: 0;
+		}
+
+		td.label {
+			width: 10em;
+		}
+	</style>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+
+	${auto.js()}
+</%def>
+
+<%def name="pagetitle()">Edit Batch: ${c.batch.lot_num}</%def>
+<%def name="selected_page()">consumable</%def>
+
+<%def name="explanation()">
+<p>
+	<a href="${url(controller='consumable', action='list')}">&lt;&lt; Back to Batch List</a>&nbsp;|&nbsp;
+	<a href="${url(controller='consumable', action='details', id=c.batch.id)}">Back to ${c.batch.lot_num}
+</p>
+</%def>
+
+${c.form.start_with_layout(url(controller='consumable', action='update', id=c.batch.id), method='post', attributes=dict(id='edit_batch'))}
+${fields.body()}
+<tr class="formbutton">
+	<td style="padding-top: 20px">${c.form.submit('submit', 'Update Batch')}
+</tr>
+${c.form.end_with_layout()}
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	${auto.detect_autoselect('#edit_batch')}
+	<script type="text/javascript">
+	$(function() {
+		$('#manufacture_date').datepicker()
+	})
+	</script>
+</%def>

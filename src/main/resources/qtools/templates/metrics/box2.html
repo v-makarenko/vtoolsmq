@@ -1,0 +1,142 @@
+<%inherit file="/metrics/certification.html"/>
+<%namespace file="/components/plate_list.html" name="pl" import="*"/>
+
+<%def name="css()">
+    ${parent.css()}
+    ${pl.plate_list_css()}
+    <style type="text/css">
+        .tab-content > div {
+            display: none;
+        }
+    </style>
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    <script type="text/javascript" src="${url('/js/tw/bootstrap-tabs.js')}"></script>
+</%def>
+
+<%def name="stats_prefix()">
+<ul class="pills">
+    <li class="${'active' if c.tab == 'metrics' else ''}"><a href="#panel_metrics">Metrics</a></li>
+    <li class="${'active' if c.tab == 'plates' else ''}"><a href="#panel_plates">Plates</a></li>
+    <li class="${'active' if c.tab == 'files' else ''}"><a href="#panel_files">Files</a></li>
+    <li style="float: right;"><a class="btn" <a href="${h.dr_url(c.box2, controller='plate', action='dropship' if h.wowo('contractor') else 'onsite', id=c.box2.code)}">Upload Plate</a></li>
+</ul>
+<div class="tab-content">
+<div id="panel_metrics" class="${'active' if c.tab == 'metrics' else ''}">
+<p>All statistics are derived from the latest carryover and colorcomp plates run on this instrument.</p>
+<p class="nav_exp">
+    % if c.carryover_plates:
+    <% carryover_plate = c.carryover_plates[0] %>
+    <strong>Carryover Plate:</strong> <a href="${url(controller='plate', action='view', id=carryover_plate.id)}">${carryover_plate.name}</a>&nbsp;|&nbsp;<a href="${url(controller='metrics', action='per_plate', id=carryover_plate.id)}">View Standalone Metrics</a><br/>
+    % endif
+    % if c.singlewell_colorcomp_plate_metrics:
+    <strong>Single-Well ColorComp Wells:</strong>
+    % if c.singlewell_famvic_plate:
+    <br/>&nbsp; &nbsp; FAM/VIC: <a href="${url(controller='plate', action='view', id=c.singlewell_famvic_plate.id)}">${c.singlewell_famvic_plate.name}</a>&nbsp;|&nbsp;<a href="${url(controller='metrics', action='per_plate', id=c.singlewell_famvic_plate.id)}">View Standalone Metrics</a>
+    % endif
+    % if c.singlewell_famhex_plate:
+    <br/>&nbsp; &nbsp; FAM/HEX: <a href="${url(controller='plate', action='view', id=c.singlewell_famhex_plate.id)}">${c.singlewell_famhex_plate.name}</a>&nbsp;|&nbsp;<a href="${url(controller='metrics', action='per_plate', id=c.singlewell_famhex_plate.id)}">View Standalone Metrics</a>
+    % endif
+    <br/>
+    % elif c.colorcomp_plates:
+    <% colorcomp_plate = c.colorcomp_plates[0] %>
+    <strong>ColorComp Plate:</strong> <a href="${url(controller='plate', action='view', id=colorcomp_plate.id)}">${colorcomp_plate.name}</a>&nbsp;|&nbsp;<a href="${url(controller='metrics', action='per_plate', id=colorcomp_plate.id)}">View Standalone Metrics</a><br/>
+    % endif
+
+    % if c.events_plates:
+    <% event_plate = c.events_plates[0] %>
+    <strong>Events Plate:</strong> <a href="${url(controller='plate', action='view', id=event_plate.id)}">${event_plate.name}</a>&nbsp;|&nbsp;<a href="${url(controller='metrics', action='per_plate', id=event_plate.id)}">View Standalone Metrics</a><br/>
+    % endif
+
+    % if c.probe_event_plates:
+    <% probeec_plate = c.probe_event_plates[0] %>
+    <strong>Events Plate:</strong> <a href="${url(controller='plate', action='view', id=probeec_plate.id)}">${probeec_plate.name}</a>&nbsp;|&nbsp;<a href="${url(controller='metrics', action='per_plate', id=probeec_plate.id)}">View Standalone Metrics</a><br/>
+    % endif
+
+    % if c.eva_event_plates:
+    <% evaec_plate = c.eva_event_plates[0] %>
+    <strong>Events Plate:</strong> <a href="${url(controller='plate', action='view', id=evaec_plate.id)}">${evaec_plate.name}</a>&nbsp;|&nbsp;<a href="${url(controller='metrics', action='per_plate', id=evaec_plate.id)}">View Standalone Metrics</a><br/>
+    % endif
+
+</p>
+</%def>
+
+<%def name="stats_suffix()">
+<h2>Downloads</h2>
+<p>
+    <!-- TODO: fix this, it won't report mfgco/mfgcc -->
+    <strong>All ${c.name} Carryover Stats CSV:</strong> <a href="${url(controller='metrics', action='history_csv', box_code=c.id, plate_type='bcarry', reprocess_config_id=c.rp_code)}">Download</a><br/>
+    <strong>All ${c.name} ColorComp Stats CSV:</strong> <a href="${url(controller='metrics', action='history_csv', box_code=c.id, plate_type='bcc', reprocess_config_id=c.rp_code)}">Download</a>
+</p>
+</div>
+<div id="panel_plates" class="${'active' if c.tab == 'plates' else ''}">
+    ${pl.plate_list_table(plate_list=c.plate_list)}
+</div>
+<div id="panel_files" class="${'active' if c.tab == 'files' else ''}">
+    <p>Upload manufacturing travelers and any other associated non-QLP files here.</p>
+    % if c.file_list:
+    <table class="datagrid condensed-table">
+        <thead>
+            <tr>
+                <th>File</th>
+                <th>Description</th>
+                <th>Size</th>
+                <th>Edited</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for f in c.file_list:
+            <tr>
+                <td><a href="#${f.id}" class="action_link" rel="download">${f.name}</a></td>
+                <td>${f.description}</td>
+                <td>${f.size}</td>
+                <td>${h.ymd(f.updated)}</td>
+                <td><a href="#${f.id}" class="action_link" rel="download">Download</a> | <a href="#${f.id}" class="action_link" rel="update">Update</a> | <a href="#${f.id}" class="action_link" rel="delete">Delete</a></td>
+            </tr>
+            % endfor
+        </tbody>
+    </table>
+    % else:
+    <div class="well">
+        No files yet uploaded.
+    </div>
+    % endif
+    <div class="actions">
+        <a class="btn primary" href="${h.dr_url(c.box2, controller='box2', action='upload', id=c.box2.code)}">Add File</a>
+    </div>
+</div>
+</div>
+<form id="download_form" action="${h.dr_url(c.box2, controller='box2', action='download_file', id=c.box2.code)}" method="GET">
+    <input type="hidden" name="file_id" value="" />
+</form>
+<form id="update_form" action="${h.dr_url(c.box2, controller='box2', action='update', id=c.box2.code)}" method="POST">
+    <input type="hidden" name="file_id" value="" />
+</form>
+<form id="delete_form" action="${h.dr_url(c.box2, controller='box2', action='delete_file', id=c.box2.code)}" method="POST">
+    <input type="hidden" name="file_id" value="" />
+</form>
+</%def>
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    <script type="text/javascript">
+        $(function() {
+            $('.pills').tabs();
+            $('.action_link').click(function() {
+                var file_id = $(this).attr('href').substring(1);
+                var action = $(this).attr('rel');
+                $('#'+action+'_form input[name=file_id]').val(file_id)
+                if(action == 'delete') {
+                    if(!confirm('Are you sure you want to delete this file?')) {
+                        return false;
+                    }
+                }
+                $('#'+action+'_form').submit();
+                return false;
+            })
+        });
+    </script>
+</%def>

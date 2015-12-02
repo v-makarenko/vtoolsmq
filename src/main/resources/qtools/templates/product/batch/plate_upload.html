@@ -1,0 +1,60 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagetitle()">Upload Plate: ${c.plate.name}</%def>
+
+<%def name="css()">
+	${parent.css()}
+	${boot.upload_submit_css()}
+</%def>
+
+<form action="${url(controller='product', action='batch_plate_do_upload', id=c.plate.id)}" method="post" enctype="multipart/form-data" id="form">
+	${boot.file('plate', label='Plate', klass="span4", id="plate")}
+	${boot.text('box2', label='Unit Serial#', klass="span4", help_block="This will be automatically filled in when you select a file to upload.", id="box2")}
+	${boot.checkbox("qc_plate", label="QC Plate?", value=c.plate.qc_plate, required=False, klass="span4")}
+	${boot.textarea('plate_notes', label="Notes", autocomplete='off', rows="4", klass="span8", help_block='Add any additional details about the plate here.')}
+	<div>
+		To register a new reader, <a href="${url(controller='admin', action='register', id='reader')}">click here.</a><br/>
+		To register a new fluidics module, <a href="${url(controller='admin', action='register', id='module')}">click here.</a><br/>
+        To register a new detector module, <a href="${url(controller='admin', action='register', id='detector')}">click here.</a>
+	</div>
+	<input type="hidden" name="plate_type" value="" />
+	${boot.upload_submit_html()}
+</form>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		var batch_plate_name = '${c.plate.name}';
+		$(function() {
+			$('#plate').change(function() {
+				var toks = $(this).val().split(/[\\\/]/)
+				if(toks) {
+					var file = toks[toks.length-1]
+					var subtoks = file.split('_')
+					var serial = subtoks.shift()
+					if(serial == 'QC') {
+						// todo: hardcode?
+						$('#box2').val('10603');
+					}
+					else {
+						$('#box2').val(serial)
+					}
+					var plate_name = subtoks.join('_').split('.')[0]
+					var extension = subtoks.join('_').split('.')[1]
+					if(extension != 'qlp') {
+						alert("WARNING: the file you have selected is not a *.qlp file.  You probably want to select another file.")
+					}
+					else if(plate_name != batch_plate_name) {
+						alert("The plate name ("+plate_name+") does not match ("+batch_plate_name+").  Proceed with caution.");
+					}
+					return;
+				}
+				alert('Could not determine the serial number from the plate name.  Please enter the serial number of the instrument you ran this plate on.')
+				$('#box2').focus()
+			})
+		});
+	</script>
+	${boot.upload_submit_js('#form')}
+</%def>

@@ -1,0 +1,67 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    <style type="text/css">
+        #results {
+            font-size: 11px;
+        }
+        #results thead th,
+        #results thead td {
+            vertical-align: bottom;
+        }
+
+        span.pos {
+            color: green;
+        }
+
+        span.neg {
+            color: darkred;
+        }
+
+        #results tr.control_row td {
+            background-color: #efe;
+        }
+    </style>
+</%def>
+
+<%def name="pagetitle()">Control/Experiment Analysis: Results</%def>
+<%def name="selected_page()">experiments</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+
+<table id="results" class="condensed-table zebra-striped">
+    <thead>
+        <tr>
+            <th rowspan="2">Replicate</th>
+            <th rowspan="2"># Wells</th>
+            % for idx, col in enumerate(c.well_metric_cols + c.channel_metric_cols):
+            <th>${col}${(' (%s)' % c.channel_display) if idx >= len(c.well_metric_cols) else ''}</th>
+            % endfor
+        </tr>
+        <tr>
+            % for col in c.well_metric_cols + c.channel_metric_cols:
+            <td>Mean</td>
+            % endfor
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="control_row">
+            <td>${c.control_stat_name}</td>
+            <% length, stats = c.control_stats %>
+            <td>${length}</td>
+            % for mean, stdev in stats:
+            <td>${h.sig2(mean)}</td>
+            % endfor
+        </tr>
+    % for name, (length, stats) in c.experimental_stats:
+        <tr class="experiment_row">
+            <td>${name}</td>
+            <td>${length}</td>
+            % for mean, stdev, pct_diff in stats:
+            <td>${h.sig2(mean)} (<span class="${'pos' if pct_diff > 0 else ('neg' if pct_diff < 0 else 'same')}">${'+' if pct_diff > 0 else ''}${h.sig1(pct_diff)}%</span>)</td>
+            % endfor
+        </tr>
+    % endfor
+</table>

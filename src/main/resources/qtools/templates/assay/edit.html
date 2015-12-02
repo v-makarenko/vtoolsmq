@@ -1,0 +1,37 @@
+<%inherit file="/assay/base.html"/>
+<%namespace file="fields_new.html" name="fields" import="*"/>
+<%namespace file="components.html" name="comp" import="assay_edit_css,assay_edit_js" />
+
+<%def name="css()">
+	${parent.css()}
+	${comp.assay_edit_css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${comp.assay_edit_js(c.selectedTab)}
+	<script type="text/javascript">
+		$(function() {
+		  $('#edit_assay').submit(function() {
+			$('#edit_assay input, #edit_assay select').each(function(i, e) {
+				if($(e).is(':hidden')) {
+					$(e).remove();
+				}
+			});
+			return true;
+		  })
+		});
+	</script>
+</%def>
+
+<%def name="pagetitle()">Edit Assay: ${c.assay.name}</%def>
+<%def name="selected_page()">editassay</%def>
+
+${c.form.start_with_layout(url(controller='assay', action='save', id=c.assay.id), method="post", attributes=dict(id='edit_assay'))}
+
+	${fields.body()}
+	
+	<tr><td>
+	${c.form.submit("submit","Save Assay")}
+	</td></tr>
+${c.form.end_with_layout()}

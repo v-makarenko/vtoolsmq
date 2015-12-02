@@ -1,0 +1,12 @@
+<%inherit file="/product/batch/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Get Name: ${c.plate.name}</%def>
+
+<p>Please name this plate:</p>
+<p><h2>${c.name}</h2></p>
+<p>Thanks.</p>
+<div class="actions">
+	<a href="${url(controller='product', action='batch_plate_upload', id=c.plate.id)}" class="btn primary">Upload Plate</a>
+	<a href="${url(controller='product', action='batch_plates', id=c.plate.mfg_batch_id)}" class="btn">Back to Batch</a>
+</div>

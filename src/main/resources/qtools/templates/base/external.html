@@ -1,0 +1,109 @@
+## -*- coding: utf-8 -*-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!--
+	&copy; ${h.current_year()} Bio-Rad Laboratories.
+	-->
+	<meta charset="utf-8" />
+	<title>QuantaLife: ${self.title()}</title>
+	<%def name="title()">QuantaLife</%def>
+
+	${self.css()}
+	<%def name="css()">
+		<!-- TODO localize, deprecate -->
+		<link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap-1.1.0.min.css">
+		<link rel="stylesheet" href="${url('/css/external/bootstrap_override.css')}">
+	</%def>
+
+	${self.js()}
+	<%def name="js()">
+		<script src="${url('/js/jquery-1.5.1.min.js')}"></script>
+		<!--[if lt IE 9]>
+		  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<script src="${url('/js/external/bootstrap.js')}"></script>
+	</%def>
+</head>
+<body id="${self.bodyid()}" class="${self.bodyclass()}">
+	<%def name="bodyclass()">quantalife</%def>
+	<%def name="bodyid()">body</%def>
+
+	<div class="topbar">
+		<div class="fill">
+			<div class="container">
+				<h3><a href="${url(controller='external', action='index')}"><img src="${url('/images/external/logo_inverse_blue.png')}" alt="QuantaLife" /></a></h3>
+				<ul>
+					<li><a href="${url(controller='external', action='support')}">Support</a></li>
+					<li><a href="${url(controller='external', action='assay')}">Assays</a></li>
+					<li><a href="#">CNV</a></li>
+					<li><a href="#">GeneExp</a></li>
+					<li id="login-link"><a href="#">Supplies</a></li>
+				</ul>
+				% if hasattr(c, 'logged_in') and c.logged_in:
+				<ul class="nav secondary-nav">
+					<li class="menu">
+						<a href="#" class="menu"><strong>QLCustomer</strong></a>
+						<ul class="menu-dropdown">
+							<li><a href="#">Field Service Request</a></li>
+							<li><a href="#">Unit Records</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Upload Data</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Log Out</a></li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="nav secondary-nav">
+					<li><a href="#">Help</a></li>
+				</ul>
+				% else:
+				<ul class="nav secondary-nav">
+					<li><a href="#"><strong>Customer Login</strong></a></li>
+				</ul>
+				<ul class="nav secondary-nav">
+					<li><a href="#">Help</a></li>
+				</ul>
+				% endif
+			</div>
+		</div>
+	</div>
+	<div id="topbar_pad">&nbsp;</div>
+	<%def name="header()">
+	</%def>
+	${self.header()}
+	<div class="container" id="content">
+	${next.body()}
+	</div>
+	${self.footer()}
+	<%def name="footer()">
+	<footer class="container">&copy; ${h.current_year()} Bio-Rad xxx Laboratories.</footer>
+	</%def>
+	${self.pagescript()}
+	<%def name="pagescript()"></%def>
+
+</body>
+</html>
+
+<%def name="flash()">
+	% if session.has_key('flash'):
+	<div id="flash" class="${session.get('flash_class','flash')}">
+		${session.get('flash')}
+	</div>
+	<%
+		del session['flash']
+		session.save()
+	%>
+	% if session.get('flash_class', 'flash') == 'flash':
+	<script type="text/javascript" charset="utf-8">
+		$('#flash').delay(2000).fadeOut(500)
+	</script>
+	% endif
+	% if session.has_key('flash_class'):
+	<%
+		del session['flash_class']
+		session.save()
+	%>
+	% endif
+	% endif
+</%def>

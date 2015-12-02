@@ -1,0 +1,153 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Edit Fill Times: ${c.batch.lot_num}</%def>
+<%def name="selected_page()">consumable</%def>
+
+<%def name="css()">
+${parent.css()}
+<!-- todo make this tabulate.css? -->
+<style type="text/css">
+	#fill_grid td {
+		border: 1px solid #eee;
+		padding: 0.5em;
+	}
+	#fill_grid th, #fill_grid td.sum_cell {
+		background: #eee;
+		vertical-align: middle;
+		text-align: center;
+		font-weight: bold;
+		padding: 0.5em 0;
+	}
+
+	#fill_grid tbody th {
+		padding: 0em 0.5em;
+		border-top: 1px solid #ddd;
+	}
+
+	#fill_grid input {
+		width: 60px;
+		font-size: 11px;
+	}
+
+	.formbuild td.label {
+		width: 130px;
+	}
+
+	.ghost-disabled {
+		color: #999;
+	}
+
+	th.stats {
+		width: 120px;
+	}
+
+	th.total_cell {
+		font-size: 15px;
+	}
+</style>
+</%def>
+
+<%def name="js()">
+${parent.js()}
+<script type="text/javascript" src="${url('/js/stats.js')}"></script>
+<script type="text/javascript" src="${url('/js/tabulate.js')}"></script>
+</%def>
+
+<%def name="explanation()">
+<p>
+<a href="${url(controller='consumable', action='details', id=c.batch.id)}">&lt;&lt; Back to Batch</a>
+</p>
+</%def>
+
+
+${c.form.start_with_layout(url(controller='consumable', action='update_fill', id=c.batch.id), method="post", attributes=dict(id='fill_form'))}
+<tr><td colspan="2">
+<table id="fill_grid">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>Chan 1</th>
+			<th>Chan 2</th>
+			<th>Chan 3</th>
+			<th>Chan 4</th>
+			<th>Chan 5</th>
+			<th>Chan 6</th>
+			<th>Chan 7</th>
+			<th>Chan 8</th>
+			<th class="stats">Average</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for i in range(5):
+			<tr>
+				<th>Chip ${i+1}<input type="hidden" name="chips-${i}.chip_num" value="${i+1}" /></th>
+				% for j in range(8):
+				<td>
+					<input type="text" name="chips-${i}.channels-${j}.fill_time" class="fill_time ghost-text" title="Fill Time" value="${c.chips[i][j].fill_time if c.chips[i][j] else ''}" autocomplete="off" />
+					<input type="hidden" name="chips-${i}.channels-${j}.channel_num" value="${j+1}" />
+				</td>
+				% endfor
+				<th class="stats">
+					<span class="row_fill_time">&nbsp;</span>
+				</th>
+			</tr>
+		% endfor
+		<tr>
+			<th>Average:</th>
+			% for j in range(8):
+			<td class="sum_cell">
+				<span class="col_fill_time">&nbsp;</span>
+			</th>
+			% endfor
+			<th class="total_cell">
+				<span class="total_fill_time">&nbsp;</span>
+			</th>
+		</tr>
+	</tbody>
+</table>
+</td></tr>
+<tr class="formbutton">
+	<td style="padding-top: 20px;">
+		${c.form.submit('submit', 'Update Fill Times')}
+	</td>
+</tr>
+${c.form.end_with_layout()}
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+	var onTextBlur = function() {
+		var d = $(this).val();
+		if(typeof(d) == undefined || d.length == 0) {
+			$(this).val($(this).attr('title')).addClass('ghost-disabled');
+		}
+		else {
+			$(this).removeClass('ghost-disabled')
+		}
+	}
+	
+	$(function() {
+		var t = new Tabulate($('#fill_grid'), mean, {'colOffset': 1})
+		t.recalcAll(5, 8, ['fill_time'])
+
+		$('.ghost-text').each(function() {
+			onTextBlur.call($(this));
+			$(this).focus(function() {
+				if($(this).val() == $(this).attr('title')) {
+					$(this).val('');
+					$(this).removeClass('ghost-disabled')
+				}
+			})
+			$(this).blur(onTextBlur);
+		});
+
+		$('#fill_form').submit(function() {
+			$('.ghost-text').each(function() {
+				if($(this).val() == $(this).attr('title')) {
+					$(this).val('');
+				}
+			});
+			return true;
+		})
+	})
+	</script>
+</%def>

@@ -1,0 +1,24 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Get Reprocess Commands</%def>
+<%def name="selected_page()">algorithm</%def>
+<%def name="contentclass()">tw_bootstrap grid_13 omega</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+</%def>
+
+<%def name="explanation()">
+    <p>To generate the commands you'll need to run to reprocess plate batches and subsequently analyze them in QTools,
+    select from the analysis groups and algorithms below, then press 'Get Commands'.</p>
+</%def>
+
+<form action="${url(controller='product', action='get_algcommand')}" method="post">
+    ${boot.select('analysis_group_id', c.analysis_groups, label='Analysis Group', required=True, klass='span6')}
+    ${boot.select('reprocess_config_id', c.reprocess_configs, label='Reprocessor', required=True, klass='span6')}
+    <div class="actions">
+        ${boot.submit('Get Commands')}
+    </div>
+</form>

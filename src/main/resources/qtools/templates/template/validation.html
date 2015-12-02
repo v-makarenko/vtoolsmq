@@ -1,0 +1,94 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Download Validation Template</%def>
+<%def name="selected_page()">nameplate</%def>
+<%def name="explanation()">
+    <p style="font-size: 120%; line-height: 120%; margin-bottom: 1.5em;"><strong>Template: </strong>${c.plate_template.prefix}</p>
+    <p>Select a template below to download the right QLT for your plate.  Validation plates, at present, are all
+       configured to operate from left to right, so the QLTs will come pre-loaded in the read-by-row setting.</p>
+    <p>Clicking 'Preview' will show you the template layout in another window or browser tab.</p>
+</%def>
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    <style type="text/css">
+        #quadrant, #half, #vhalf, #cnv, #quadplex, #third {
+            display: none;
+        }
+
+        .actions a, .actions input {
+            visibility: hidden;
+        }
+    </style>
+</%def>
+
+<%def name="contentclass()">omega grid_13 tw_bootstrap</%def>
+
+<form id="template_form" action="${url(controller='template', action='validation_download')}" method="get" style="margin-top: 1.5em;">
+    ${boot.select('template_type', c.template_field, label="Template", id="template", help_block='New projects will be added when you save the plate', klass="span5 autoselect", required=True)}
+    ${boot.select('quadrant', c.quadrant_field, label='Quadrant', klass="span3 subtemp", div_id="quadrant")}
+    ${boot.select('vhalf', c.vhalf_field, label='Half', klass="span2 subtemp", div_id="vhalf")}
+    ${boot.select('half', c.half_field, label='Half', klass="span2 subtemp", div_id="half")}
+    ${boot.select('cnv', c.cnv_field, label='Quadrant', klass="span3 subtemp", div_id="cnv")}
+    ${boot.select('quadplex', c.quadplex_field, label='Plate', klass="span2 subtemp", div_id="quadplex")}
+    ${boot.select('third', c.third_field, label='Third', klass="span2 subtemp", div_id="third")}
+    <div class="actions">
+        <a class="btn" target="_new" id="preview" href="#" rel="${url(controller='template', action='preview')}">Preview</a>
+        ${boot.submit('Download')}
+    </div>
+    <input name="template_name" type="hidden" value="" id="template_name" />
+    <input name="plate_type_code" type="hidden" value="" id="plate_type_code" />
+    <input name="plate_template_id" type="hidden" value="" />
+</form>
+
+<%def name="pagescript()">
+    <script type="text/javascript">
+        var updateTargets = function() {
+            var main_template = $('#template').val();
+            var sub_template = $('#template_form select.subtemp:visible').val();
+            var target = main_template.replace('%s',sub_template);
+
+            var target_keys = target.split(':')
+            $('#preview').attr('href', $('#preview').attr('rel')+'?template='+target_keys[0])
+            $('#template_name').val(target_keys[0])
+            $('#plate_type_code').val(target_keys[2])
+        }
+        $(function() {
+            $('#template').change(function(evt) {
+                $('#quadrant, #half, #vhalf, #cnv, #quadplex').hide();
+                $('.actions a, .actions input').css('visibility','visible');
+                var self = $(this);
+                var keys = self.val().split(':');
+                if(keys[1] == 'q') {
+                    $('#quadrant').show();
+                }
+                else if(keys[1] == 'c') {
+                    $('#cnv').show()
+                }
+                else if(keys[1] == 'vh') {
+                    $('#vhalf').show()
+                }
+                else if(keys[1] == 'h') {
+                    $('#half').show();
+                }
+                else if(keys[1] == 'qp') {
+                    $('#quadplex').show()
+                }
+                else if(keys[1] == 't') {
+                    $('#third').show()
+                }
+
+                if(!self.val()) {
+                    $('.actions a, .actions input').css('visibility','hidden');
+                }
+
+                updateTargets();
+            })
+
+            $('select.subtemp').change(function(evt) {
+                updateTargets();
+            });
+        })
+    </script>
+</%def>

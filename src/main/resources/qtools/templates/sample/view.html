@@ -1,0 +1,39 @@
+<%inherit file="/assay/base.html" />
+<%namespace file="/sample/components.html" name="comp" import="edit_action,delete_action"/>
+<%namespace file="/components/cnv_list.html" name="cnv" import="*"/>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		td.col_field {
+			width: 100px;
+		}
+	</style>
+</%def>
+
+<%def name="pagetitle()">Sample: ${c.sample.name}</%def>
+<table class="record">
+	<tr><td class="col_field">Entered By:</td>
+		<td>
+	% if c.sample.owner:
+		${c.sample.owner.first_name} ${c.sample.owner.last_name} on ${h.ymd(c.sample.time_created)}
+	% else:
+		Unknown on ${h.ymd(c.sample.time_created)}
+	% endif
+		</td>
+	</tr>
+	<tr><td class="col_field">Sex:</td><td>${h.fl.field_get(h.fl.sex_field, c.sample.sex)}</td></tr>
+	<tr><td class="col_field">Ethnicity:</td><td>${h.fl.field_get(h.fl.ethnicity_field, c.sample.ethnicity)}</td></tr>
+	<tr><td class="col_field">Source:</td><td>${c.sample.source}</td>
+	<tr><td class="col_field">Notes:</td><td>${c.sample.notes}</td>
+</table>
+
+${cnv.sample_assay_cnv_list(c.sample.assay_cnvs, title='Confirmed Assay CNVs')}
+
+<div class="action_bar">
+	<h3>Take Action:</h3>
+	${comp.edit_action(c.sample)}
+	${comp.delete_action(c.sample)}
+	${comp.cnv_action(c.sample)}
+	<div class="cf"></div>
+</div>

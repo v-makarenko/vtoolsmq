@@ -1,0 +1,74 @@
+<%inherit file="/setup/steps.html"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+<%def name="stepclass()">name</%def>
+
+<%def name="pagetitle()">Edit ${c.setup.name}: Name</%def>
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+</%def>
+
+${c.name_form.start_with_layout(c.next_url, method='post', attributes=dict(id='namesetup'))}
+% if c.beta:
+	<tr class="field">
+		<td class="label" valign="top" height="10">
+			<span class="required">*</span><label for="project_id">Project:</label>
+		</td>
+		<td class="field" valign="top">${c.setup.project.name if c.setup.project else 'Unknown'}
+			<input type="hidden" name="project_id" value="${c.setup.project_id}" />
+		</td>
+	</tr>
+% else:
+${c.name_form.field('project_id', 'dropdown',
+	label="Project",
+	field_desc="New projects will be added when you save the setup (max 12 chars).",
+	required=True,
+	attributes=dict([('class', 'autoselect_text'),
+		             ('id', 'project_id')])
+)}
+% endif
+${c.name_form.field('droplet_maker_id', 'dropdown',
+	label='Droplet Maker'
+)}
+${c.name_form.field('author_id', 'dropdown',
+	label="Reader Operator",
+	required=True,
+	attributes=dict([('id', 'author_id')])
+)}
+% if c.beta:
+	<tr class="field">
+		<td class="label" valign="top" height="10">
+			<span class="required">*</span><label for="setup_name">Setup Name:</label>
+		</td>
+		<td class="field" valign="top">${c.setup.name}
+			<input type="hidden" name="name" value="${c.setup.name}" />
+		</td>
+	</tr>
+% else:
+${c.name_form.field('name', 'text',
+	label="Setup Name",
+	required=True,
+	field_desc="36 characters maximum",
+	attributes=dict([('id', 'name'),
+		             ('size', 36),
+		             ('maxlength', 36)])
+)}
+% endif
+${c.name_form.end_with_layout()}
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	${auto.detect_autoselect('#namesetup')}
+</%def>
+
+<%def name="setupSaveHandler()">
+	function(evt) {
+		$('#namesetup').submit();
+	}
+</%def>

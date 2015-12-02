@@ -1,0 +1,35 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Product Line List</%def>
+
+<div class="upper_link">
+    <a class="btn primary" href="${url(controller='reagents', action='line_new')}">New Product Line</a>
+</div>
+
+% if c.product_groups:
+% for group_name, lines in c.product_groups:
+<h2>${group_name} Lines</h2>
+<table class="condensed-table zebra-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Part Numbers</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        % for line in lines:
+        <tr>
+            <td><a href="${url(controller='reagents', action='parts', id=line.id)}">${line.name}</a></td>
+            <td>${len(line.part_numbers)}</td>
+            <td><a href="${url(controller='reagents', action='line_edit', id=line.id)}">Edit Line</a></td>
+        % endfor
+    </tbody>
+</table>
+% endfor
+% else:
+<div class="well">
+    There are no register product lines.  <a href="${url(controller='reagents', action='line_new')}">Create a new product line.</a>
+</div>
+% endif

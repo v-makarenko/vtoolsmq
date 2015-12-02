@@ -1,0 +1,24 @@
+<%inherit file="/plate/base.html" />
+
+<%def name="pagetitle()">Upload Template</%def>
+<%def name="selected_page()">upload</%def>
+<%def name="explanation()">
+<p>Upload a QLP or QLT to load it in the template editor.  Alternatively, you can load the
+template editor from any plate by clicking on the 'Load Template' button in the plate view.</p>
+</%def>
+
+${c.form.start_with_layout(url(controller='template', action='do_upload'),
+                               method='post', enctype='multipart/form-data',
+                               attributes=dict(id='upload'))}
+${c.form.field('plate', 'file',
+               label='File',
+               required=True
+)}
+<tr>
+	<td class="formbutton">
+		<input type="hidden" name="plate_template_id" value="${c.plate_template_id or ''}" />
+		<input type="hidden" name="plate_setup_id" value="${c.plate_setup_id or ''}" />
+		${c.form.submit('submit', 'Upload QLP/QLT')}
+	</td>
+</tr>
+${c.form.end_with_layout()}

@@ -1,0 +1,44 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Find Replicate Concentration, CNV, Error Rates</%def>
+<%def name="selected_page()">mipcnv</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		input[type=text], select {
+			width: 200px;
+		}
+	</style>
+</%def>
+<%def name="explanation()">
+<p>
+	If the known FAM and VIC false positive rates for your assay are known, enter them here.  (Note: this mainly applies to MIP experiments.)
+</p>
+</%def>
+
+<p><strong>Plate:</strong> <a href="${url(controller='plate', action='view', id=c.plate.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">${c.plate.name}</a></p>
+${c.form.start_with_layout(url(controller='plate', action='mip_cnv_compute', id=c.plate.id), method='post')}
+
+${c.form.field('reference_channel', 'dropdown',
+	label='CNV Reference Channel'
+)}
+${c.form.field('fam_fpr', 'text',
+    label='FAM False Positive Rate',
+    field_desc='false positives/uL'
+)}
+${c.form.field('vic_fpr', 'text',
+    label='VIC False Positive Rate',
+    field_desc='false positives/uL'
+)}
+${c.form.field('ignore_wells', 'text',
+    label='Ignore Wells?',
+    field_desc='e.g., D04,E05,B12'
+)}
+
+<tr class="formbutton">
+	<td>${c.form.submit('submit', "Compute Stats")}
+		<input type="hidden" name="analysis_group_id" value="${c.analysis_group_id or ''}" />
+		<input type="hidden" name="reprocess_config_id" value="${c.reprocess_config_id or ''}" />
+	</td>
+</tr>
+${c.form.end_with_layout()}

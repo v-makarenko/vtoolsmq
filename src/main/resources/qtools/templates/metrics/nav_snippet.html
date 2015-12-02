@@ -1,0 +1,9 @@
+% if c.configs:
+<p>
+	<strong>Select Algorithm:</strong> <a ${h.literal('style="font-weight: bold;" ') if c.rp_code is None else ''}href="${url(controller=url.environ['pylons.routes_dict']['controller'], action=url.environ['pylons.routes_dict']['action'], id=c.id, mode=c.mode, reprocess_config_id=None, **request.params)}">Original</a>
+	% for conf in c.configs:
+	&nbsp;|&nbsp;
+	<a ${h.literal('style="font-weight: bold;" ') if c.rp_code == conf.code else ''}href="${url(controller=url.environ['pylons.routes_dict']['controller'], action=url.environ['pylons.routes_dict']['action'], id=c.id, mode=c.mode, reprocess_config_id=conf.code, **request.params)}">${conf.name}</a>
+	% endfor
+</p>
+% endif

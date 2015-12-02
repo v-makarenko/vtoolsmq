@@ -1,0 +1,282 @@
+table.plate_grid td.col_name,
+table.plate_grid th.col_name {
+	width: 25px;
+	font-weight: bold;
+	background: #d8d8d8;
+}
+
+table.plate_grid th {
+	background: #d8d8d8;
+}
+
+table.plate_grid td.col_name {
+	vertical-align: middle;
+	background: #d8d8d8;
+	padding-left: 5px;
+}
+
+#plate_table td div.cell_container {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+#plate_table td.noop_cell {
+	background: #eee;
+}
+
+table.plate_grid td,
+table.plate_grid th {
+	width: 62px;
+	border-collapse: collapse;
+	border: 1px solid #999;
+	vertical-align: top;
+}
+
+table.plate_grid img.chan0 {
+	background: #eef;
+	display: block;
+}
+
+table.plate_grid img.chan1 {
+	background: #fee;
+	display: block;
+}
+
+table.plate_grid img.chan01 {
+	background: #efe;
+	display: block;
+}
+
+table.plate_grid span.cluster_manual img.chan01 {
+	background: #fed;
+}
+
+#plate_table.thumbnail_off img.chan0,
+#plate_table.thumbnail_off img.chan1,
+#plate_table.thumbnail_off img.chan01
+{
+	display: none;
+}
+
+#plate_table.thumbnail_2d img.chan0,
+#plate_table.thumbnail_2d img.chan1
+{
+	display: none;
+}
+
+#plate_table.thumbnail_1d img.chan01
+{
+	display: none;
+}
+
+#plate_table.fam_off .stat0,
+#plate_table.vic_off .stat1
+{
+	display: none;
+}
+
+a.selected_cell {
+	border: 2px solid #00f;
+	position: absolute;
+	z-index: 3;
+	outline: none;
+	text-decoration: none;
+	padding: 0;
+	font-size: 10px;
+	background: url(../../images/1x1.gif);
+}
+
+.cell_label_span {
+	font-size: 10px;
+	color: white;
+	background: #00f;
+	padding: 0.25em;
+	margin: 0;
+	line-height: normal;
+}
+
+span.tag_target {
+	background: url(../../images/note_new.gif);
+	display: block;
+	width: 16px;
+	height: 16px;
+	cursor: default;
+	position: absolute;
+	top: 2px;
+	right: 2px;
+}
+
+span.tag_indicator {
+	background: url(../../images/note.gif);
+	display: block;
+	width: 16px;
+	height: 16px;
+	position: absolute;
+	top: 2px;
+	right: 2px;
+}
+
+table.stats_visible span.tag_indicator,
+table.stats_visible span.tag_target {
+	top: 18px;
+}
+
+#stats_box {
+	position: fixed;
+	z-index: 999;
+	top: 150px;
+	left: 15px;
+	padding: 5px 10px 10px 10px;
+	width: 240px;
+	border: 3px double black;
+	background: #eef8ff;
+	display: none;
+}
+
+#tag_box {
+	display: none;
+	z-index: 4;
+	position: absolute;
+	padding: 5px 10px 10px 10px;
+	width: 160px;
+	border: 2px solid #fdb;
+	background: #fff8dd;
+}
+
+#stats_box h5,
+#tag_box h5 {
+	margin-bottom: 0.5em;
+}
+
+.tag_tagger {
+	margin: 0.25em 0;
+}
+
+.tag_tagger label {
+	font-weight: bold
+}
+
+.tag_tagger select {
+	width: 140px;
+}
+
+#stats_box table {
+	margin-bottom: 0;
+}
+
+#well_stats {
+	width: 240px;
+}
+
+#well_stats td strong {
+	padding-right: 0.5em;
+}
+
+#channel_stats {
+	margin-top: 1em;
+	width: 240px;
+	border: 1px solid #bbb;
+	font-size: 11px;
+}
+
+#channel_stats td {
+	width: 80px;
+}
+
+span.data_warning {
+	font-weight: bold;
+	color: red;
+}
+
+.channel_stat, .well_stat {
+	display: none;
+	font-size: 11px;
+	text-align: center;
+}
+
+.well_stat {
+	background: #e8e8e8;
+	width: 100%;
+}
+
+.show_channels .channel_stat,
+.show_wells .well_stat {
+	display: block;
+}
+
+.stat0 {
+	background: #e8e8f8;
+	width: 100%;
+}
+
+.stat1 {
+	background: #f8e8e8;
+	width: 100%;
+}
+
+#plate_links a {
+	margin-right: 1em;
+}
+
+.tab-content {
+	margin-bottom: 20px;
+	height: auto !important;
+	min-height: 100px;
+	height: 100px;
+}
+
+.tab-content > div.active {
+	border-width: 0px 1px 1px 1px;
+	border-style: solid;
+	border-color: #ddd;
+	padding: 10px 0px;
+	height: auto !important;
+	min-height: 80px;
+	height: 80px;
+}
+
+.tab-content h6 {
+	margin-bottom: 5px;
+}
+
+.tab-content .btn {
+	margin-right: 10px;
+}
+
+#content .tabs {
+	margin-bottom: 0;
+}
+
+#content .tabs li>a {
+	padding: 0 10px;
+}
+
+.tabs li>a.btn {
+	margin-right: 0px;
+}
+
+#display_selector {
+	width: 260px;
+}
+
+#actions form {
+	display: inline;
+}
+
+#plate_caption {
+	background: #eee;
+	padding: 5px;
+	line-height: 31px;
+	border-style: solid;
+	border-color: #ccc;
+	border-width: 1px 1px 0px 1px;
+}
+
+#download_stat_form {
+	display: none;
+}
+
+#well_aggregate_stat, #fam_aggregate_stat, #vic_aggregate_stat {
+	display: none;
+}

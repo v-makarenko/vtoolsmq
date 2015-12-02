@@ -1,0 +1,166 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Edit Batch Sizes: ${c.batch.lot_num}</%def>
+<%def name="selected_page()">consumable</%def>
+
+<%def name="css()">
+${parent.css()}
+<style type="text/css">
+	#size_grid td {
+		border: 1px solid #eee;
+		padding: 0.5em;
+	}
+	#size_grid th, #size_grid td.sum_cell {
+		background: #eee;
+		vertical-align: middle;
+		text-align: center;
+		font-weight: bold;
+		padding: 0.5em 0;
+	}
+
+	#size_grid tbody th {
+		padding: 0em 0.5em;
+		border-top: 1px solid #ddd;
+	}
+
+	#size_grid input {
+		width: 60px;
+		font-size: 11px;
+	}
+
+	.formbuild td.label {
+		width: 130px;
+	}
+
+	.ghost-disabled {
+		color: #999;
+	}
+
+	th.stats {
+		width: 120px;
+	}
+
+	th.total_cell {
+		font-size: 15px;
+	}
+</style>
+</%def>
+
+<%def name="js()">
+${parent.js()}
+<script type="text/javascript" src="${url('/js/stats.js')}"></script>
+<script type="text/javascript" src="${url('/js/tabulate.js')}"></script>
+</%def>
+
+<%def name="explanation()">
+<p>
+<a href="${url(controller='consumable', action='details', id=c.batch.id)}">&lt;&lt; Back to Batch</a>&nbsp;|&nbsp;<a href="${url(controller='consumable', action='batch_size', id=c.batch.id)}">Batch Upload Size Data</a>
+% if c.test_exists:
+&nbsp;|&nbsp;<a href="${url(controller='consumable', action='size_csv', id=c.batch.id)}">Download CSV</a>
+% endif
+</p>
+</%def>
+
+
+${c.form.start_with_layout(url(controller='consumable', action='update_size', id=c.batch.id), method="post", attributes=dict(id='size_form'))}
+<tr><td colspan="2">
+<table id="size_grid">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>Chan 1</th>
+			<th>Chan 2</th>
+			<th>Chan 3</th>
+			<th>Chan 4</th>
+			<th>Chan 5</th>
+			<th>Chan 6</th>
+			<th>Chan 7</th>
+			<th>Chan 8</th>
+			<th class="stats">Average</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for i in range(5):
+			<tr>
+				<th>Chip ${i+1}<input type="hidden" name="chips-${i}.chip_num" value="${i+1}" /></th>
+				% for j in range(8):
+				<td>
+					<input type="text" name="chips-${i}.channels-${j}.mean" class="mean ghost-text" title="Mean Size" value="${c.chips[i][j].size_mean if c.chips[i][j] else ''}" autocomplete="off" /><br/>
+					<input type="text" name="chips-${i}.channels-${j}.stdev" class="stdev ghost-text" title="Size Stdev" value="${c.chips[i][j].size_stdev if c.chips[i][j] else ''}" autocomplete="off" /><br/>
+					<input type="text" name="chips-${i}.channels-${j}.droplet_count" class="droplet_count ghost-text" title="#Droplets" value="${c.chips[i][j].droplet_count if c.chips[i][j] else ''}" autocomplete="off" />
+					<input type="hidden" name="chips-${i}.channels-${j}.channel_num" value="${j+1}" />
+				</td>
+				% endfor
+				<th class="stats">
+					<span rel="mean" class="row_aggregate_mean">&nbsp;</span><br/>
+					<span rel="stdev" class="row_aggregate_mean">&nbsp;</span><b>%</b><br/>
+					<span rel="mean" class="row_aggregate_droplet_count">&nbsp;</span><br/>
+				</th>
+			</tr>
+		% endfor
+		<tr>
+			<th>Average:</th>
+			% for j in range(8):
+			<td class="sum_cell">
+				<span rel="mean" class="col_aggregate_mean">&nbsp;</span><br/>
+				<span rel="stdev" class="col_aggregate_mean">&nbsp;</span><b>%</b><br/>
+				<span rel="mean" class="col_aggregate_droplet_count">&nbsp;</span>
+			</th>
+			% endfor
+			<th class="total_cell">
+				<span rel="mean" class="total_aggregate_mean">&nbsp;</span><br/>
+				<span rel="stdev" class="total_aggregate_mean">&nbsp;</span><b>%</b><br/>
+				<span rel="mean" class="total_aggregate_droplet_count">&nbsp;</span>
+			</th>
+		</tr>
+	</tbody>
+</table>
+</td></tr>
+${c.form.field('pixel_calibration', 'text',
+	label='Pixel Calibration'
+)}
+<tr class="formbutton">
+	<td style="padding-top: 20px;">
+		${c.form.submit('submit', 'Update Sizes')}
+	</td>
+</tr>
+${c.form.end_with_layout()}
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+	var onTextBlur = function() {
+		var d = $(this).val();
+		if(typeof(d) == undefined || d.length == 0) {
+			$(this).val($(this).attr('title')).addClass('ghost-disabled');
+		}
+		else {
+			$(this).removeClass('ghost-disabled')
+		}
+	}
+	
+	$(function() {
+		var t = new Tabulate($('#size_grid'), {'colOffset': 1})
+		t.recalcAll(5, 8, ['mean', 'stdev', 'droplet_count'])
+
+		$('.ghost-text').each(function() {
+			onTextBlur.call($(this));
+			$(this).focus(function() {
+				if($(this).val() == $(this).attr('title')) {
+					$(this).val('');
+					$(this).removeClass('ghost-disabled')
+				}
+			})
+			$(this).blur(onTextBlur);
+		});
+
+		$('#size_form').submit(function() {
+			$('.ghost-text').each(function() {
+				if($(this).val() == $(this).attr('title')) {
+					$(this).val('');
+				}
+			});
+			return true;
+		})
+	})
+	</script>
+</%def>

@@ -1,0 +1,17 @@
+<%inherit file="/plate/base.html" />
+
+<%def name="pagetitle()">QX100 Beta Sites</%def>
+<%def name="explanation()">
+    <p>Here is a list of beta sites for the original QX100.  Clicking on a link will take you to the list of plates recorded from that site.  The instruments are likely of QX100 alpha or beta quality.</p>
+</%def>
+
+<h3>Labs</h3>
+<ul>
+    <li><a href="${url(controller='plate', action='beta', id='belgrader')}">Phil Belgrader (UMMC)</a></li>
+    <li><a href="${url(controller='plate', action='beta', id='bielas')}">Jason Bielas (Fred Hutch)</a></li>
+    <li><a href="${url(controller='plate', action='beta', id='harvard')}">Steve McCarroll (Harvard)</a></li>
+    <li><a href="${url(controller='plate', action='beta', id='nmi')}">Kerry Emslie (NMI, Australia)</a></li>
+    <li><a href="${url(controller='plate', action='beta', id='roche')}">Roche</a></li>
+    <li><a href="${url(controller='plate', action='beta', id='snyder')}">Mike Snyder (Stanford)</a></li>
+    <li><a href="${url(controller='plate', action='beta', id='tewari')}">Muneesh Tewari (Fred Hutch)</a></li>
+</ul>

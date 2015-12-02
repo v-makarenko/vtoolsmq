@@ -1,0 +1,240 @@
+<%inherit file="/sequence/view_base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/sequence/partials.html" name="part" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	<link rel="stylesheet" href="${url('/css/tw/bootstrap.multirow.css')}" />
+	<style type="text/css">
+		.tw_bootstrap table.multi-row tr.row-parent td.col_subhead {
+			width: 160px;
+		}
+
+		.tw_bootstrap table.multi-row td.col_oligo_label {
+			width: 240px;
+		}
+
+		.tw_bootstrap th.melt_temp,
+		.tw_bootstrap td.melt_temp,
+		.tw_bootstrap th.sequence_length,
+		.tw_bootstrap td.sequence_length {
+			width: 140px;
+		}
+
+		.tw_bootstrap th.delta_g,
+		.tw_bootstrap td.delta_g {
+			width: 120px;
+		}
+
+		.tw_bootstrap th.gc_content,
+		.tw_bootstrap td.gc_content {
+			width: 120px;
+		}
+
+		.tw_bootstrap th.amplicon,
+		.tw_bootstrap td.amplicon {
+			width: 410px;
+		}
+	</style>
+</%def>
+
+<h2>Primers/Probe</h2>
+<table class="multi-row condensed-table">
+	<thead>
+		<tr>
+			<th colspan="2">Components</th>
+			<th class="melt_temp">Melt Temp. (&deg;C)</th>
+			<th class="delta_g">Folding &Delta;G</th>
+			<th class="gc_content">GC Content%</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="row-parent">
+			<td class="col_subhead" rowspan="${len(c.sequence_group.forward_primers)}"><strong>Forward Primers</strong></td>
+			% for idx, fp in enumerate(c.sequence_group.forward_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td class="col_oligo_label">${fp.barcode_label}</td>
+			% if fp.sequence:
+			${h.sequence.primer_tm_vdisp(fp.tm, 'td', class_="melt_temp")}
+			${h.sequence.oligo_dg_vdisp(fp.dg, 'td', class_="delta_g")}
+			${h.sequence.gc_content_vdisp(fp.sequence.percent_gc, 'td', class_="gc_content")}
+			% else:
+			<td colspan="3">Exact sequence unknown.</td>
+			% endif
+		</tr>
+			% endfor
+
+		<tr class="row-parent">
+			<td class="col_subhead" rowspan="${len(c.sequence_group.reverse_primers)}"><strong>Reverse Primers</strong></td>
+			% for idx, rp in enumerate(c.sequence_group.reverse_primers):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td class="col_oligo_label">${rp.barcode_label}</td>
+			% if rp.sequence:
+			${h.sequence.primer_tm_vdisp(rp.tm, 'td', class_="melt_temp")}
+			${h.sequence.oligo_dg_vdisp(rp.dg, 'td', class_="delta_g")}
+			${h.sequence.gc_content_vdisp(rp.sequence.percent_gc, 'td', class_="gc_content")}
+			% else:
+			<td colspan="3">Exact sequence unknown.</td>
+			% endif
+		</tr>
+			% endfor
+		
+		% if c.sequence_group.probes:
+		<tr class="row-parent">
+			<td class="col_subhead" rowspan="${len(c.sequence_group.probes)}"><strong>Probes</strong></td>
+			% for idx, p in enumerate(c.sequence_group.probes):
+				% if idx > 0:
+		<tr>
+				% endif
+			<td class="col_oligo_label">${p.barcode_label} (${p.quencher})</td>
+			% if p.sequence:
+			${h.sequence.probe_tm_vdisp(p.tm, 'td', class_="melt_temp", snp=c.snp_mode)}
+			${h.sequence.oligo_dg_vdisp(p.dg, 'td', class_="delta_g")}
+			${h.sequence.gc_content_vdisp(p.sequence.percent_gc, 'td', class_="gc_content")}
+			% else:
+			<td colspan="3">Exact sequence unknown.</td>
+			% endif
+		</tr>
+			% endfor
+		% endif
+	</tbody>
+</table>
+<h4>Oligo Interaction</h4>
+<table class="condensed-table multi-row">
+	<thead>
+		<tr>
+			<th colspan="2">Oligo Combination</th>
+			<th class="melt_temp">&Delta; Melt Temp.</th>
+			<th class="delta_g">Max Overlap</th>
+			<th class="gc_content">&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="row-parent">
+			<td class="col_subhead" rowspan="${len(c.sequence_group.forward_primers)*len(c.sequence_group.reverse_primers)}"><strong>Primer-Primer</strong></td>
+			% for fidx, fp in enumerate(c.sequence_group.forward_primers):
+				% for ridx, rp in enumerate(c.sequence_group.reverse_primers):
+					% if fidx+ridx > 0:
+		<tr>
+					% endif
+			<td class="col_oligo_label">FP${fidx+1}-RP${ridx+1}</td>
+			% if fp.sequence and rp.sequence:
+				${h.sequence.intra_primer_delta_tm_vdisp(fp.tm, rp.tm, 'td')}
+				${h.sequence.max_overlap_vdisp(c.sequence_group.maximal_overlap_seq(fp, rp), 'td')}
+				<td>&nbsp;</td>
+			% else:
+				<td colspan="3">Exact sequences unknown.</td>
+			% endif
+		</tr>
+				% endfor
+			% endfor
+		% if c.sequence_group.probes:
+		<tr class="row-parent">
+			<td class="col_subhead" rowspan="${(len(c.sequence_group.forward_primers)+len(c.sequence_group.reverse_primers))*len(c.sequence_group.probes)}"><strong>Primer-Probe</strong></td>
+			<% pridx = 0 %>
+			% for fidx, fp in enumerate(c.sequence_group.forward_primers):
+				% for pidx, p in enumerate(c.sequence_group.probes):
+					% if pridx > 0:
+		<tr>
+					% endif
+					<% pridx = pridx + 1 %>
+			<td class="col_oligo_label">FP${fidx+1}-P${pidx+1}</td>
+			% if fp.sequence and p.sequence:
+				${h.sequence.primer_probe_delta_tm_vdisp(fp.tm, p.tm, 'td')}
+				${h.sequence.max_overlap_vdisp(c.sequence_group.maximal_overlap_seq(fp, p), 'td')}
+				<td>&nbsp;</td>
+			% else:
+				<td colspan="3">Exact sequences unknown.</td>
+			% endif
+		</tr>
+				% endfor
+			% endfor
+			% for ridx, rp in enumerate(c.sequence_group.reverse_primers):
+				% for pidx, p in enumerate(c.sequence_group.probes):
+					% if pridx > 0:
+		<tr>
+					% endif
+					<% pridx = pridx + 1 %>
+			<td class="col_oligo_label">RP${ridx+1}-P${pidx+1}</td>
+			% if rp.sequence and p.sequence:
+				${h.sequence.primer_probe_delta_tm_vdisp(rp.tm, p.tm, 'td')}
+				${h.sequence.max_overlap_vdisp(c.sequence_group.maximal_overlap_seq(rp, p), 'td')}
+				<td>&nbsp;</td>
+			% else:
+				<td colspan="3">Exact sequences unknown.</td>
+			% endif
+		</tr>
+				% endfor
+			% endfor
+		% endif
+	</tbody>
+</table>
+
+
+
+% if c.sequence_group.analyzed:
+	% if not (c.sequences or c.transcripts):
+		<div class="well">
+			<div style="text-align: center">
+				% if c.display_mode == 'transcript':
+					No transcripts found.
+				% else:
+					No amplicons found.
+				% endif
+			</div>
+		</div>
+	% elif c.sequences:
+<h2>Amplicons</h2>
+<strong>Matched regions:</strong>&nbsp;${len(c.sequences)}<br/>&nbsp;
+<table class="condensed-table">
+	<thead>
+		<tr>
+			<th class="amplicon">Amplicon</th>
+			<th class="sequence_length">Length</th>
+			<th class="delta_g">Folding &Delta;G</th>
+			<th class="gc_content">GC Content%</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for seq in c.sequences:
+		<tr>
+			<td class="amplicon">chr${seq.chromosome}:${seq.start_pos}-${seq.end_pos}</td>
+			${h.sequence.amplicon_length_vdisp(len(seq.positive_amplicon), 'td','span', class_="sequence_length")}
+			${h.sequence.amplicon_dg_vdisp(seq.folding_dg, 'td', class_="delta_g")}
+			${h.sequence.gc_content_vdisp(seq.percent_gc, 'td', class_="gc_content")}
+		</tr>
+		% endfor
+	</tbody>
+</table>
+	% elif c.transcripts:
+<h2>Transcripts</h2>
+<strong>Distinct Genomic Regions:</strong>&nbsp; ${len(c.transcripts)}<br/>&nbsp;
+<table class="condensed-table">
+	<thead>
+		<tr>
+			<th class="amplicon">Transcript</th>
+			<th class="sequence_length">Length</th>
+			<th class="delta_g">&Delta;G</th>
+			<th class="gc_content">GC Content%</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for genomic_region, transcripts in c.transcripts:
+		<tr>
+			<td class="amplicon">${transcripts[0].exon_regions}</td>
+			${h.sequence.amplicon_length_vdisp(len(transcripts[0].positive_sequence), 'td', class_="sequence_length")}
+			${h.sequence.amplicon_dg_vdisp(transcripts[0].folding_dg, 'td', class_="delta_g")}
+			${h.sequence.gc_content_vdisp(transcripts[0].percent_gc, 'td', class_="gc_content")}
+		</tr>
+		% endfor
+	</tbody>
+</table>
+	% endif
+% endif
+
+
+			

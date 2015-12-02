@@ -1,0 +1,28 @@
+<%def name="traffic_light(obj=None, status=None)">
+	<%
+	   img_names = {0: 'redlight', 1: 'yellowlight', 2: 'greenlight'}
+	   img_title = getattr(obj, 'status_comment', '') if obj else ''
+	   status = obj.status if obj is not None else status
+	%>
+
+	% if status in img_names:
+	<img src="${url('/images/icons/%s.png' % img_names[status])}" alt="${img_title}" title="${img_title}" />
+	% endif
+</%def>
+
+<%def name="reader_grid(readers, img)">
+<table>
+	% for val, row in readers:
+		<tr>
+			% for col, box2 in row:
+			<td class="dr_cell">
+				<div class="cell_container">
+				<div class="status">${traffic_light(box2)}</div>
+				<a href="${url(controller='admin', action='reader_summary', id=box2.code, admin=(c.admin != 'False'))}"><img src="${url('/images/%s' % img)}" width="106" height="71" alt="${box2.display_name}" /></a><br/>${box2.display_name}
+				</div>
+			</td>
+			% endfor
+		</tr>
+	% endfor
+</table>
+</%def>

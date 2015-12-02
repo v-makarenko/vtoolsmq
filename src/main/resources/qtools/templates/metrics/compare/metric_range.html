@@ -1,0 +1,119 @@
+<%namespace file="/metrics/helpers.html" name="mh" import="*" />
+<%page args="inline_compare=False" />
+
+<style type="text/css">
+	#minmax_number, #min_range, #max_range, #channel_select {
+		width: 60px;
+	}
+</style>
+<table class="gridfield">
+<tr>
+<td class="field_col">
+	<table>
+		<tr class="field">
+			<td class="label">
+				<span class="required">*</span>
+				<label for="metric_select">Metric:</label>
+			</td>
+			<td class="field">
+				${mh.metric_select(value=c.form_metric_attr)}
+			</td>
+		</tr>
+	</table>
+</td>
+<td class="field_col">
+	<table>
+		${c.metric_form.field('channel_num', 'dropdown',
+			label="Channel (if applicable)",
+			required=False,
+			attributes=dict(id='channel_select')
+		)}
+	</table>
+</td>
+</tr>
+</table>
+<table class="gridfield">
+	<tr>
+		<td class="field_col">
+			<table>
+				${c.metric_form.field('cmp_method', 'dropdown',
+					label="Method",
+					required=True)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.metric_form.field('minmax_number','text',
+					label='Records',
+					required=True,
+					attributes=dict(id='minmax_number')
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.metric_form.field('min_range', 'text',
+					label="Min Diff",
+					required=False,
+					attributes=dict(id='min_range')
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.metric_form.field('max_range', 'text',
+					label="Max Diff",
+					required=False,
+					attributes=dict(id='max_range')
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<table>
+				${c.metric_form.field('exclude_nodiff', 'checkbox_group',
+					label="Hide Zeros",
+					required=False,
+					attributes=dict(id='hide_zeros')
+				)}
+			</table>
+		</td>
+	</tr>
+</table>
+<table class="gridfield">
+	<tr>
+	<td class="field_col">
+		<table>
+			${c.metric_form.field('dr_id', 'dropdown',
+				label="Reader",
+				attributes=dict(id="dr_id")
+			)}
+		</table>
+	</td>
+	<td class="field_col">
+		<table>
+			${c.metric_form.field('pt_id', 'dropdown',
+				label="Plate Type",
+				attributes=dict(id="pt_id")
+			)}
+			<input type="hidden" name="wells" value="${request.params.get('wells','')}" />
+			<input type="hidden" name="sample" value="${request.params.get('sample','')}" />
+			% if getattr(c, 'conc', None):
+			<input type="hidden" name="conc" value="${c.conc}" />
+			% endif
+			% if getattr(c, 'num', None):
+			<input type="hidden" name="num" value="${c.num}" />
+			% endif
+			% if getattr(c, 'cpd', None):
+			<input type="hidden" name="cpd" value="${c.cpd}" />
+			% endif
+		</table>
+	</td>
+	% if inline_compare:
+		<td class="field_col">
+			<table>
+				${c.metric_form.submit('','Compare')}
+			</table>
+		</td>
+		% endif
+	</tr>
+</table>

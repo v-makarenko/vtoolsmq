@@ -1,0 +1,80 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+<%namespace file="/components/multirow_form.html" name="multirow" import="*" />
+
+<%def name="pagetitle()">${c.part.name}: Create Lots</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${auto.css()}
+    ${boot.css()}
+    ${multirow.css()}
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    ${auto.js()}
+    ${multirow.js()}
+</%def>
+
+<%def name="explanation()">
+    <p>Use this page to create more than one lot number at a time.</p>
+</%def>
+
+<form action="${url(controller='reagents', action='lot_create_many', id=c.part.id)}" method="POST" id="lot_form">
+    <table id="lot_table">
+        <thead>
+        <tr>
+            <th>Lot Number</th>
+            <th>Manufacturing Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr id="sample_row" class="sample_row">
+            <td>${boot.text('lots-X.number', klass="number span4", inline=True, autocomplete='off')}</td>
+            <td>${boot.text('lots-X.date_manufactured', klass="date_manufactured span4", inline=True, autocomplete='off')}</td>
+            <td class="col_actions">
+                    ${multirow.addRowButton()}
+                    ${multirow.deleteRowButton()}
+            </td>
+        </tr>
+        % for i in range(c.lots_length):
+            <tr id="row${i}">
+                <td>${boot.text('lots-%s.number' % i, klass="number span4", inline=True, autocomplete='off')}</td>
+                <td>${boot.text('lots-%s.date_manufactured' % i, klass="date_manufactured span4", inline=True, autocomplete='off')}</td>
+                <td class="col_actions">
+                    ${multirow.addRowButton()}
+                    ${multirow.deleteRowButton()}
+                </td>
+            </tr>
+        % endfor
+        </tbody>
+    </table>
+    <div class="actions">
+        ${boot.submit('Create Lots')}
+        <a href="${url(controller='reagents', action='lots', id=c.part.id)}" class="btn">Lot List</a>
+    </div>
+</form>
+
+<%def name="pagescript()">
+<script type="text/javascript">
+    var VALUE_COLS = ['number', 'date_manufactured'];
+
+    $(function() {
+        $('tr[class!=sample_row] .date_manufactured').datepicker({dateFormat:'mm/dd/yy'});
+        var form = $('#lot_table').multiRowForm(VALUE_COLS);
+        $('#lot_table').bind('multiRowAdded', function(el, row) {
+            $(row).find('.date_manufactured').datepicker({dateFormat: 'mm/dd/yy'});
+        });
+
+        % if c.lots_length == 0:
+            form.insertRow('#sample_row');
+        % endif
+
+        $('#lot_form').submit(function() {
+            form.prepareForSubmit()
+        })
+    })
+</script>
+</%def>

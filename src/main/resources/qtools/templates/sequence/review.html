@@ -1,0 +1,52 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/sequence/partials.html" name="part" import="*" />
+<%def name="pagetitle()">Review Assay</%def>
+
+<%include file="/sequence/breadcrumbs.html" />
+
+<%def name="css()">
+	${parent.css()}
+	<link rel="stylesheet" href="${url('/css/tw/bootstrap.multirow.css')}" />
+	<style type="text/css">
+		.tw_bootstrap div.split_table td:first-child {
+			width: 100px;
+		}
+
+		.tw_bootstrap table td.oligo_label {
+			text-align: right;
+		}
+		
+		.tw_bootstrap form.review_only {
+			margin: 0px;
+		}
+	</style>
+</%def>
+
+<h2>Basics</h2>
+${part.assay_basics(c.assay, show_location=c.show_location_table, show_snp=c.show_snp_table)}
+
+<h2>Oligos</h2>
+% if c.show_primer_table:
+${part.primer_assay(c.assay)}
+% elif c.show_location_table:
+${part.location_assay(c.assay)}
+% elif c.show_snp_table:
+${part.snp_assay(c.assay)}
+% endif
+
+<h2>Notes</h2>
+${part.assay_notes(c.assay)}
+</h2>
+
+<div class="actions">
+	<form action="${url(controller='sequence', action='save_assay', flow=c.flow)}" method="post" class="review_only">
+		${boot.submit('Save Assay')}
+		% if c.flow == "sequence.new":
+			${boot.secondary_action('Reset',klass='danger',name="do_action")}
+		% else:
+			${boot.secondary_action('Revert', klass='danger', name="do_action")}
+		% endif
+		<input type="hidden" name="flow" value="${c.flow}" />
+	</form>
+</div>

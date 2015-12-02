@@ -1,0 +1,65 @@
+## -*- coding: utf-8 -*-
+<%namespace file="/base/includes.html" name="inc" import="*" />
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!--
+	&copy; ${h.current_year()} Bio-Rad Laboratories.
+	-->
+	<meta charset="utf-8" />
+	<title>${self.title()}</title>
+	<%def name="title()">QTools</%def>
+	
+	${self.css()}
+	<%def name="css()">
+		${inc.default_css()}
+	</%def>
+	
+	${self.js()}
+	<%def name="js()">
+		${inc.default_js()}
+	</%def>
+</head>
+<body id="${self.bodyid()}" class="${self.bodyclass()}">
+	<%def name="bodyclass()">qtools</%def>
+	<%def name="bodyid()">body</%def>
+	${inc.default_header()}
+	<div id="main" class="container_16">
+		<div id="subnav" class="grid_3 alpha">
+			<h2>${next.subnav_title()}</h2>
+			<nav class="${self.selected_page()}">
+				<%def name="selected_page()"></%def>
+				${next.subnav()}
+			</nav>
+			<h2>Related Links</h2>
+			<nav>
+				${self.relatednav()}
+				<%def name="relatednav()">No Links.</%def>
+			</nav>
+		</div>
+		<%def name="contentclass()">grid_13 omega</%def>
+		<div id="content" class="${self.contentclass()}">
+			${inc.flash()}
+			<nav id="content_nav">${self.content_nav()}</nav>
+			<%def name="pagetitle()">Override pagetitle()!</%def>
+			<%def name="explanation()"></%def>
+			<%def name="header()">
+			<h1>${self.pagetitle()}</h1>
+			${self.explanation()}
+			</%def>
+			${next.header()}
+			${next.body()}
+		</div>
+		<div class="cf"></div>
+	</div>
+	<footer class="container_16">
+        Qtools version: ${h.config['version']}.
+        &copy; ${h.current_year()} Bio-Rad Laboratories.  For help, comments or feedback, send email to <a href="mailto:qtools_support@digitalbiology.mygbiz.com">qtools_support@digitalbiology.mygbiz.com</a>
+	</footer>
+	${self.pagescript()}
+	<%def name="pagescript()"></%def>
+	<%def name="content_nav()"></%def>
+</body>
+
+</html>

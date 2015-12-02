@@ -1,0 +1,34 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Consumable Batches</%def>
+<%def name="selected_page()">consumable</%def>
+
+<p>
+	<a href="${url(controller='consumable', action='new')}">Create New Batch</a>
+</p>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Manufacturer</th>
+			<th>Insert</th>
+			<th>Lot Number</th>
+			<th>Manufacture Date</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, batch in enumerate(c.batches):
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td>${batch.manufacturer}</td>
+			<td>${batch.insert}</td>
+			<td>${batch.lot_num}</td>
+			<td>${h.ymd(batch.manufacturing_date)}</td>
+			<td>
+				<a href="${url(controller='consumable', action='details', id=batch.id)}">Edit/More</a>&nbsp;
+				<a href="${url(controller='consumable', action='size', id=batch.id)}">Sizes</a> <a href="${url(controller='consumable', action='batch_size', id=batch.id)}">(Upload)</a>&nbsp;
+				<a href="${url(controller='consumable', action='fill', id=batch.id)}">Fill Time</a>
+			</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>

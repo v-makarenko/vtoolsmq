@@ -1,0 +1,40 @@
+<%inherit file="/base/index.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    <style type="text/css" media="screen">
+        #subnav nav.well_metrics, li#subnav_well_metrics,
+        #subnav nav.channel_metrics, li#subnav_channel_metrics {
+            color: green;
+            list-style: disc outside;
+        }
+        
+        #subnav nav.well_metrics li#subnav_well_metrics a,
+        #subnav nav.channel_metrics li#subnav_channel_metrics a {
+            font-weight: bold;
+        }
+
+        .actions .btn {
+            margin-right: 10px;
+        }
+    </style>
+</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+<%def name="bodyclass()">help</%def>
+<%def name="subnav_title()">Help Links</%def>
+<%def name="subnav()">
+    <ul>
+        <li id="subnav_well_metrics"><a href="${url(controller='help', action='well_metrics')}">Well Metrics</a></li>
+        <li id="subnav_channel_metrics"><a href="${url(controller='help', action='well_channel_metrics')}">Well Channel Metrics</a></li>
+    </ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.footer()}
+</div>
+
+<%def name="footer()"></%def>

@@ -1,0 +1,14 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Search for Plates</%def>
+<%def name="selected_page()">platesearch</%def>
+<%def name="explanation()">
+<p>
+Pick the type of search you would like to run:
+</p>
+</%def>
+
+<ul>
+    <li><a href="${url(controller='plate', action='search', id='plate_name')}">Plate Name Search</a></li>
+    <li><a href="${url(controller='plate', action='search', id='dr_time')}">List by DR &amp; Date</a></li>
+</ul>

@@ -1,0 +1,42 @@
+<%inherit file="/base/index.html"/>
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#subnav nav.addnewuser li#subnav_addnewuser {
+			color: green;
+			list-style: disc outside;
+		}
+		
+		#subnav nav ul li#subnav_addnewuser a.sublist_link {
+			font-weight: normal;
+		}
+		
+		#subnav nav li ul {
+			margin-bottom: 0px;
+		}
+		
+		#subnav nav li ul li {
+			color: #4a444f;
+		}
+		
+		#subnav nav.addnewuser li#subnav_addnewuser a.sublist_link {
+			font-weight: bold;
+		}
+	</style>
+</%def>
+<%def name="bodyclass()">users</%def>
+<%def name="subnav_title()">Admin Links</%def>
+<%def name="subnav()">
+	<ul>
+		<li id="subnav_nameplate"><a href="${url(controller='users', action='index')}">Add New User </a></li>
+	</ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.footer()}
+</div>
+
+<%def name="footer()"></%def>

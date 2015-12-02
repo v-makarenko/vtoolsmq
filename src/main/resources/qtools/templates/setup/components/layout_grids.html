@@ -1,0 +1,164 @@
+<%def name="layout_css()">
+<style type="text/css">
+	.e1 {
+		background-color: #fdd;
+	}
+
+	.e2 {
+		background-color: #ffb;
+	}
+
+	.e3 {
+		background-color: #dfd;
+	}
+
+	.e4 {
+		background-color: #def;
+	}
+</style>
+</%def>
+
+<%def name="column_layout(exec_order)">
+<table class="column_layout">
+	<tr>
+		% if len(exec_order) >= 1:
+		<td class="e1">${exec_order[0]}</td>
+		% else:
+		<td>&nbsp;</td>
+		% endif
+		% if len(exec_order) >= 2:
+		<td class="e2">${exec_order[1]}</td>
+		% else:
+		<td>&nbsp;</td>
+		% endif
+		% if len(exec_order) >= 3:
+		<td class="e3">${exec_order[2]}</td>
+		% else:
+		<td>&nbsp;</td>
+		% endif
+		% if len(exec_order) == 4:
+		<td class="e4">${exec_order[3]}</td>
+		% else:
+		<td>&nbsp;</td>
+		% endif
+	</tr>
+</table>
+</%def>
+
+<%def name="half_layout(exec_order)">
+<table class="half_layout">
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td class="e2">${exec_order[1]}</td>
+	</tr>
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td class="e2">${exec_order[1]}</td>
+	</tr>
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td class="e2">${exec_order[1]}</td>
+	</tr>
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td class="e2">${exec_order[1]}</td>
+	</tr>
+</table>
+</%def>
+
+<%def name="column_half_layout(exec_order)">
+<table class="column_layout">
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+		<td class="e2">${exec_order[1]}</td>
+	</tr>
+</table>
+</%def>
+
+
+<%def name="quarter_layout(exec_order)">
+<table class="quarter_layout">
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+		<td class="e2">${exec_order[1]}</td>
+	</tr>
+	<tr>
+		<td class="e3">${exec_order[2]}</td>
+		% if len(exec_order) > 3:
+		<td class="e4">${exec_order[3]}</td>
+		% else:
+		<td class="e4">&nbsp;</td>
+		% endif
+	</tr>
+</table>
+</%def>
+
+<%def name="single_layout(exec_order)">
+<table class="single_layout">
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+</table>
+</%def>
+
+<%def name="single_whole_layout(exec_order)">
+<table class="single_layout">
+	<tr>
+		<td class="e1" style="width: 100%; padding: 20px 5px;">${exec_order[0]}</td>
+	</tr>
+</table>
+</%def>
+
+<%def name="single_half_layout(exec_order)">
+<table class="single_half_layout">
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td class="e1">${exec_order[0]}</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+</table>
+</%def>

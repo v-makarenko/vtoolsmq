@@ -1,0 +1,643 @@
+<%inherit file="/plate/base.html"/>
+<%namespace file="frag.html" name="frag" import="*" />
+
+<%def name="pagetitle()">View Well ${c.well.well_name}</%def>
+<%def name="content_nav()">
+<ul>
+	% if c.prev_well_id:
+	<li><a href="${url(controller='well', action='view', id=c.prev_well_id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" title="Previous Well: ${c.prev_well_name}"><img src="${url('/images/bluejelly/arrow_left.png')}" alt="${c.prev_well_name}"></a></li>
+	% endif
+	<li><a href="${url(controller='plate', action='view', id=c.well.plate.plate.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" title="Back to Plate"><img src="${url('/images/bluejelly/arrow_up.png')}" alt="Plate" /></a></li>
+	<li><a href="${url(controller='well', action='download', id=c.well.id)}" title="Download Well QLB"><img src="${url('/images/bluejelly/download.png')}" alt="Download"></a></li>
+	% if c.next_well_id:
+	<li><a href="${url(controller='well', action='view', id=c.next_well_id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" title="Next Well: ${c.next_well_name}"><img src="${url('/images/bluejelly/arrow_right.png')}" alt="${c.next_well_name}"></a></li>
+	% endif
+</ul>
+	
+</%def>
+<%def name="selected_page()">newplate</%def>
+<%def name="css()">
+${parent.css()}
+<style type="text/css" media="screen">
+	#version_picker {
+		padding: 0.5em;
+		background: #ffd;
+		border: 1px solid #cc9;
+		margin-bottom: 1em;
+	}
+
+	table.datagrid thead th {
+		vertical-align: middle;
+	}
+	
+	#plot_region {
+		margin-bottom: 20px;
+	}
+	
+	#plot_threshold img, #plot_gate img, #plot_noreject img, #plot_width img {
+		background: url(${url('/images/famvic_back.png')}) repeat-x;
+		cursor: pointer;
+	}
+	
+	#plot_cluster img, #plot_cluster2d img {
+		width: 300px;
+		height: 300px;
+		background: #eee;
+		cursor: pointer;
+	}
+	
+	.yaxis {
+		float: left;
+		display: inline;
+	}
+	
+	.yaxis td {
+		height: 50px;
+		width: 40px;
+		padding-right: 0.25em;
+		text-align: right;
+		border-collapse: collapse;
+	}
+	
+	.yaxis td.axis_top {
+		border-top: 1px solid black;
+	}
+	
+	.yaxis td.axis_name {
+		height: 48px;
+		vertical-align: middle;
+		font-weight: bold;
+	}
+	
+	.yaxis td.axis_bottom {
+		border-bottom: 1px solid black;
+		vertical-align: bottom;
+	}
+	
+	.plot_div {
+		float: left;
+		display: none;
+		width: 300px;
+		height: 300px;
+	}
+	
+	#plot_fft {
+		height: 432px;
+	}
+	
+	#plot_selector {
+		float: right;
+	}
+	
+	div.link_combo, #plot_selector a {
+		display: block;
+		padding: 0.25em 0;
+		font-size: 14px;
+		text-align: right;
+		outline: none;
+	}
+
+	#plot_selector div.link_combo a {
+		display: inline;
+	}
+	
+	% if c.cluster_calc_mode:
+	#plot_cluster2d {
+		display: inline;
+	}
+
+	#link_plot_cluster2d {
+		font-weight: bold;
+	}
+
+    #axis {
+        display: none;
+    }
+	% else:
+	#plot_threshold {
+		display: inline;
+	}
+
+	#link_plot_threshold {
+		font-weight: bold;
+	}
+
+    #cluster_axis {
+        display: none;
+    }
+	% endif
+	
+	#form_values {
+		display: none;
+		background: #eee;
+		padding: 10px;
+		margin-bottom: 20px;
+	}
+	
+	#show_form {
+		font-weight: bold;
+		color: #090;
+	}
+	
+	table.option_form label {
+		margin-right: 10px;
+		font-weight: bold;
+	}
+	
+	table.option_form td {
+		padding-right: 20px;
+	}
+	
+	table.option_form input {
+		width: 75px;
+	}
+	
+</style>
+</%def>
+<%def name="js()">
+${parent.js()}
+<script type="text/javascript">
+    var urlMap = {'plot_threshold': "${url(controller='well', action='threshold', analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0, id=c.well.id, fam_threshold=c.fam_threshold or '', vic_threshold=c.vic_threshold or '', max_fam_amplitude=c.max_fam_amplitude, max_vic_amplitude=c.max_vic_amplitude)}",
+                  'plot_gate': "${url(controller='well', action='gated', analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0, id=c.well.id, fam_threshold=c.fam_threshold or '', vic_threshold=c.vic_threshold or '', max_fam_amplitude=c.max_fam_amplitude, max_vic_amplitude=c.max_vic_amplitude)}",
+                  'plot_noreject': "${url(controller='well', action='noreject', id=c.well.id, analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0, fam_threshold=c.fam_threshold or '', vic_threshold=c.vic_threshold or '', max_fam_amplitude=c.max_fam_amplitude, max_vic_amplitude=c.max_vic_amplitude)}",
+				  'plot_width': "${url(controller='well', action='width', id=c.well.id,analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0,fam_threshold=c.fam_threshold or '', vic_threshold=c.vic_threshold or '', max_fam_amplitude=c.max_fam_amplitude or '', max_vic_amplitude=c.max_vic_amplitude or '')}",
+				  'plot_cluster': "${url(controller='well', action='cluster', id=c.well.id, fam_threshold=c.fam_threshold or '', vic_threshold=c.vic_threshold or '', max_fam_amplitude=c.max_fam_amplitude or '', max_vic_amplitude=c.max_vic_amplitude or '', analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or '')}",
+				  'plot_cluster2d': "${url(controller='well', action='cluster2d', id=c.well.id, fam_threshold=c.fam_threshold or '', vic_threshold=c.vic_threshold or '', max_fam_amplitude=c.max_fam_amplitude or '', max_vic_amplitude=c.max_vic_amplitude or '', analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or '')}",
+				  'plot_fft': "${url(controller='nplot', action='fft', id=c.well.id)}"};
+	$(document).ready(function() {
+		$('#plot_selector a').click(function(evt) {
+			var id = $(this).attr('id').substring(5);
+			if(id == 'plot_galaxy_fam' || id == 'plot_galaxy_vic' || id == 'plot_galaxy_sum' || id == 'plot_temporal' || id == 'plot_nds' || id == 'plot_amptime_fam' || id == 'plot_amptime_vic' || id == 'plot_hist_fam' || id == 'plot_hist_vic' || id == 'conc_bias_fam' || id == 'conc_bias_vic' || id == 'plot_poly_fam' || id == 'plot_poly_vic' || id == 'plot_poly_revb_fam' || id == 'plot_poly_revb_vic' || id == 'plot_extra_fam' || id == 'plot_extra_vic') {
+				return true;
+			}
+			var target = $('#'+id);
+			var link = $('#link_'+id);
+			if($(target).is(":visible")) {
+				return;
+			}
+			else {
+				if(id == 'plot_width') {
+					// TODO change to dynamic width
+					$('#fam_amplitude').text('20')
+					$("#vic_amplitude").text('20')
+					$('#cluster_axis').hide()
+					$('#axis').show()
+				}
+				else if(id == 'plot_cluster' || id == 'plot_cluster2d') {
+					$('#axis').hide()
+					$('#cluster_axis').show()
+				}
+				else if(id == 'plot_fft') {
+					$('#axis, #cluster_axis').hide()
+				}
+				else {
+					$('#fam_amplitude').text('${c.max_fam_amplitude}');
+					$('#vic_amplitude').text('${c.max_vic_amplitude}');
+					$('#cluster_axis').hide()
+					$('#axis').show()
+				}
+				$('#plot_selector a').css('font-weight', 'normal');
+				$('#plot div:visible').hide();
+				if(target.find('img').length == 0) {
+					target.append('<img src="'+urlMap[id]+'">');
+				}
+				$(link).css('font-weight', 'bold');
+				$(target).show();
+			}
+			return false;
+		});
+		
+		$('#plot_threshold img, #plot_gate img, #plot_noreject img').live('click', function(evt) {
+			var y = evt.pageY - $(this).offset().top;
+			// hardcoded values for now
+			if(y > 150) {
+				var threshold = Math.round((${c.max_vic_amplitude}/150.0) * (300-y));
+				$('#vic_threshold').val(threshold);
+			}
+			else {
+				var threshold = Math.round((${c.max_fam_amplitude}/150.0) * (150-y));
+				$('#fam_threshold').val(threshold);
+			}
+			$('#threshold_form').submit();
+		});
+		$('#plot_cluster img, #plot_cluster2d img').live('click', function(evt) {
+			var y = evt.pageY - $(this).offset().top;
+			var x = evt.pageX - $(this).offset().left;
+			var threshold = Math.round(((${c.max_fam_amplitude}+2000)/300.0) * (300-y)) - 2000
+			$('#fam_threshold').val(threshold);
+
+			var threshold = Math.round(((${c.max_vic_amplitude}+2000)/300.0) * x) - 2000
+			$('#vic_threshold').val(threshold);
+
+			$('#threshold_form').submit()
+		})
+		
+		$('#show_form').click(function() {
+			$('#form_values').show();
+			return false;
+		});
+	});
+</script>
+</%def>
+% if hasattr(c, "cluster_data"):
+<p>
+<strong>Directory:</strong> ${c.well.plate.file.dirname}<br/>
+<strong>Plate:</strong> ${c.well.plate.file.basename}<br/>
+<strong>Algorithm:</strong> ${c.reprocess_config.name if c.reprocess_config else ('Original (%s)' % c.alg_version)}
+<%doc>
+<strong>Algorithm Version:</strong>
+% if not (c.major or c.minor):
+	${c.well.plate.quantitation_algorithm}
+% else:
+	${c.major}.${c.minor}
+% endif
+</%doc>
+</p>
+<table class="datagrid" style="font-size: 12px;">
+	<thead>
+		<tr>
+			<th>Sample Name</th>
+			<th>Experiment Type</th>
+            % if c.well_metric:
+            <th>#Accepted</th>
+            <th>#Total</th>
+            % endif
+			<th>CNV: FAM/VIC</th>
+			<th>VIC/FAM</th>
+			% if c.well_metric:
+            <th>Cluster Data Quality</th>
+			% endif
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="even">
+			<td>${c.well.sample_name}</td>
+			<td>${c.well.experiment_type}</td>
+            % if c.well_metric:
+            <td>${c.well_metric.accepted_event_count}</td>
+            <td>${c.well_metric.total_event_count}</td>
+            % endif
+			<td>${h.sig2(c.fam_cnv)}</td>
+			<td>${h.sig2(c.vic_cnv)}</td>
+			% if c.well_metric:
+			<td>${h.sig2(c.well_metric.cluster_conf) if c.well_metric.cluster_conf is not None else 'N/A'}</td>
+			% endif
+		</tr>
+	</tbody>
+</table>
+<table class="datagrid" style="font-size: 11px">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>Target</th>
+			<th>Type</th>
+			<th>Positive</th>
+			<th>Negative</th>
+			<th>Threshold</th>
+			<th>Threshold Quality</th>
+			<th>Conc.</th>
+			<th>95% CI</th>
+			% if c.well_metric:
+			<th>4Q/1Q Bias</th>
+			<th>Mean Width</th>
+			% endif
+		</tr>
+	</thead>
+	<tbody>
+		% for i, channel in enumerate(c.well.channels):
+		<tr class="${i % 2 and 'odd' or 'even'}">
+			<td>${('FAM', 'VIC/HEX')[i]}</td>
+			<td>${c.well.channels[i].target}</td>
+			<td>${c.well.channels[i].type}</td>
+			<td>${c.statistics[i].positives}</td>
+			<td>${c.statistics[i].negatives}</td>
+			<td>${h.sig0(c.statistics[i].threshold) if c.statistics[i].threshold else 'None'}</td>
+			<td>${h.sig2(c.well_metric.well_channel_metrics[i].threshold_conf if c.well_metric else c.well.channels[i].quantitation_threshold_conf)}</td>
+			<td>${h.sig1(c.statistics[i].concentration)}</td>
+			<td>${h.sig1(c.statistics[i].concentration_interval[1])}-${h.sig1(c.statistics[i].concentration_interval[2])}</td>
+			% if c.well_metric:
+			<td>${h.sig2(c.well_metric.well_channel_metrics[i].concentration_rise_ratio) if c.well_metric.well_channel_metrics[i].concentration_rise_ratio else 'N/A'}</td>
+			<td>${h.sig2(c.well_metric.width_mean) if c.well_metric.width_mean else 'N/A'}</td>
+			% endif
+		</tr>
+		% endfor
+	</tbody>
+</table>
+<h2>Plots</h2>
+<p>Click on the image to dynamically set a threshold or <a href="${url(controller='well', action='view', id=c.well.id, max_fam_amplitude=c.max_fam_amplitude, max_vic_amplitude=c.max_vic_amplitude, analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0)}">click here to reset thresholds to their computed values</a>. <a href="#" id="show_form">More Options &gt;&gt;</a></p>
+<div id="form_values">
+	<form id="threshold_form" action="${url(controller='well', action='view', id=c.well.id)}" method="get">
+		<table class="option_form">
+			<tr>
+				<td>
+					<label for="fam_threshold">FAM Threshold:</label>
+					<input id="fam_threshold" type="text" name="fam_threshold" value="${c.fam_threshold or ''}" />
+				</td>
+				<td>
+					<label for="max_fam_amplitude">MAX FAM Amplitude:</label>
+					<input id="max_fam_amplitude" type="text" name="max_fam_amplitude" value="${c.max_fam_amplitude}" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="vic_threshold">VIC/HEX Threshold:</label>
+					<input id="vic_threshold" type="text" name="vic_threshold" value="${c.vic_threshold or ''}" />
+				</td>
+				<td>
+					<label for="max_vic_amplitude">MAX VIC/HEX Amplitude:</label>
+					<input id="max_vic_amplitude" type="text" name="max_vic_amplitude" value="${c.max_vic_amplitude}" />
+				</td>
+			</tr>
+		</table>
+		<!-- TODO reprocess config, analysis group here -->
+		<input type="hidden" name="analysis_group_id" value="${c.analysis_group_id or 0}" />
+		<input type="hidden" name="reprocess_config_id" value="${c.reprocess_config_id or 0}" />
+		<input type="submit" value="Recalculate" />
+	</form>
+</div>
+<div id="plot_region">
+	<div id="axis" class="yaxis">
+		<table class="axis_table">
+			<tr><td id="fam_amplitude" class="axis_top">${c.max_fam_amplitude}</td></tr>
+			<tr><td class="axis_name">FAM</td></tr>
+			<tr><td class="axis_bottom">0</td></tr>
+			<tr><td id="vic_amplitude" class="axis_top">${c.max_vic_amplitude}</td></tr>
+			<tr><td class="axis_name">VIC</td></tr>
+			<tr><td class="axis_bottom">0</td></tr>
+		</table>
+	</div>
+	<div id="cluster_axis" class="yaxis">
+		<table class="axis_table">
+			<tr><td id="fam_amplitude" class="axis_top">${c.max_fam_amplitude}</td></tr>
+			<tr><td class="axis_name">^ FAM</td></tr>
+			<tr><td>&nbsp;</td></tr>
+			<tr><td id="vic_amplitude">&nbsp;</td></tr>
+			<tr><td class="axis_name">VIC ></td></tr>
+			<tr><td class="axis_bottom">-2000</td></tr>
+		</table>
+	</div>
+	<div id="plot">
+		% if c.cluster_calc_mode:
+			<div class="plot_div" id="plot_threshold"></div>
+		% else:
+			<div class="plot_div" id="plot_threshold">
+			<img id="famvic" src="${url(controller='well', action='threshold', id=c.well.id, analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0, fam_threshold=c.fam_threshold or '', vic_threshold = c.vic_threshold or '', max_fam_amplitude=c.max_fam_amplitude, max_vic_amplitude=c.max_vic_amplitude)}" />
+			</div>
+		% endif
+		<div class="plot_div" id="plot_gate">
+		</div>
+		<div class="plot_div" id="plot_noreject">
+		</div>
+		<div class="plot_div" id="plot_width">
+		</div>
+		<div class="plot_div" id="plot_cluster">
+		</div>
+		% if c.cluster_calc_mode:
+			<div class="plot_div" id="plot_cluster2d">
+			<img id="cluster2d" src="${url(controller='well', action='cluster2d', id=c.well.id, analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0, fam_threshold=c.fam_threshold or '', vic_threshold = c.vic_threshold or '', max_fam_amplitude=c.max_fam_amplitude, max_vic_amplitude=c.max_vic_amplitude)}" />
+			</div>
+		% else:
+			<div class="plot_div" id="plot_cluster2d"></div>
+		% endif
+		<div class="plot_div" id="plot_fft">
+		</div>
+	</div>
+	<div id="plot_selector">
+		<a href="#" id="link_plot_threshold">Accepted Events</a>
+		<div class="link_combo">
+			<a href="#" id="link_plot_gate">All Events</a>&nbsp;|&nbsp;<a href="#" id="link_plot_noreject">Gated Types</a>
+		</div>
+		<a href="#" id="link_plot_width">Droplet Widths</a>
+		<div class="link_combo">
+			<a href="#" id="link_plot_cluster">2D Threshold</a>&nbsp;|&nbsp;<a href="#" id="link_plot_cluster2d">Cluster</a>&nbsp;|&nbsp;
+			<a href="${url(controller='well', action='outliers', id=c.well.id, reprocess_config_id=c.reprocess_config_id or '', analysis_group_id=c.analysis_group_id or '')}">Outliers</a>&nbsp;|&nbsp;
+			<a href="${url(controller='well', action='widthbin', id=c.well.id, reprocess_config_id=c.reprocess_config_id or '', analysis_group_id=c.analysis_group_id or '')}">Width Bins</a>
+		</div>
+		<div class="link_combo">Galaxy: <a href="${url(controller='well', action='galaxy', id=c.well.id, channel=0, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_galaxy_fam">FAM</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='galaxy', id=c.well.id, channel=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_galaxy_vic">VIC/HEX</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='galaxy_sum_bins', id=c.well.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_galaxy_sum">Sum</a>&nbsp;|&nbsp;ExtC: <a href="${url(controller='well', action='galaxy_extra_region', id=c.well.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '', channel=0, fam_threshold=c.fam_threshold or '')}">FAM</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='galaxy_extra_region', id=c.well.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '', channel=1, vic_threshold=c.vic_threshold or '')}">VIC/HEX</a></div>
+		<div class="link_combo">Polydispersity: <a href="${url(controller='well', action='galaxy_disperse', id=c.well.id, channel=0, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '', fam_threshold=c.fam_threshold or '')}" id="link_plot_poly_fam">FAM</a>&nbsp;(<a href="${url(controller='well', action='galaxy_disperse_revb', id=c.well.id, channel=0, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '', fam_threshold=c.fam_threshold or '')}" id="link_plot_poly_revb_fam">RevB</a>)&nbsp;|&nbsp;<a href="${url(controller='well', action='galaxy_disperse', id=c.well.id, channel=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '', vic_threshold=c.vic_threshold or '')}" id="link_plot_poly_vic">VIC/HEX</a>&nbsp;(<a href="${url(controller='well', action='galaxy_disperse_revb', id=c.well.id, channel=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '', vic_threshold=c.vic_threshold or '')}" id="link_plot_poly_revb_vic">RevB</a>)</div>
+		<div class="link_combo">
+			Air Plots: <a href="${url(controller='well', action='air_plot', id=c.well.id, channel_num=0, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">FAM</a> (<a href="${url(controller='well', action='air_hist', id=c.well.id, channel_num=0, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">Hist</a>)&nbsp;|&nbsp;<a href="${url(controller='well', action='air_plot', id=c.well.id, channel_num=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">VIC/HEX</a> (<a href="${url(controller='well', action='air_hist', id=c.well.id, channel_num=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">Hist</a>)
+		</div>
+		<div class="link_combo"><a href="${url(controller='well', action='temporal', id=c.well.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_temporal">Temporal Width</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='nds', id=c.well.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_nds">Spacing</a></div>
+		<div class="link_combo">Intensity/Time: <a href="${url(controller='well', action='amptime', id=c.well.id, channel_num=0, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_amptime_fam">FAM</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='amptime', id=c.well.id, channel_num=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_amptime_vic">VIC/HEX</a></div>
+		<div class="link_combo">Histograms: <a href="${url(controller='well', action='amphist', id=c.well.id, channel_num=0, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_hist_fam">FAM</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='amphist', id=c.well.id, channel_num=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_plot_hist_vic">VIC/HEX</a></div>
+		<div class="link_combo">
+		Quartiles:&nbsp;
+		<a href="${url(controller='well', action='conc_trend', id=c.well.id, channel_num=0, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_conc_bias_fam">FAM</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='conc_trend', id=c.well.id, channel_num=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}" id="link_conc_bias_fam">VIC/HEX</a></div>
+	</div>
+</div>
+
+<div class="clear"></div>
+    <h2>Recomended Droplet Metrics</h2>
+    <table class="datagrid">
+        <thead>
+            <tr>
+                <th>Channel</th>
+                <th>High fliers</th>
+                <th>Low fliers</th>
+                <th>Single Rain</th>
+                <th>Double Rain</th>
+                <th>Diagonal Scatter</th>
+                <th>Polydispersity %</th>
+                <th>S2D value</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for chan, idx in (('FAM', 0), ('VIC/HEX', 1)):
+            <tr class="${idx % 2 and 'odd' or 'even'}">
+                <td>${chan}</td>
+                <td>
+                    % if c.statistics[idx].high_flier_value is not None:
+                        ${c.statistics[idx].high_flier_value} (${h.sig2(c.statistics[idx].high_flier_pct)}%)
+                    % else:
+                        --
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].low_flier_value is not None:
+                        ${c.statistics[idx].low_flier_value} (${h.sig2(c.statistics[idx].low_flier_pct)}%)
+                    % else:
+                        --
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].single_rain_value is not None:
+                        ${c.statistics[idx].single_rain_value} (${h.sig2(c.statistics[idx].single_rain_pct)}%)
+                    % else:
+                        --
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].double_rain_value is not None:
+                        ${c.statistics[idx].double_rain_value} (${h.sig2(c.statistics[idx].double_rain_pct)}%)
+                    % else:
+                        --
+                    % endif
+                </td>
+                <td>
+                    %  if hasattr(c.statistics, 'diagonal_scatter') and c.statistics.diagonal_scatter is not None:
+                        ${c.statistics.diagonal_scatter} (${h.sig2(c.statistics.diagonal_scatter_pct)}%)
+                    % else:
+                        --
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].revb_polydispersity_pct is not None:
+                        ${h.sig2(c.statistics[idx].revb_polydispersity_pct)}%
+                    % else:
+                        --
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].s2d_value is not None:
+                        ${h.sig2(c.statistics[idx].s2d_value)}
+                    % else:
+                        --
+                    % endif
+                </td>
+
+            </tr>
+            % endfor
+        </tbody>
+    </table>
+
+
+<h2>Cluster Information (see 2D Cluster plot)</h2>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>VIC/HEX Negative</th>
+			<th>VIC/HEX Positive</th>
+			<th>Total</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<th>FAM Positive</th>
+			<td style="background: #eef">${len(c.cluster_data['positive_peaks']['negative_peaks'])}</td>
+			<td style="background: #efe">${len(c.cluster_data['positive_peaks']['positive_peaks'])}</td>
+			<th>${c.statistics[0].positives}</th>
+		</tr>
+		<tr>
+			<th>FAM Negative</th>
+			<td style="background: #fee">${len(c.cluster_data['negative_peaks']['negative_peaks'])}</td>
+			<td style="background: #eef">${len(c.cluster_data['negative_peaks']['positive_peaks'])}</td>
+			<th>${c.statistics[0].negatives}</th>
+		</tr>
+		<tr>
+			<th>Total</th>
+			<th>${c.statistics[1].negatives}</th>
+			<th>${c.statistics[1].positives}</th>
+			<td>&nbsp;</td>
+		</tr>
+		% if hasattr(c, 'chi_stat') and c.chi_stat is not None:
+			<tr>
+				<td colspan="4">
+					<strong>Chi-Square Statistic (2-way):</strong> p-value: ${h.advise_warn_if(h.sig2(c.chi_p), lambda p: float(p) < 0.05, lambda p: float(p) < 0.01)} (chisquare=${h.sig2(c.chi_stat)})
+				</td>
+			</tr>
+		% else:
+			<tr>
+				<td colspan="4">
+					<strong>Chi-Square Statistic (2-way):</strong> Could not calculate (empty dimension)</strong>
+				</td>
+			</tr>
+		% endif
+		% if hasattr(c, 'bscore') and c.bscore is not None:
+			<tr>
+				<td colspan="4">
+					<strong>B-score:</strong>${h.warn_if_not(h.sig2(c.bscore), lambda score: abs(float(score)) < 2)}
+				</td>
+			</tr>
+		% else:
+			<tr>
+				<td colspan="4">
+					<strong>Z scores:</strong> Insufficient statistical power in clusters
+				</td>
+			</tr>
+		% endif
+	</tbody>
+</table>
+
+% if h.wowo('numpy.well_frag'):
+	${frag.frag_stats()}
+% endif
+
+<div class="clear"></div>
+    <h2>Old Quality Information Metrics</h2>
+    <table class="datagrid">
+        <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>S value</th>
+                <th>Positive Rain</th>
+                <th>Middle Rain</th>
+                <th>Negative Rain</th>
+                <th>Pos SNR</th>
+                <th>Neg SNR</th>
+                <th>Mean Amp Ratio</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for chan, idx in (('FAM', 0), ('VIC/HEX', 1)):
+            <tr class="${idx % 2 and 'odd' or 'even'}">
+                <td>${chan}</td>
+                <td>${h.sig2(c.statistics[idx].s_value)}</td>
+                <td>
+                    % if c.statistics[idx].p_plus is not None:
+                        ${c.statistics[idx].p_plus_drops} (${h.sig2(c.statistics[idx].p_plus*100)}%)
+                    % else:
+                        &nbsp;
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].p is not None:
+                        ${c.statistics[idx].p_drops} (${h.sig2(c.statistics[idx].p*100)}%)
+                    % else:
+                        &nbsp;
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].p_minus is not None:
+                        ${c.statistics[idx].p_minus_drops} (${h.sig2(c.statistics[idx].p_minus*100)}%)
+                    % else:
+                        &nbsp;
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].positive_snr is not None:
+                        ${h.sig2(c.statistics[idx].positive_snr)}
+                    % else:
+                        &nbsp;
+                    % endif
+                </td>
+                <td>
+                    % if c.statistics[idx].negative_snr is not None:
+                        ${h.sig2(c.statistics[idx].negative_snr)}
+                    % else:
+                        &nbsp;
+                    % endif
+                </td>
+                <td>
+                    % if c.well_metric and c.well_metric.well_channel_metrics[idx]:
+                        ${h.sig2(c.well_metric.well_channel_metrics[idx].mean_pos_neg_ratio or 0)}
+                    % else:
+                        '--'
+                    % endif
+                </td>
+            </tr>
+            % endfor
+        </tbody>
+    </table>
+
+<h2>More Information</h2>
+<p>
+<strong>FAM Decision Tree:</strong> ${c.statistics[0].decision_tree}<br/>
+<strong>VIC/HEX Decision Tree:</strong> ${c.statistics[1].decision_tree}<br/>
+<strong>Plate:</strong> ${c.well.plate.file.dirname}/${c.well.plate.file.basename}<br/>
+<strong>Well:</strong> ${c.well.file.dirname}/${c.well.file.basename}<br/>
+<strong>CSV Peak Data:</strong> <a href="${url(controller='well', action='peak_csv', id=c.well.id, show_only_gated=True, analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0)}">Accepted Peaks</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='peak_csv', id=c.well.id, show_only_gated=False, analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0)}">All Peaks</a><br/>
+<strong>CSV Cluster Data:</strong> <a href="${url(controller='well', action='cluster_csv', id=c.well.id, show_only_gated=True, analysis_group_id=c.analysis_group_id or 0, reprocess_config_id=c.reprocess_config_id or 0)}">Accepted Peaks</a></strong>
+</p>
+% endif

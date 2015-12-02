@@ -1,0 +1,40 @@
+<%inherit file="/base/index.html"/>
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="title()">${parent.title()} >> ${self.pagetitle()}</%def>
+<%def name="css()">
+    ${parent.css()}
+    ${boot.css()}
+    <style type="text/css" media="screen">
+        #content {
+            position: relative;
+        }
+
+        #subnav nav.login li#subnav_login,
+        #subnav nav.logout li#subnav_logout {
+            color: green;
+            list-style: disc outside;
+        }
+        
+        #subnav nav.login li#subnav_login a,
+        #subnav nav.logout li#subnav_logout a {
+            font-weight: bold;
+        }
+    </style>
+</%def>
+<%def name="bodyclass()">auth</%def>
+<%def name="contentclass()">grid_13 omega tw_bootstrap</%def>
+<%def name="subnav_title()">Auth Links</%def>
+<%def name="subnav()">
+    <ul>
+        <li id="subnav_login"><a href="${url(controller='auth', action='login')}">Login</a></li>
+        <li id="subnav_logout"><a href="${url(controller='auth', action='logout')}">Logout</a></li>
+    </ul>
+</%def>
+
+${next.body()}
+<div class="pagefooter">
+${self.pagefooter()}
+</div>
+
+<%def name="pagefooter()"></%def>

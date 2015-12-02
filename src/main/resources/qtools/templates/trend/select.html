@@ -1,0 +1,47 @@
+<%inherit file="/trend/base.html" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="css()">
+    ${parent.css()}
+    ${auto.css()}
+    <style type="text/css">
+        .tab-content > div {
+            display: none;
+        }
+    </style>
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    ${auto.js()}
+</%def>
+
+<%def name="category_content()">&nbsp;</%def>
+<%def name="box2_content()">&nbsp;</%def>
+<%def name="search_content()">&nbsp;</%def>
+
+<ul class="tabs">
+    <li class="${'active' if c.tab == 'category' else ''}"><a href="${url(controller='trend', action='category')}">Category</a></li>
+    <li class="${'active' if c.tab == 'reader' else ''}"><a href="${url(controller='trend', action='reader')}">Reader</a></li>
+    <li class="${'active' if c.tab == 'search' else ''}"><a href="${url(controller='trend', action='search')}">Name Search</a></li>
+</ul>
+<div class="tab-content">
+<div id="panel_category" class="${'active' if c.tab == 'category' else ''}">
+    ${next.category_content()}
+</div>
+<div id="panel_box2" class="${'active' if c.tab == 'reader' else ''}">
+    ${next.box2_content()}
+</div>
+<div id="panel_search" class="${'active' if c.tab == 'search' else ''}">
+    ${next.search_content()}
+</div>
+</div>
+
+<%def name="pagescript()">
+    ${parent.pagescript()}
+    <script type="text/javascript">
+        $(function() {
+            $('input.datepicker').datepicker({dateFormat: 'mm/dd/yy'})
+        })
+    </script>
+</%def>

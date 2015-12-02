@@ -1,0 +1,29 @@
+<%def name="bin_display_css()">
+<style type="text/css">
+	span.bin_tier1,
+	span.bin_tier2,
+	span.bin_tier3 {
+		text-align: center;
+		width: 8em;
+		padding: 0.25em;
+		color: black;
+		display: inline-block;
+	}
+	span.bin_tier1 {
+		background-color: #cfc;
+	}
+
+	span.bin_tier2 {
+		background-color: #ff9;
+	}
+	
+	span.bin_tier3 {
+		background-color: #fcc;
+	}
+</style>
+</%def>
+
+<%def name="bin_display(cost_bin)">
+	<% from qtools.model import VendorEnzyme %>
+	<span class="bin_tier${cost_bin}">${VendorEnzyme.unit_cost_bin_gettext(cost_bin)}</span>
+</%def>

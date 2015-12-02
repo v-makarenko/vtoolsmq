@@ -1,0 +1,147 @@
+<%inherit file="/reagents/base.html" />
+
+<%def name="pagetitle()">Test Results: ${c.validation_plate.spec.part.name}, ${c.validation_plate.spec.name}</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    <style type="text/css">
+        #datagrid td.pass {
+            color: #090;
+        }
+
+        #datagrid td.fail {
+            color: #c00;
+        }
+
+        #datagrid th.data_header {
+            text-align: center;
+            border-bottom: 1px #eee solid;
+            font-size: 110%;
+            color: #999;
+            background: #e8e8e8;
+        }
+
+        #datagrid tr.average_row td {
+            font-weight: bold;
+        }
+
+        #datagrid tr.well_row {
+            display: none;
+        }
+
+        #datagrid a.expand_link {
+            font-size: 85%;
+            font-weight: normal;
+        }
+
+        #datagrid td.lot_marker {
+            background: #e8e8e8;
+            color: #999;
+            font-size: 110%;
+        }
+    </style>
+
+</%def>
+
+<p>
+    <strong>Plate:</strong> <a href="${url(controller='plate', action='view', id=c.validation_plate.plate_id)}">${c.validation_plate.plate.name}</a>
+</p>
+
+<table id="datagrid" class="condensed-table zebra-striped">
+    <thead>
+    <tr>
+        <th rowspan="2" colspan="2">&nbsp;</th>
+        <th class="data_header" colspan="${len(c.validation_plate.spec.positive_items)+1}">Positive Control Tests</th>
+        <th class="data_header" colspan="${len(c.validation_plate.spec.negative_items)+1}">Negative Control Tests</th>
+    </tr>
+    <tr>
+        <th>&nbsp;</th>
+        % for metric, criteria in zip(c.positive_metric_displays, c.positive_criteria_displays):
+                <th>${metric}<br><span style="font-size: 85%; font-weight: normal;">${criteria}</span></th>
+        % endfor
+        <th>&nbsp;</th>
+        % for metric, criteria in zip(c.negative_metric_displays, c.negative_criteria_displays):
+                <th>${metric}<br><span style="font-size: 85%; font-weight: normal;">${criteria}</span></th>
+        % endfor
+    </tr>
+    </thead>
+    <tbody>
+        <% from itertools import izip_longest, chain %>
+            % for sidx, (sample_name, pos_neg) in enumerate(chain(c.control_results, c.test_results)):
+            <tr id="${'row_anchor_%s' % sidx}" class="average_row">
+                % if sidx == 0 and len(c.control_results) > 0:
+                    <td rowspan="${len(c.control_results)}" class="lot_marker"><div>Control Lots</div></td>
+                % endif
+                % if sidx == len(c.control_results) and len(c.test_results) > 0:
+                    <td rowspan="${len(c.test_results)}" class="lot_marker">Test Lots</td>
+                % endif
+                <td rowspan="1">${sample_name}<br/>
+                    <a href="#" class="expand_link" rel="${max(len(pos_neg['positives']), len(pos_neg['negatives']))}">Show Wells</a>
+                </td>
+            % for idx, (pos_pair, neg_pair) in enumerate(izip_longest(pos_neg['positives'],pos_neg['negatives'])):
+                % if pos_pair:
+                    <td>${pos_pair[0]}</td>
+                    % for s, w, val, passed in pos_pair[1]:
+                        <td class="${'pass' if passed else ('' if passed is None else 'fail')}">${h.sig2(val)}</td>
+                    % endfor
+                % else:
+                    <td colspan="${len(c.validation_plate.spec_positive_items)+1}">&nbsp;</td>
+                % endif
+                % if neg_pair:
+                    <td>${neg_pair[0]}</td>
+                    % for s, w, val, passed in neg_pair[1]:
+                            <td class="${'pass' if passed else ('' if passed is None else 'fail')}">${h.sig2(val)}</td>
+                    % endfor
+                % else:
+                    <td colspan="${len(c.validation_plate.spec.negative_items)+1}">&nbsp;</td>
+                % endif
+                % if idx < len(pos_neg['positives'])-1:
+                    </tr>
+                    <tr class="well_row ${'well_row_%s' % sidx}">
+                % endif
+            % endfor
+            </tr>
+            % endfor
+
+
+    </tbody>
+</table>
+<div class="actions">
+    <a class="btn" href="${url(controller='reagents', action='part_plates', id=c.validation_plate.spec.part_number_id)}">Back to Part Tests</a>
+    <a class="btn" href="${url(controller='reagents', action='spec', id=c.validation_plate.spec_id, tab='plates')}">${c.validation_plate.spec.name} Tests</a>
+    <a class="btn" href="${url(controller='reagents', action='spec', id=c.validation_plate.spec_id, tab='spec')}">${c.validation_plate.spec.name} Spec</a>
+</div>
+
+<%def name="pagescript()">
+    <script type="text/javascript">
+        $(function() {
+            $('.expand_link').click(function() {
+                var td = $(this).parents('td');
+                var tr = $(this).parents('tr');
+                var marker = null;
+                var lookAtRow = tr;
+
+                // this is ugly.
+                while((!marker || marker.length == 0) && lookAtRow) {
+                    marker = $(lookAtRow).find('.lot_marker');
+                    lookAtRow = lookAtRow.prev('tr');
+                }
+                var trid = tr.attr('id')
+                var rowid = trid.substring(trid.lastIndexOf('_')+1)
+                if($(this).is('.expanded')) {
+                    $(td).attr('rowspan',1)
+                    $(marker).attr('rowspan', parseInt($(marker).attr('rowspan'))-(parseInt($(this).attr('rel'))-1));
+                    $('.well_row_'+rowid).css('display', 'none');
+                    $(this).removeClass('expanded').text('Show Wells');
+                }
+                else {
+                    $(td).attr('rowspan', $(this).attr('rel'));
+                    $(marker).attr('rowspan', parseInt($(marker).attr('rowspan'))+parseInt($(this).attr('rel'))-1);
+                    $('.well_row_'+rowid).css('display','table-row');
+                    $(this).addClass('expanded').text('Hide Wells');
+                }
+                return false;
+            })
+        })
+    </script>
+</%def>

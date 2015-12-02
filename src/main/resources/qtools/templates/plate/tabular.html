@@ -1,0 +1,144 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">View Plate: Data Table</%def>
+<%def name="selected_page()">newplate</%def>
+<%def name="css()">
+${parent.css()}
+<style type="text/css" media="screen">
+	#plate_table th, #plate_table td {
+		font-size: 11px;
+		padding: 0.15em 0.4em;
+		vertical-align: middle;
+	}
+	
+	#plate_table .col_name {
+		font-weight: bold;
+	}
+	
+	#plate_table img {
+		border: 1px solid #ddd;
+	}
+</style>
+</%def>
+
+% if c.plate.qlbplate and c.wells:
+<p>
+<strong>Directory name:</strong> ${c.plate.qlbplate.file.dirname}<br/>
+</p>
+<p><a href="${url(controller='plate', action='edit', id=c.plate.id)}">View/Edit Plate Metadata</a>&nbsp; &nbsp; &nbsp;<a href="${url(controller='plate', action='download', id=c.plate.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">Download Processed QLP file</a>&nbsp; &nbsp; &nbsp;
+<a href="${url(controller='plate', action='view', id=c.plate.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">Back to Plate View</a>&nbsp; &nbsp; &nbsp; 
+% if c.show_thumbs:
+	<strong><a href="${url(controller='plate', action='tabular', id=c.plate.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">Hide Thumbnails in Table</a></strong>
+% else:
+	<strong><a href="${url(controller='plate', action='tabular', id=c.plate.id, show_thumbs=1, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">Show Thumbnails in Table</a></strong>
+% endif
+</p>
+<table id="plate_table" class="datagrid">
+	<thead>
+		<tr>
+			<th>Well</th>
+			% if c.show_thumbs:
+			<th>FAM</th>
+			<th>VIC</th>
+			% endif
+			<th>Sample</th>
+			<th>#Events</th>
+			<th>#Gated-Out Events</th>
+			<th>Targets</th>
+			<th>Concentration</th>
+			<th>Threshold</th>
+			<th>Quality</th>
+			<th>Width Sigma</th>
+			<th>FAM -> VIC CNV</th>
+			<th>VIC -> FAM CNV</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for idx, well in enumerate(c.wells):
+		% if hasattr(well, 'metric'):
+			<tr class="${idx % 2 and 'odd' or 'even'}">
+				<td class="col_name" rowspan="${len(well.metric.well_channel_metrics)}">
+					<a href="${url(controller='well', action='view', id=well.id, analysis_group_id=c.analysis_group_id or '', reprocess_config_id=c.reprocess_config_id or '')}">${well.well_name}</a>
+				</td>
+				% if c.show_thumbs:
+				<td rowspan="${len(well.metric.well_channel_metrics)}">
+					<a href="${url(controller='well', action='view', id=well.id)}">${h.literal(h.qlb_thumbnail(c.plate.qlbplate.id, well.well_name, 0, size=30))}</a>
+				</td>
+				<td rowspan="${len(well.metric.well_channel_metrics)}">
+					<a href="${url(controller='well', action='view', id=well.id)}">${h.literal(h.qlb_thumbnail(c.plate.qlbplate.id, well.well_name, 1, size=30))}</a>
+				</td>
+				% endif
+				<td class="nowrap" rowspan="${len(well.channels)}">${well.sample_name}</td>
+				<td rowspan="${len(well.channels)}">${well.metric.accepted_event_count}</td>
+				<td rowspan="${len(well.channels)}">${well.metric.well_channel_metrics[0].width_gated_peaks+well.metric.well_channel_metrics[0].quality_gated_peaks}</td>
+				<td class="nowrap">${well.channels[0].target}</td>
+				<td>${h.sig1(well.metric.well_channel_metrics[0].concentration or 0)}</td>
+				<td>${h.sig1(well.metric.well_channel_metrics[0].threshold or 0)}</td>
+				<td>${h.sig2(well.metric.well_channel_metrics[0].threshold_conf or 0)}</td>
+				<td>${h.sig2(well.metric.well_channel_metrics[0].width_gating_sigma or 0)}</td>
+				<td rowspan="${len(well.channels)}">${h.sig2(well.metric.cnv or 0)}</td>
+				<td rowspan="${len(well.channels)}">${h.sig2(1/well.metric.cnv if well.metric.cnv else 0)}</td>
+			</tr>
+			% for i in range(1,len(well.metric.well_channel_metrics)):
+			<tr class="${idx % 2 and 'odd' or 'even'}">
+				<td class="nowrap">${well.channels[i].target or '--'}</td>
+				<td>${h.sig1(well.metric.well_channel_metrics[i].concentration or 0)}</td>
+				<td>${h.sig1(well.metric.well_channel_metrics[i].threshold or 0)}</td>
+				<td>${h.sig2(well.metric.well_channel_metrics[i].threshold_conf or 0)}</td>
+				<td>${h.sig2(well.metric.well_channel_metrics[i].width_gating_sigma or 0)}</td>
+			</tr>
+			% endfor
+		% else:
+			<tr class="${idx % 2 and 'odd' or 'even'}">
+				<td class="col_name" rowspan="${len(well.channels)}">
+					<a href="${url(controller='well', action='view', id=well.id)}">${well.well_name}</a>
+				</td>
+				% if c.show_thumbs:
+				<td rowspan="${len(well.channels)}">
+					<a href="${url(controller='well', action='view', id=well.id)}">${h.literal(h.qlb_thumbnail(c.plate.qlbplate.id, well.well_name, 0, size=30))}</a>
+				</td>
+				<td rowspan="${len(well.channels)}">
+					<a href="${url(controller='well', action='view', id=well.id)}">${h.literal(h.qlb_thumbnail(c.plate.qlbplate.id, well.well_name, 1, size=30))}</a>
+				</td>
+				% endif
+				<td class="nowrap" rowspan="${len(well.channels)}">${well.sample_name}</td>
+				<td rowspan="${len(well.channels)}">${well.event_count}</td>
+				<td rowspan="${len(well.channels)}">${well.channels[0].rejected_peaks}</td>
+				<td class="nowrap">${well.channels[0].target}</td>
+				<td>${h.sig1(well.channels[0].concentration or 0)}</td>
+				<td>${h.sig1(well.channels[0].quantitation_threshold or 0)}</td>
+				<td>${h.sig2(well.channels[0].quantitation_threshold_conf or 0)}</td>
+				<td>${h.sig2(well.channels[0].width_sigma_disp or 0)}</td>
+				<td rowspan="${len(well.channels)}">${h.sig2(well.fam_vic_cnv_ratio)}</td>
+				<td rowspan="${len(well.channels)}">${h.sig2(well.vic_fam_cnv_ratio)}</td>
+			</tr>
+			% for i in range(1,len(well.channels)):
+			<tr class="${idx % 2 and 'odd' or 'even'}">
+				<td class="nowrap">${well.channels[i].target or '--'}</td>
+				<td>${h.sig1(well.channels[i].concentration or 0)}</td>
+				<td>${h.sig1(well.channels[i].quantitation_threshold or 0)}</td>
+				<td>${h.sig2(well.channels[i].quantitation_threshold_conf or 0)}</td>
+				<td>${h.sig2(well.channels[i].width_sigma_disp or 0)}</td>
+			</tr>
+			% endfor
+		% endif
+		% endfor
+	</tbody>
+</table>
+% else:
+<!-- TODO: modular include (used in /view as well) -->
+<div style="background: #eee; padding: 15px">
+<h5>This plate does not have any recorded well data.</h5>
+<p>
+	There may be few reasons for this:</strong>
+</p>
+<ul>
+	<li><strong>New Plate:</strong> The plate has just been loaded into the server, and the well data has not yet been parsed (come back in a few minutes)</li>
+	<li><strong>Cancelled Run:</strong> This plate run was cancelled.  Look for a similarly named, newer plate.</li>
+	<li><strong>Duplicate Plate:</strong> The plate was copied from one folder to another, and the server didn't process the wells.  (Please don't do this.)</li>
+</ul>
+<p>
+	If you feel there should be well data for this plate, please note the plate name and number (<strong>${c.plate.id}</strong>) and <a href="mailto:jeff.mellen@quantalife.com">email Jeff</a>.
+</p>
+</div>
+% endif

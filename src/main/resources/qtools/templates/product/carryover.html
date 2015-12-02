@@ -1,0 +1,30 @@
+<%inherit file="/product/base.html"/>
+
+<%def name="pagetitle()">Carryover Event Counter</%def>
+<%def name="selected_page()">carryover</%def>
+<%def name="explanation()">
+	<p>Select two carryover plates below and press 'Count', to find the number
+	of plates, wells and events run between them.</p>
+</%def>
+
+<%def name="css()">
+${parent.css()}
+<style type="text/css">
+	select {
+		width: 650px;
+	}
+</style>
+</%def>
+
+${c.form.start_with_layout(url(controller='product', action='carryover_count'), method="post")}
+${c.form.field('start', 'dropdown',
+	label='Starting Plate',
+	required=True
+)}
+${c.form.field('end', 'dropdown',
+	label='Ending Plate'
+)}
+	<tr><td style="padding-top: 10px;">
+	${c.form.submit("submit","Count")}
+	</td></tr>
+${c.form.end_with_layout()}

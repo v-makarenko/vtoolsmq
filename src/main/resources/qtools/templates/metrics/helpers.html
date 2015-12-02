@@ -1,0 +1,24 @@
+<%def name="drilldown_link(action, title, **kwargs)">
+	<a href="${url(controller='metrics', action=action, id=c.id, mode=c.mode, reprocess_config_id=getattr(c, 'rp_code', ''), operator_id=getattr(c, 'operator_id', ''), dr_id=getattr(c, 'dr_id', ''), dg_id=getattr(c ,'dg_id', ''), pt_id=getattr(c, 'pt_id', ''), gated_filter=getattr(c, 'gated_filter', ''), channel=getattr(c, 'channel', ''), pattern=getattr(c, 'pattern', ''), **kwargs)}">${title}</a>
+</%def>
+
+<%def name="metric_select(id='metric_select', name='metric', **kwargs)">
+	<select name="${name}" id="${id}"${h.literal(' %s' % ' '.join(['%s="%s"' % (k, v) for k, v in kwargs.items()]) if kwargs else '')}>
+		<option value=''>-- Select a Metric -- </option>
+		<optgroup label="Plate Metrics">
+			% for id, val in c.plate_compares:
+			<option value="plate.${id}"${h.literal(' selected="selected"' if 'plate.%s' % id == kwargs.get('value', None) else '')}>${val}</option>
+			% endfor
+		</optgroup>
+		<optgroup label="Well Metrics">
+			% for id, val in c.well_compares:
+			<option value="well.${id}"${h.literal(' selected="selected"' if 'well.%s' % id == kwargs.get('value', None) else '')}>${val}</option>
+			% endfor
+		</optgroup>
+		<optgroup label="Channel Metrics">
+			% for id, val in c.well_channel_compares:
+			<option value="channel.${id}"${h.literal(' selected="selected"' if 'channel.%s' % id == kwargs.get('value', None) else '')}>${val}</option>
+			% endfor
+		</optgroup>
+	</select>
+</%def>

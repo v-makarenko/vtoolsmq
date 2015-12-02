@@ -1,0 +1,7 @@
+<%def name="comp_cell(obj, prev_obj, attr)">
+	% if prev_obj and obj and getattr(obj, attr, None) != getattr(prev_obj, attr, None):
+	<td class="change">${getattr(obj, attr, h.literal('&nbsp;'))}</td>
+	% else:
+	<td>${getattr(obj, attr, h.literal('&nbsp;'))}</td>
+	% endif
+</%def>

@@ -1,0 +1,667 @@
+<%inherit file="/base/onecol.html" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+<%namespace file="/base/includes.html" name="incl" import="*" />
+
+<%def name="pagetitle()">Design Template</%def>
+<%def name="selected_page()">design</%def>
+
+<%def name="css()">
+	${parent.css()}
+	${incl.jqueryui_css()}
+	<link rel="stylesheet" href="${url('/css/qlt.css')}" type="text/css">
+	<style type="text/css" media="screen">
+		#dialog-form fieldset select.autoselect,
+		#dialog-form fieldset input.ui-autocomplete-input {
+			width: 130px;
+		}
+	</style>
+	<noscript>
+	<style type="text/css" media="screen">
+		.autoselect {
+			display: inline;
+		}
+	</style>
+	</noscript>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${incl.jqueryui_js()}
+	<script type="text/javascript" src="${url('/js/gridSelectable.js')}"></script>
+	<script type="text/javascript" src="${url('/js/selectable_utils.js')}"></script>
+	<script type="text/javascript" src="${url('/js/uitools.js')}"></script>
+	<script type="text/javascript" src="${url('/js/qlt.js')}"></script>
+</%def>
+
+% if hasattr(c, 'original_source'):
+<div class="grid_12">
+<p><strong>Original Source:</strong> <a href="${url(controller='plate', action='view', id=c.id)}">${c.original_source}</a></p>
+</div>
+% elif hasattr(c, 'plate_template'):
+<div class="grid_12">
+<p><strong>Template:</strong> ${c.plate_template.prefix}</p>
+</div>
+% elif hasattr(c, 'plate_setup'):
+<div class="grid_12">
+<p><strong>Template:</strong> ${c.plate_setup.prefix}</p>
+</div>
+% endif
+<div class="grid_12">
+	<div id="plate" class="plate">
+	<form id="plate_form" action="${url(controller='template', action='save')}" method="post">
+	<table class="grid_top">
+		<tr>
+			<th class="top_corner"><div class="cell_content">*</div></th>
+			% for col in ('01','02','03','04','05','06','07','08','09','10','11','12'):
+			<th><div class="cell_content">${col}</div></th>
+			% endfor
+		</tr>
+	</table>
+	<table class="grid_bottom">
+		<tr>
+			<td class="plate_section plate_left">
+				<table class="grid_left">
+					% for row in ('A','B','C','D','E','F','G','H'):
+					<tr>
+						<th><div class="cell_content">${row}</div></th>
+					</tr>
+					% endfor
+				</table>
+			</td>
+			<td class="plate_section">
+				<table class="grid_main">
+					% for i, row in enumerate(('A','B','C','D','E','F','G','H')):
+					<tr class="row">
+						% for j, col in enumerate(('01','02','03','04','05','06','07','08','09','10','11','12')):
+						<%
+						    cell = (c.wells.get("%s%s" % (row, col), None)) if hasattr(c, 'wells') else None
+						    cell_num = 12*i+j
+						%>
+						<td class="cell">
+							<div id="${row}${col}" class="cell_content ${c.class_decorator(cell)}">
+								<input type="hidden" name="cells-${cell_num}.cell_name" value="${'%s%s' % (row, col)}" />
+								<input class="data_sample" type="hidden" name="cells-${cell_num}.sample" value="${cell.sample if cell else ''}" />
+								<input class="data_exp_type_name" type="hidden" name="cells-${cell_num}.experiment_name" value="${cell.experiment_name if cell else ''}" />
+								<input class="data_exp_type" type="hidden" name="cells-${cell_num}.experiment_type" value="${cell.experiment_type if cell else ''}" />
+								<input class="data_experiment_comment" type="hidden" name="cells-${cell_num}.experiment_comment" value="${cell.experiment_comment if cell else ''}" />
+								<input class="data_fam_type" type="hidden" name="cells-${cell_num}.fam_type" value="${cell.channels[0].type if cell else 'Not Used'}" />
+								<input class="data_fam_target" type="hidden" name="cells-${cell_num}.fam_target" value="${cell.channels[0].target if cell else ''}" />
+								<input class="data_vic_type" type="hidden" name="cells-${cell_num}.vic_type" value="${cell.channels[1].type if cell else 'Not Used'}" />
+								<input class="data_vic_target" type="hidden" name="cells-${cell_num}.vic_target" value="${cell.channels[1].target if cell else ''}" />
+								<input class="data_temperature" type="hidden" name="cells-${cell_num}.temperature" value="${cell.temperature if cell else ''}" />
+								<input class="data_enzyme" type="hidden" name="cells-${cell_num}.enzyme" value="${cell.enzyme if cell else ''}" />
+								<input class="data_enzyme_conc" type="hidden" name="cells-${cell_num}.enzyme_conc" value="${cell.enzyme_conc if cell else ''}" />
+								<input class="data_additive" type="hidden" name="cells-${cell_num}.additive" value="${cell.additive if cell else ''}" />
+								<input class="data_additive_conc" type="hidden" name="cells-${cell_num}.additive_conc" value="${cell.additive_conc if cell else ''}" />
+								<input class="data_expected_cpd" type="hidden" name="cells-${cell_num}.expected_cpd" value="${cell.expected_cpd if cell else ''}" />
+								<input class="data_expected_cpul" type="hidden" name="cells-${cell_num}.expected_cpul" value="${cell.expected_cpul if cell else ''}" />
+								<input class="data_target_copy_num" type="hidden" name="cells-${cell_num}.target_copy_num" value="${cell.target_copy_num if cell else '1'}" />
+								<input class="data_ref_copy_num" type="hidden" name="cells-${cell_num}.ref_copy_num" value="${cell.ref_copy_num if cell else '2'}" />
+                                <input class="data_cartridge" type="hidden" name="cells-${cell_num}.cartridge" value="${cell.dg_cartridge if cell else ''}" />
+                                <input class="data_supermix" type="hidden" name="cells-${cell_num}.supermix" value="${cell.supermix if cell else ''}" />
+
+								<table class="cell_info">
+									<tr>
+										<td colspan="2" class="sample_row">
+											<div class="sample">&nbsp;</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="type_box exp_type">&nbsp;</td>
+										<td>
+											<div class="type_text exp_type_name">&nbsp;</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="type_box fam_type">&nbsp;</td>
+										<td>
+											<div class="type_text fam_target">&nbsp;</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="type_box vic_type">&nbsp;</td>
+										<td>
+											<div class="type_text vic_target">&nbsp;</div>
+										</td>
+									</tr>
+									<tr>
+										<td colspan="2">
+										<table>
+										<tr>
+										<td class="conditions_icon">&nbsp;</td>
+										<td class="additives_icon">&nbsp;</td>
+										<td class="expected_icon">&nbsp;</td>
+										</tr>
+										</table>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</td>
+						% endfor
+					</tr>
+					% endfor
+				</table>
+			</td>
+		</tr>
+	</table>
+    % if not getattr(c, 'preview_mode', False):
+    <div class="grid_12 alpha omega">
+    <table class="formbuild">
+	${c.form.field('rowcol_order', 'dropdown',
+	               label='Acquisition Order',
+	               required=True)}
+	<tr>
+	<td class="formbutton">
+		<input type="hidden" name="plate_template_id" value="${c.plate_template_id or ''}" />
+		<input type="hidden" name="plate_setup_id" value="${c.plate_setup_id or ''}" />
+		${c.form.submit('submit', 'Save Template')}
+	</td>
+	</tr>
+	</table>
+    </div>
+    % endif
+	</form>
+	</div>
+</div>
+<div class="clear"></div>
+
+<div id="dialog-form">
+	<div class="container_12">
+	<div class="grid_4 alpha omega" style="padding-top: 8px;">
+		<fieldset>
+			<legend>Sample</legend>
+			<div class="enabled_region" id="sample_region">
+			<label for="sample">Name:</label>
+			<span class="disabled_message">
+				<span class="ui-icon ui-icon-locked"></span>
+				<a href="#">Multiple&ndash;Click to Change</a>
+			</span>
+			<input type="text" class="as_is_value" id="sample" maxlength="64" />
+			</div>
+			<div class="enabled_region" id="exp_type_name_region">
+			<label for="exp_type_name">Experiment:</label>
+			<span class="disabled_message">
+				<span class="ui-icon ui-icon-locked"></span>
+				<a href="#">Multiple&ndash;Click to Change</a>
+			</span>
+			<select class="as_is_value" id="exp_type_name">
+				<option value=''>None</option>
+				<option value='ABS'>Absolute Quantitation</option>
+				<option value='CNV'>Copy Number Variation</option>
+				<option value='RED'>Rare Event Detection</option>
+				<option value='Ratio'>Ratio</option>
+				<option value='Validation-Carryover'>Validation-Carryover</option>
+				<option value='Validation-CNV'>Validation-CNV</option>
+				<option value='Validation-DNR'>Validation-DNR</option>
+				<option value='Validation-Duplex'>Validation-Duplex</option>
+				<option value='Validation-Dye'>Validation-Dye</option>
+				<option value='Validation-RED'>Validation-RED</option>
+				<option value='Validation-Singleplex'>Validation-Singleplex</option>
+			</select>
+			</div>
+            <div class="enabled_region" id="supermix_region">
+            <label for="supermix">Supermix:</label>
+            <span class="disabled_message">
+                <span class="ui-icon ui-icon-locked"></span>
+                <a href="#">Multiple&ndash;Click to Change</a>
+            </span>
+            <select class="as_is_value" id="supermix">
+                <option value='Droplet PCR Supermix'>Droplet PCR Supermix</option>
+                <option value='ddPCR Supermix for Probes'>ddPCR Supermix for Probes</option>
+                <option value='One-Step RT-ddPCR Kit for Probes'>One-Step RT-ddPCR Kit for Probes</option>
+                <option value='QX200 ddPCR EvaGreen Supermix'>QX200 ddPCR EvaGreen Supermix</option>
+                <option value='Color Calibration Supermix'>Color Calibration Supermix</option>
+            </select>
+            </div>
+            <div class="enabled_region" id="cartridge_region">
+            <label for="Cartridge">Cartridge:</label>
+            <span class="disabled_message">
+                <span class="ui-icon ui-icon-locked"></span>
+                <a href="#">Multiple&ndash;Click to Change</a>
+            </span>
+            <select class="as_is_value" id="cartridge">
+                <option value='186-3008'>186-4008</option>
+                <option value='186-4008'>186-3008</option>
+                <option value='Color Calibration Supermix'>Color Calibration Supermix</option>
+            </select>
+            </div>
+			<div class="clear"></div>
+		</fieldset>
+		<div>
+			<button id="clear_button">Clear Selected</button>
+			<button id="update_button">Update</button>
+		</div>
+	</div>
+	<div class="grid_8 omega">
+		<div id="tabs" class="tabs-bottom">
+			<ul>
+				<li><a href="#target-tab">Targets</a></li>
+				<li><a id="conditions_tab_link" href="#conditions-tab">Conditions</a></li>
+				<li><a id="additives_tab_link" href="#additives-tab">Additives</a></li>
+				<li><a id="expected_tab_link" href="#expected-tab">Expected Values</a></li>
+			</ul>
+			<div id="target-tab">
+				<div class="grid_4 alpha">
+					<fieldset>
+						<legend>FAM Assay</legend>
+						<div class="enabled_region" id="fam_target_region">
+						<label for="fam_target">Name:</label>
+						<span class="disabled_message">
+							<span class="ui-icon ui-icon-locked"></span>
+							<a href="#">Multiple&ndash;Click to Change</a>
+						</span>
+						<select id="fam_target" class="autoselect as_is_value">
+							% for key, val in c.assay_field['options']:
+							<option value="${key}">${val}</option>
+							% endfor
+						</select>
+						</div>
+						<div class="enabled_region" id="fam_type_region">
+						<label for="fam_type">Type:</label>
+						<span class="disabled_message">
+							<span class="ui-icon ui-icon-locked"></span>
+							<a href="#">Multiple&ndash;Click to Change</a>
+						</span>
+						<select class="as_is_type" id="fam_type">
+							<option value='Not Used'>Unused</option>
+							<option value='Unknown'>FAM Unknown</option>
+							<option value='Reference'>FAM Reference</option>
+							<option value='Positive'>FAM Positive</option>
+							<option value='Negative'>FAM Negative</option>
+							<option value='Blank'>Blank</option>
+						</select>
+						</div>
+					</fieldset>
+				</div>
+				<div class="grid_4 omega">
+					<fieldset>
+						<legend>VIC Assay</legend>
+						<div class="enabled_region" id="vic_target_region">
+						<label for="vic_target">Name:</label>
+						<span class="disabled_message">
+							<span class="ui-icon ui-icon-locked"></span>
+							<a href="#">Multiple&ndash;Click to Change</a>
+						</span>
+						<select id="vic_target" class="autoselect as_is_value">
+							% for key, val in c.assay_field['options']:
+							<option value="${key}">${val}</option>
+							% endfor
+						</select>
+						</div>
+						<div class="enabled_region" id="vic_type_region">
+						<label for="vic_type">Type:</label>
+						<span class="disabled_message">
+							<span class="ui-icon ui-icon-locked"></span>
+							<a href="#">Multiple&ndash;Click to Change</a>
+						</span>
+						<select class="as_is_type" id="vic_type">
+							<option value='Not Used'>Unused</option>
+							<option value='Unknown'>VIC Unknown</option>
+							<option value='Reference'>VIC Reference</option>
+							<option value='Positive'>VIC Positive</option>
+							<option value='Negative'>VIC Negative</option>
+							<option value='Blank'>Blank</option>
+						</select>
+						</div>
+					</fieldset>
+				</div>
+				<div class="clear"></div>
+			</div>
+			<div id="conditions-tab">
+				<div class="grid_4 alpha">
+					<fieldset>
+						<legend>Temperature</legend>
+						<div class="enabled_region" id="temperature_region">
+							<label for="temperature">Temp &deg;C:</label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<input type="text" class="as_is_value" id="temperature" maxlength="8" />
+						</div>
+					</fieldset>
+				</div>
+			</div>
+			<div id="additives-tab">
+				<div class="grid_4 alpha">
+					<fieldset>
+						<legend>Restriction Enzymes</legend>
+						<div class="enabled_region" id="enzyme_region">
+							<label for="enzyme"><a href="${url(controller='cutter', action='enzymes')}">Enzyme:</a></label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<select id="enzyme" class="autoselect as_is_value">
+								% for key, val in c.re_field['options']:
+								<option value="${key}">${val}</option>
+								% endfor
+							</select>
+						</div>
+						<div class="enabled_region" id="enzyme_conc_region">
+							<label for="enzyme_conc">Conc.:</label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<input type="text" class="as_is_value" id="enzyme_conc" maxlength="8" />
+						</div>
+					</fieldset>
+				</div>
+				<div class="grid_4 omega">
+					<fieldset>
+						<legend>Other Additive(s)</legend>
+						<div class="enabled_region" id="additive_region">
+							<label for="additive">Additive(s):</label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<input type="text" class="as_is_value" id="additive" maxlength="32" />
+						</div>
+						<div class="enabled_region" id="additive_conc_region">
+							<label for="additive_conc">Conc:</label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<input type="text" class="as_is_value" id="additive_conc" maxlength="8" />
+						</div>
+					</fieldset>
+				</div>
+			</div>
+			<div id="expected-tab">
+				<div class="grid_4 alpha">
+					<fieldset>
+						<legend>Expected Concentration</legend>
+						<div class="enabled_region" id="expected_cpd_region">
+							<label for="expected_cpd">cpd:</label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<input type="text" class="as_is_value" id="expected_cpd" maxlength="8" />
+						</div>
+						<div class="enabled_region" id="expected_cpul_region">
+							<label for="expected_cpul">cp/&mu;L:</label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<input type="text" class="as_is_value" id="expected_cpul" maxlength="8" />
+						</div>
+					</fieldset>
+				</div>
+				<div class="grid_4 omega">
+					<fieldset>
+						<legend>Expected CNV</legend>
+						<div class="enabled_region" id="target_copy_num_region">
+							<label for="target_copy_num">CNV:</label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<input type="text" class="as_is_value" id="target_copy_num" maxlength="8" />
+						</div>
+						<div class="enabled_region" id="ref_copy_num_region">
+							<label for="ref_copy_num">Ref Copies:</label>
+							<span class="disabled_message">
+								<span class="ui-icon ui-icon-locked"></span>
+								<a href="#">Multiple&ndash;Click to Change</a>
+							</span>
+							<input type="text" class="as_is_value" id="ref_copy_num" maxlength="4" />
+						</div>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="clear"></div>
+    </div>
+</div>
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+		$(function() {
+			var grid = $('#plate').gridSelectable({filter: '.cell_content'})
+			var form = new QLTDialogForm('#dialog-form');
+
+			var expRealTypeMap = {
+				'ABS': 'Absolute Quantitation',
+				'CNV': 'Copy Number Variation',
+				'RED': 'Rare Event Detection',
+				'Ratio': 'Absolute Quantitation',
+				'Validation-Carryover': 'Absolute Quantitation',
+				'Validation-CNV': 'Copy Number Variation',
+				'Validation-DNR': 'Absolute Quantitation',
+				'Validation-Duplex': 'Absolute Quantitation',
+				'Validation-Dye': 'Absolute Quantitation',
+				'Validation-RED': 'Rare Event Detection',
+				'Validation-Singleplex': 'Absolute Quantitation'
+			}
+
+			var typeSymbolMap = {
+				'exp_type': {
+					'Absolute Quantitation': 'A',
+					'Copy Number Variation': 'C',
+					'Rare Event Detection': 'R',
+					'Ratio': '%',
+					'Validation-Carryover': 'A',
+					'Validation-CNV': 'C',
+					'Validation-DNR': 'A',
+					'Validation-Duplex': 'A',
+					'Validation-Dye': 'A',
+					'Validation-RED': 'R',
+					'Validation-Singleplex': 'A'
+				},
+				'fam_type': {
+					'Not Used': '',
+					'Unknown': 'U',
+					'Reference': 'R',
+					'Positive': '+',
+					'Negative': '-',
+					'Blank': 'B'
+				},
+				'vic_type': {
+					'Not Used': '',
+					'Unknown': 'U',
+					'Reference': 'R',
+					'Positive': '+',
+					'Negative': '-',
+					'Blank': 'B'
+				}
+			}
+			
+			var typeColors = {
+				'exp_type': '#ff8c00',
+				'fam_type': '#9cf',
+				'vic_type': '#3c3'
+			}
+
+			var iconClasses = {
+				'conditions': ['temperature'],
+				'additives': ['enzyme','enzyme_conc','additive','additive_conc'],
+				'expected': ['expected_cpd','expected_cpul']
+			}
+
+			var updateTypeBox = function(el, el_type, key) {
+				if(key && typeSymbolMap[el_type] && typeSymbolMap[el_type][key]) {
+					$(el).text(typeSymbolMap[el_type][key])
+					$(el).css('background', typeColors[el_type])
+				}
+				else {
+					$(el).html('&nbsp;')
+					$(el).css('background', 'none')
+				}
+			}
+
+			var updateIconClasses = function(el) {
+				var data = $(el).data()
+				for(var d in data) {
+				}
+				for(var klass in iconClasses) {
+					var dataPresent = false;
+					for(var i=0;i<iconClasses[klass].length;i++) {
+						var d = "qlt."+iconClasses[klass][i];
+						if(data[d]) {
+							$(el).addClass(klass+'_active')
+							dataPresent = true;
+							break;
+						}
+					}
+					if(!dataPresent) {
+						$(el).removeClass(klass+'_active');
+					}
+				}
+			}
+
+            % if not getattr(c, 'preview_mode', False):
+			SelectableUtils.bindElementSelected(grid.grid, function() {
+				$('#dialog-form').dialog('open');
+				$('#update_button').focus()
+			});
+			SelectableUtils.bindElementSelected(grid.leftBar, function() {
+				$('#dialog-form').dialog('open');
+			});
+			SelectableUtils.bindElementSelected(grid.topBar, function() {
+				$('#dialog-form').dialog('open');
+			});
+            % endif
+
+			// init
+			$(SelectableUtils.elements(grid.grid)).each(function(i, e) {
+				$(e).find('input').each(function(j, ie) {
+					var val = $(ie).val()
+					if(!val) {
+						return;
+					}
+					var klass = $(ie).attr('class')
+					if(klass.indexOf('data') == 0) {
+						var target = klass.substring(5);
+						var tEl = $(e).find('.'+target)
+						if(tEl) {
+							if(target.lastIndexOf('type') != target.length-4) {
+								$(tEl).text(val)
+							}
+							else {
+								updateTypeBox(tEl, target, val);
+							}
+						}
+						// this may be diff
+						$(e).data('qlt.'+target, val);
+					}
+				});
+			});
+
+			$('#dialog-form').bind('valueChanged', function(evt, data) {
+				$(SelectableUtils.selectedElements(grid.grid)).each(function(i, e) {
+					if(data.key) {
+						$(e).find('.'+data.element).text(data.key);
+					}
+					else {
+						$(e).find('.'+data.element).html('&nbsp;')
+					}
+					$(e).data('qlt.'+data.element, data.key);
+					updateIconClasses(e);
+					if(data.element == 'exp_type_name') {
+						console.log(data.key)
+						var etype = expRealTypeMap[data.key];
+						if(!etype) {
+							etype = data.key;
+						}
+						var substr = data.element.substring(0, data.element.length-5);
+						var et = $(e).find('.'+substr);
+						updateTypeBox(et, substr, etype);
+						$(e).data('qlt.'+substr, etype);
+					}
+				});
+			});
+
+			$('#dialog-form').bind('typeChanged', function(evt, data) {
+				$(SelectableUtils.selectedElements(grid.grid)).each(function(i, e) {
+					var et = $(e).find('.'+data.element);
+					updateTypeBox(et, data.element, data.key)
+					$(e).data('qlt.'+data.element, data.key);
+				});
+			});
+
+			$('#dialog-form').bind('clear', function(evt, data){
+				$(SelectableUtils.selectedElements(grid.grid)).each(function(i, e) {
+					$(e).find('.type_box').html('').css('background','none');
+					$(e).find('.type_text, .sample').html('&nbsp;')
+					var dt = $(e).data();
+					for(var d in dt) {
+						if(d.indexOf('qlt') == 0) {
+							$(e).removeData(d);
+						}
+					}
+					// overrides blank where blank isn't really blank (sigh); bug 828
+					$(e).data('qlt.fam_type', 'Not Used');
+					$(e).data('qlt.vic_type', 'Not Used');
+					$(e).data('qlt.ref_copy_num', 2);
+					$(e).data('qlt.target_copy_num', 1);
+					updateIconClasses(e);
+				});
+			});
+
+			$('#plate').bind('gridselectablechanged', function() {
+				var bins = {'sample': [],
+				            'exp_type': [],
+				            'exp_type_name': [],
+				            'experiment_comment': [],
+				            'fam_type': [],
+				            'fam_target': [],
+				            'vic_type': [],
+				            'vic_target': [],
+				            'temperature': [],
+				            'enzyme': [],
+				            'enzyme_conc': [],
+				            'additive': [],
+				            'additive_conc': [],
+				            'expected_cpd': [],
+				            'expected_cpul': [],
+				            'target_copy_num': [],
+				            'ref_copy_num': [],
+                            'cartridge':[],
+                            'supermix':[]};
+				
+				$(SelectableUtils.selectedElements(grid.grid)).each(function(i, e) {
+					var dt = $(e).data();
+					for(var d in dt) {
+						var val = dt[d]
+						if(d.indexOf('qlt') == 0) {
+							var key = d.substring(4)
+							if($.inArray(val, bins[key]) == -1) {
+								bins[key].push(val)
+							}
+						}
+					}
+					for(b in bins) {
+						if(typeof($(e).data('qlt.'+b)) == 'undefined') {
+							if($.inArray('', bins[b]) == -1) {
+								bins[b].push('')
+							}
+						}
+					}
+				});
+				form.dataSelected(bins);
+			});
+
+            % if not getattr(c, 'preview_mode', False):
+            $('#plate_form').submit(function() {
+				$(SelectableUtils.elements(grid.grid)).each(function(i, e) {
+					$(e).find('input').each(function(j, ie) {
+						var klass = $(ie).attr('class')
+						if(klass.indexOf('data') == 0) {
+							var target = $(ie).attr('class').substring(5)
+							$(ie).val($(e).data('qlt.'+target));
+						}
+					});
+				});
+				return true;
+			});
+            % endif
+		});
+	</script>
+</%def>	

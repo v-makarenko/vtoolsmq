@@ -1,0 +1,73 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		#content {
+			position: relative;
+		}
+		#content .tabs {
+			margin-bottom: 0;
+			margin-top: 20px;
+		}
+
+		#content .tabs li>a {
+			padding: 0 10px;
+		}
+
+		#content.tw_bootstrap pre {
+			padding: 6px;
+			margin-bottom: 5px;
+		}
+	</style>
+</%def>
+
+<%def name="pagetitle()">${c.sequence_group.name}</%def>
+
+<%def name="js()">
+	${parent.js()}
+	<script type="text/javascript" src="${url('/js/tw/bootstrap-tabs.js')}"></script>
+</%def>
+
+<ul class="pills">
+	<li class="${'active' if c.tab == 'details' else ''}">
+		<a href="${url(controller='sequence', action='view_details', id=c.sequence_group.id)}">Details</a>
+	</li>
+	<li class="${'active' if c.tab == 'sequences' else ''}">
+		<a href="${url(controller='sequence', action='view_sequences', id=c.sequence_group.id)}">Sequences/SNPs</a>
+	</li>
+	<!--
+	<li class="${'active' if c.tab == 'plates' else ''}">
+		<a href="${url(controller='sequence', action='view_plates', id=c.sequence_group.id)}">Plates</a>
+	</li>
+	-->
+	<li class="${'active' if c.tab == 'validation' else ''}">
+		<a href="${url(controller='sequence', action='view_validation', id=c.sequence_group.id)}">Validation</a>
+	</li>
+	<li class="${'active' if c.tab == 'conditions' else ''}">
+		<a href="${url(controller='sequence', action='view_conditions', id=c.sequence_group.id)}">Conditions</a>
+	</li>
+</ul>
+<div class="tab-content">
+	${next.body()}
+</div>
+<%def name="actions()">
+<div class="actions">
+	<a class="btn primary" href="${url(controller='sequence', action='load', id=c.sequence_group.id)}">Edit Assay</a>
+	<form style="display: inline; margin-left: 10px;" action="${url(controller='sequence', action='delete', id=c.sequence_group.id)}" method="post">
+		<input type="submit" id="delete_assay" class="btn danger" value="Delete Assay" />
+	</form>
+</div>
+</%def>
+${self.actions()}
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+	$(function() {
+		$('#delete_assay').click(function() {
+			return confirm('Are you sure you want to delete this assay?');
+		})
+	});
+	</script>
+</%def>

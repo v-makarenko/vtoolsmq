@@ -1,0 +1,17 @@
+<%inherit file="/plate/base.html"/>
+
+<%def name="pagetitle()">Plate Utilities</%def>
+<%def name="selected_page()">platehome</%def>
+
+<p>Click the links below to do what you want to do with plates.</p>
+
+<h2>Completed Utilities</h2>
+<ul>
+	<li><a href="${url(controller='plate', action='name')}">Plate Name Generator</a></li>
+	<li><a href="${url(controller='plate', action='list')}">Plate List</a></li>
+	<li><a href="${url(controller='plate', action='search')}">Useful Plate Search!</a></li>
+	<li><a href="${url(controller='box2', action='plates')}">(phasing out) Advanced Plate Search</a></li>
+</ul>
+
+<h2>What's New</h2>
+<p><strong>2011/01/19:</strong> Search for plates by metadata.  This will be the first in a series of common searches made easier.</p>

@@ -1,0 +1,219 @@
+<%inherit file="/sequence/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+<%namespace file="/sequence/components.html" name="comp" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${auto.css()}
+	<style type="text/css">
+		#content {
+			position: relative;
+		}
+		#content .tabs {
+			margin-bottom: 0;
+			margin-top: 20px;
+		}
+
+		#content .tabs li>a {
+			padding: 0 10px;
+		}
+
+		#content .condensed-table {
+			margin-top: 15px;
+		}
+
+		#content .condensed-table th {
+			background-color: #eee;
+		}
+		
+		.tab-content > div {
+			display: none;
+		}
+
+		.tab-content {
+			margin-bottom: 20px;
+			height: auto !important;
+			min-height: 110px;
+			height: 110px;
+		}
+
+		.tab-content > div.active {
+			border-width: 0px 1px 1px 1px;
+			border-style: solid;
+			border-color: #ddd;
+			padding: 10px;
+			height: auto !important;
+			min-height: 90px;
+			height: 90px;
+		}
+
+		.tw_bootstrap .tab-content .span4 {
+			width: 240px;
+			margin-left: 18px;
+		}
+
+		.tw_bootstrap .tab-content .span4 label {
+			width: 60px;
+		}
+
+		.tw_bootstrap .tab-content .span4 .input {
+			margin-left: 75px;
+		}
+
+		th.assay_type, td.assay_type {
+			white-space: nowrap;
+		}
+
+
+		.tab-content form {
+			margin: 0;
+		}
+
+		.span6 div.button_line {
+			width: 310px;
+			text-align: right;
+		}
+
+		.span4 div.button_line {
+			width: 235px;
+			text-align: right;
+		}
+
+		#assay_table {
+			font-size: 12px;
+		}
+
+		#assay_table th.assay_name,
+		#assay_table td.assay_name {
+			padding-left: 20px;
+		}
+
+		#assay_table tr.conditioned_row td.assay_name {
+			background-image: url(/images/icons/temperature.png);
+			background-position: 0 50%;
+			background-repeat: no-repeat;
+		}
+
+		.autoselect_toggle {
+			display: none;
+		}
+
+		#auto_sequence_group_jump {
+			width: 150px;
+		}
+
+	</style>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+	<script type="text/javascript" src="${url('/js/tw/bootstrap-tabs.js')}"></script>
+</%def>
+
+<%def name="pagetitle()">Assay List</%def>
+
+<div class="upper_link">
+	<a class="btn primary" href="${url(controller='sequence', action='start', flow='sequence.new')}">New Assay</a>
+</div>
+
+<ul class="tabs">
+	<li class="${'active' if c.tab == 'list' else ''}"><a href="#list_filter">Filter</a></li>
+	<li class="${'active' if c.tab == 'search' else ''}"><a href="#list_search">Search</a></li>
+	<li class="${'active' if c.tab == 'locate' else ''}"><a href="#list_locate">Locate</a></li>
+	<li class="${'active' if c.tab == 'jump' else ''}"><a href="#list_jump">Jump</a></li>
+</ul>
+<div class="tab-content">
+<div id="list_filter" class="${'active' if c.tab == 'list' else ''}">
+	<form action="${url(controller='sequence', action='list_filter')}" method="get">
+	<div class="row">
+		<div class="span4">
+			${boot.select('status', c.statuses, label='Status',  klass="span3")}
+			${boot.select('type', c.assay_types, label='Type', klass="span3")}
+		</div>
+		<div class="span4">
+			${boot.select('owner_id', c.owners, label='Owner', klass="span3")}
+			${boot.text('since', label='Date >', klass="span3 datepicker")}
+		</div>
+		<div class="span4">
+			${boot.select('category', c.tags, label='Category', klass="span3")}
+			<div class="button_line">
+				${boot.submit('Apply', klass='info')}
+				${boot.secondary_action('All Assays', klass='clear_btn')}
+			</div>
+		</div>
+	</div>
+	</form>
+</div>
+<div id="list_search" class="${'active' if c.tab == 'search' else ''}">
+	<form action="${url(controller='sequence', action='list_search')}" method="get">
+	<div class="row">
+		<div class="span6">
+			${boot.text('name', label='Name', klass='span3')}
+		</div>
+		<div class="span6">
+			${boot.text('gene', label='Gene', klass='span3')}
+			<div class="button_line">
+				${boot.submit('Search', klass='info')}
+				${boot.secondary_action('All Assays', klass='clear_btn')}
+			</div>
+		</div>
+	</div>
+	</form>
+</div>
+<div id="list_locate" class="${'active' if c.tab == 'locate' else ''}">
+	<form action="${url(controller='sequence', action='list_locate')}" method="get">
+	<div class="row">
+		<div class="span6">
+			${boot.select('chromosome', c.chromosomes, label='Chromosome', klass="span3")}
+		</div>
+		<div class="span6">
+			${boot.text('location', label='Location (+/- 10kb)', klass="span3", autocomplete="off")}
+			<div class="button_line">
+				${boot.submit('Locate', klass='info')}
+				${boot.secondary_action('All Assays', klass='clear_btn')}
+			</div>
+		</div>
+	</div>
+	</form>
+</div>
+<div id="list_jump" class="${'active' if c.tab == 'jump' else ''}">
+	<form>
+	<div class="row">
+		<div class="span7">
+			<div class="clearfix">
+				<label for="sequence_group_id">Jump</label>
+				<div class="input">
+					${boot.select('sequence_group_id', c.all_assays, inline=True, label='Select', klass="span3 autoselect_text", id='sequence_group_jump')}
+					<button id="jump_btn" class="btn">Go</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	</form>
+</div>
+${comp.assay_list(c.groups)}
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		$(function() {
+			$('.tabs').tabs()
+			$('.clear_btn').click(function() {
+				window.location.href = "${url(controller='sequence', action='list')}";
+				return false;
+			});
+			$('input.datepicker').datepicker({dateFormat: 'yy/mm/dd'});
+			$('#sequence_group_jump').autoselect({toggleSelect: true, toggleSelectText: '', toggleInputText: ''})
+			// set on both; perhaps this should be default
+			$('#jump_btn').click(function() {
+				$('#auto_sequence_group_jump').autocomplete('close');
+				var val = $('#sequence_group_jump').val()
+				window.location.href = "${url(controller='sequence', action='view')}"+'/'+val;
+				return false;
+			})
+
+		})
+	</script>
+</%def>

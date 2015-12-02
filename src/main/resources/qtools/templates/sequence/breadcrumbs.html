@@ -1,0 +1,8 @@
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+${boot.session_breadcrumbs(c.flow,
+                           ((None, 'Basics', url(controller='sequence', action='start', flow=c.flow)),
+                            ('assay_structure','Components', url(controller='sequence', action='components', flow=c.flow)),
+                            ('save_target', 'Notes', url(controller='sequence', action='notes', flow=c.flow)),
+                            ('save_notes', 'Review', url(controller='sequence', action='review', flow=c.flow))
+                          ))}

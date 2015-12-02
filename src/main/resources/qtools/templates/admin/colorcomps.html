@@ -1,0 +1,50 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/admin/components.html" name="comp" import="*" />
+
+<%def name="pagetitle()">Last Color Calibrations</%def>
+<%def name="selected_page()">readers</%def>
+
+<%def name="css()">
+${parent.css()}
+<style type="text/css">
+	table.datagrid table {
+		margin-bottom: 0px;
+		font-family: monospace;
+		font-size: 12px;
+	}
+</style>
+</%def>
+
+<%def name="explanation()">
+<p>These are the last color calibration dates and matrices of the lab readers.</p>
+</%def>
+
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Reader</th>
+			<th>Last Calibrated Date</th>
+			<th>Current Matrix</th>
+		</tr>
+	</thead>
+	<tbody>
+		% for reader, (date, ccm, status_int) in c.last_colorcomps:
+		<tr class="status${status_int}">
+			<td>${reader}</td>
+			<td>${h.ymd(date)}</td>
+			<td>
+				<table>
+					<tr>
+						<td>[${h.sig3(ccm[0])}</td>
+						<td>${h.sig3(ccm[2])}</td>
+					</tr>
+					<tr>
+						<td>${h.sig3(ccm[1])}</td>
+						<td>${h.sig3(ccm[3])}]</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		% endfor
+	</tbody>
+</table>

@@ -1,0 +1,44 @@
+<%namespace file="/base/includes.html" name="incl" import="*" />
+
+<%def name="css()">
+${incl.jqueryui_css()}
+<noscript>
+	<style type="text/css" media="screen">
+		form .autoselect {
+			display: inline;
+		}
+	</style>
+</noscript>
+</%def>
+
+<%def name="js()">
+	<script src="${url('/js/jquery-ui-1.8.14.custom.min.js')}"></script>
+	<script src="${url('/js/uitools.js?%s' % h.timestamp())}"></script>
+</%def>
+
+
+<%def name="detect_autoselect(form_selector, onsubmit_handler=True, toggleSelectText=None, toggleInputText=None)">
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("select.autoselect").each(function() {
+				$(this).autoselect({'toggleSelect': true,
+					                'toggleMode': 'select',
+					                'toggleSelectText': '${toggleSelectText or 'Show All'}',
+					                'toggleInputText': '${toggleInputText or 'Other'}'})
+			})
+
+			$("select.autoselect_text").each(function() {
+				$(this).autoselect({'toggleSelect': true,
+				                    'toggleSelectText': '${toggleSelectText or 'Show All'}',
+				                    'toggleInputText': '${toggleInputText or 'Other'}'})
+			})
+			
+			% if onsubmit_handler:
+			// this is a weird way to invoke it -- improve
+			$("${form_selector}").submit(function() {
+				$(this).submit_autoselect()
+			})
+			% endif
+		})
+	</script>
+</%def>

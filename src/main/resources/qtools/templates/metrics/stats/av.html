@@ -1,0 +1,20 @@
+<%inherit file="/metrics/stats/base.html" />
+<%namespace file="/metrics/stats_tables.html" name="st" import="*" />
+
+<h5>Singleplex</h5>
+${st.singleplex_table()}
+
+<h5>Duplex</h5>
+${st.duplex_table()}
+
+<h5>CNV</h5>
+${st.cnv_table()}
+
+<h5>Dynamic Range</h5>
+${st.dnr_table()}
+
+<h5>RED</h5>
+${st.red_table()}
+
+<h5>Width Info</h5>
+${st.width_table()}

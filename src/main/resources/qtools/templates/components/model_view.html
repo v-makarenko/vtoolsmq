@@ -1,0 +1,9 @@
+<%def name="labeled_model_row(mv, obj, attr)">
+<%
+	label, val = mv.labeleditem(obj, attr)
+%>
+	<tr>
+		<td class="col_field">${label}:</td>
+		<td>${val}</td>
+	</tr>
+</%def>

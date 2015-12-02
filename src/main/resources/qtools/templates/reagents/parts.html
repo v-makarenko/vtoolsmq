@@ -1,0 +1,46 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Part Numbers: ${c.line.name}</%def>
+
+<div class="upper_link">
+    <a class="btn primary" href="${url(controller='reagents', action='part_new', id=c.line.id)}">New Part Number</a>
+</div>
+
+% if c.part_numbers:
+<table class="condensed-table zebra-striped">
+    <thead>
+        <tr>
+            <th>Name/Part Number</th>
+            <th>Rev</th>
+            <th>Lots</th>
+            <th>Validation</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        % for part in c.part_numbers:
+        <tr>
+            <td>${part.name}</td>
+            <td>${part.rev}</td>
+            <td><a href="${url(controller='reagents', action='lots', id=part.id)}">View</a> (${len(part.lot_numbers)})&nbsp;|&nbsp;<a href="${url(controller='reagents', action='lot_many', id=part.id)}">Create</a>
+            <td>
+                % if part.current_spec:
+                <a href="${url(controller='reagents', action='spec', id=part.current_spec.id, tab='spec')}">Spec</a>&nbsp;|&nbsp;<a href="${url(controller='reagents', action='template', id=part.id)}">Make QLT</a>&nbsp;|&nbsp;<a href="${url(controller='reagents', action='part_plates',id=part.id)}">Tests</a>
+                % else:
+                None (<a href="${url(controller='reagents', action='spec_new', id=part.id)}">Add Spec</a>)
+                % endif
+            </td>
+            <td style="white-space: nowrap;"><a href="${url(controller='reagents', action='part_edit', id=part.id)}">Edit Part</a>&nbsp;|&nbsp;<a href="${url(controller='reagents', action='specs', id=part.id)}">Spec History</a>
+            </td>
+        % endfor
+    </tbody>
+</table>
+% else:
+<div class="well">
+    There are no part numbers in this product line. <a href="${url(controller='reagents', action='part_new', id=c.line.id)}">Click here to create a new part.</a>
+</div>
+% endif
+<div class="actions">
+    <a class="btn" href="${url(controller='reagents', action='lines')}">Back to Product Lines</a>
+</div>

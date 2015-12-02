@@ -1,0 +1,89 @@
+<%inherit file="/stats/base.html"/>
+
+<%def name="pagetitle()">DR Utilization</%def>
+<%def name="selected_page()">boxes</%def>
+<%def name="explanation()">
+<p>
+	The green regions are times when the readers were known to be running.  Move your mouse over a region and wait for the tooltip to see which plate was running, or click on that plate to see it.
+</p>
+</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css" media="screen">
+		#utilization {
+			width: 770px;
+		}
+		
+		#utilization th {
+			background: #eee;
+			padding: 0.5em 0;
+			border-bottom: 1px solid #ccc;
+		}
+		
+		#utilization th.day {
+			width: 99px;
+			border-left: 1px solid #ccc;
+		}
+		
+		#utilization th.day a {
+			text-decoration: none;
+		}
+		
+		#utilization .util_machine {
+			width: 69px;
+			text-align: center;
+			border-right: 1px solid #ccc;
+			font-weight: bold;
+			background: #eee;
+		}
+		
+		#utilization td {
+			height: 3em;
+			vertical-align: middle;
+			border-bottom: 1px solid #ccc;
+		}
+		
+		#utilization td .util_event_container {
+			position: relative;
+			width: 700px;
+			height: 3em;
+			overflow: hidden;
+		}
+		
+		#utilization td .util_event {
+			height: 3em;
+			display: block;
+			position: absolute;
+			background: #090;
+		}
+		
+		#util_header {
+			width: 770px;
+			margin-bottom: 0px;
+			font-weight: bold;
+		}
+		
+		#util_header td {
+			width: 175px;
+			background: #ddd;
+			padding: 0.5em;
+			border-bottom: 1px solid #ccc;
+		}
+		
+		#util_header td.date_display {
+			width: 400px;
+			text-align: center;
+		}
+		
+		td.next_date {
+			text-align: right;
+		}
+	</style>
+</%def>
+<table id="util_header">
+	${next.date_header()}
+</table>
+<table id="utilization">
+	${next.utilization_table()}
+</table>
+${next.body()}

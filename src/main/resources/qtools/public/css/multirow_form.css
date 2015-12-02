@@ -1,0 +1,21 @@
+tr.sample_row td {
+    display: none;
+}
+
+.add_row {
+    visibility: hidden;
+}
+
+.col_actions a {
+    margin-right: 1em;
+}
+
+/* not sure why these aren't working with bootstrap css */
+span.error-message {
+    color: #B94A48;
+    font-size: 11px;
+}
+
+input.error, select.error {
+    border-color: #EE5F5B;
+}

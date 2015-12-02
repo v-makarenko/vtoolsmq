@@ -1,0 +1,50 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagetitle()">${c.title}</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    ${auto.css()}
+    ${boot.css()}
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    ${auto.js()}
+</%def>
+
+<form action="${c.submit_action}" method="post">
+    ${boot.text('number', label='Number', autocomplete='off', klass="span6", id="number")}
+    ${boot.text('date_manufactured', label='Manufacture Date', autocomplete='off', klass="span6 datepicker", id="date_manufactured")}
+    ${boot.textarea('notes', label="Notes", autocomplete='off', rows="4", klass="span8", help_block='Add any additional details about the lot here.')}
+    <div class="actions">
+        ${boot.submit(c.call_to_action)}
+        % if not c.record_exists:
+        <a href="${url(controller='reagents', action='lots', id=c.part_id)}" class="btn">Cancel</a>
+        % endif
+        % if c.record_exists: 
+        <a href="${url(controller='reagents', action='lots', id=c.lot.part.id)}" class="btn">Cancel</a>
+        % if c.allow_delete:
+        <a href="${url(controller='reagents', action='lot_delete', id=c.lot.id)}" class="btn danger" id="part_delete">Delete Lot Number</a>
+        % endif
+        % endif
+    </div>
+</form>
+
+<%def name="pagescript()">
+<script type="text/javascript">
+    $(function() {
+        $('#lot_delete').click(function() {
+            var form = $(this).parents('form')
+            form.attr('action', $(this).attr('href'))
+            if(confirm('Are you sure you want to delete this product line?')) {
+                form.submit()
+            }
+            return false;
+        });
+        $('input.datepicker').datepicker({dateFormat: 'mm/dd/yy'});
+    });
+</script>
+</%def>

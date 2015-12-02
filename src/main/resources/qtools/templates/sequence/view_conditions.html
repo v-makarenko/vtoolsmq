@@ -1,0 +1,88 @@
+<%inherit file="/sequence/view_base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+
+	.topline th {
+		padding-bottom: 2px !important;
+	}
+
+	.secondline th {
+		padding-top: 2px !important;
+	}
+	</style>
+</%def>
+
+<table class="datagrid condensed-table zebra-striped">
+	<thead>
+		<tr class="topline">
+			<th colspan="5">&nbsp;</th>
+			<th colspan="4" style="text-align: center; text-decoration: underline;">Master Mixes</th>
+			<th colspan="2">&nbsp;</th>
+		</tr>
+		<tr class="secondline">
+			<th>Quality</th>
+			<th>Observer</th>
+			<th>Plate</th>
+			<th>Temp</th>
+			<th>Custom Thermal?</th>
+			<th>Std</th>
+			<th>AFree</th>
+			<th>1Step</th>
+			<th>Groove</th>
+			<th>Notes</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tbody>
+% if c.sequence_group.conditions:
+% for condition in c.sequence_group.conditions:
+		<tr>
+			<td>${condition.status_display(condition.status)}</td>
+			<td>${condition.observer.name_code}</td>
+			<td>
+				% if condition.plate_id:
+				<a href="${url(controller='plate', action='view', id=condition.plate_id)}">View</a>
+				% else:
+				&nbsp;
+				% endif
+			</td>
+			<td>${condition.optimal_temp}</td>
+			<td>
+				% if condition.custom_thermal_protocol:
+					<span title="${condition.custom_thermal_protocol}">Yes</td>
+				% else:
+					No
+				% endif
+			</td>
+			<td>${condition.status_display(condition.mmix_standard_status)}</td>
+			<td>${condition.status_display(condition.mmix_afree_status)}</td>
+			<td>${condition.status_display(condition.mmix_1step_status)}</td>
+			<td>${condition.status_display(condition.mmix_groove_status)}</td>
+			<td>
+				% if condition.notes:
+					<span title="${condition.notes}">Yes</td>
+				% else:
+					No
+				% endif
+			</td>
+			<td>
+				<a href="${url(controller='sequence', action='edit_condition', id=condition.id)}">Edit</a>
+			</td>
+		</tr>
+% endfor
+% else:
+		<tr>
+			<td colspan="11" style="padding: 20px; text-align: center;">There are no conditions recorded for this assay.</td>
+		</tr>
+% endif
+	</tbody>
+</table>
+
+<%def name="actions()">
+	<div class="actions">
+	<a class="btn btn-primary primary" href="${url(controller='sequence', action='add_condition', id=c.sequence_group.id)}">Add Condition</a>
+	</div>
+</%def>

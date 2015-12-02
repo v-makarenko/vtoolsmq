@@ -1,0 +1,88 @@
+<%inherit file="/admin/base.html"/>
+<%namespace file="/components/datagrid.html" name="grid" import="comp_cell" />
+
+<%def name="pagetitle()">Reader History: ${c.dr.display_name}</%def>
+<%def name="selected_page()">readers</%def>
+
+<%def name="css()">
+${parent.css()}
+<style type="text/css">
+	.datagrid td, .datagrid th {
+		font-size: 11px;
+		border: 1px solid #bbb;
+		vertical-align: top;
+	}
+</style>
+</%def>
+
+<%def name="explanation()">
+<p>
+	The history of ${c.dr.name} is listed below.  Cells surrounded in blue indicate changes from the previous configuration.
+</p>
+</%def>
+
+<p>
+	<a href="${url(controller='admin', action='reader_summary', id=c.dr.code, admin=c.admin)}">View Summary</a>
+		&nbsp;|&nbsp;
+	% if c.admin:
+	<a href="${url(controller='admin', action='reader', id=c.dr.code)}">Edit Reader</a> &nbsp;|&nbsp;
+	<a href="${url(controller='admin', action='reader_status', id=c.dr.code)}">Change Status</a> &nbsp;|&nbsp;
+	<a href="${url(controller='admin', action='reader_fix', id=c.dr.code)}">Report Fix</a> &nbsp;|&nbsp;
+	% endif
+	<a href="${url(controller='admin', action='readers', admin=c.admin)}">All Readers</a>
+</p>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Date/Time</th>
+			<th>Circuit</th>
+			<th>Details</th>
+		</tr>
+	</thead>
+	<tbody>
+	% if c.changes:
+	% for idx, (time, datum) in enumerate(c.changes):
+		% if isinstance(datum, list):
+		<tr>
+			<td>${datum[0].time_effective.strftime('%Y/%m/%d %H:%M')}</td>
+			<td>${datum[0].circuit.name if datum[0].circuit else h.literal('&nbsp;')}</td>
+			<td>Configuration change (<a href="${url(controller='admin', action='reader_summary', id=c.dr.code, log_id=datum[0].id, admin=c.admin)}">see config</a>)
+			% if datum[1]:
+				(<a href="${url(controller='admin', action='reader_summary', id=c.dr.code, log_id=datum[1].id, admin=c.admin)}">see previous</a>)<br/>
+			<u>Changes:</u><br/>
+			% for i in range(len(datum[2][0])):
+				% if datum[2][0][i][1] != datum[2][1][i][1]:
+					${datum[2][0][i][0]}: ${datum[2][1][i][1]} -&gt; ${datum[2][0][i][1]}<br/>
+				% endif
+			% endfor
+			</td>
+			% endif
+		</tr>
+		% elif hasattr(datum, 'problem'): # fix
+		<tr class="odd">
+			<td>${datum.time_effective.strftime('%Y/%m/%d %H:%M')}</td>
+			<td colspan="2"><strong>Fix (${datum.reporter.full_name})</strong><br/>
+			<u>Problem:</u> ${datum.problem}<br/>
+			<u>Root Cause:</u> ${datum.root_cause}<br/>
+			<u>Resolution:</u> ${datum.fix}
+			</td>
+		</tr>
+		% elif hasattr(datum, 'status'): # status
+		<tr class="status${datum.status}">
+			<td>${datum.time_effective.strftime('%Y/%m/%d %H:%M')}</td>
+			<td colspan="12"><strong>Status Change (${datum.reporter.full_name})</strong>${': %s' % datum.status_comment if datum.status_comment else ''}</td>
+		</tr>
+		% endif
+	% endfor
+	% else:
+		<tr>
+			<td colspan="13" style="font-size: 13px; text-align: center; padding: 20px">
+				No records for ${c.dr.name} exist yet.
+				% if c.admin:
+					<a href="${url(controller='admin', action='reader', id=c.dr.code)}">Create an entry now.</a>
+				% endif
+			</td>
+		</tr>
+	% endif
+	</tbody>
+</table>

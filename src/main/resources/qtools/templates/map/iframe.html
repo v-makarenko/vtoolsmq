@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>IFrame Remoting Page</title>
+</head>
+<body>
+<p id="payload">Hello, World!</p>
+<script type="text/javascript">
+    document.domain = "${c.origin}";
+    window.parent.provideLocations("${url(controller='map', action='gmap')}");
+</script>
+</body>
+</html>

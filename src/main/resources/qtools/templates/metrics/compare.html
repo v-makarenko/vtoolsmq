@@ -1,0 +1,53 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/metrics/helpers.html" name="mh" import="*" />
+
+<%def name="pagetitle()">Compare Algorithms: ${c.group.name}</%def>
+<%def name="selected_page()">compare</%def>
+<%def name="css()">
+	${parent.css()}
+	<link rel="stylesheet" href="${url('/css/tw/bootstrap.btn.min.css')}" />
+	<style type="text/css">
+		table.gridfield {
+			margin-bottom: 5px;
+		}
+		select {
+			width: 250px;
+		}
+		label {
+			white-space: nowrap;
+		}
+
+		.primary {
+			margin-top: 10px;
+		}
+	</style>
+</%def>
+
+<form action="${url(controller='metrics', action='compare_algs', id=c.analysis_group_id)}" method="get" class="formbuild">
+	<table class="gridfield">
+		<tr>
+			<td class="field_col">
+				<table>
+					${c.process_form.field('left_config_id', 'dropdown',
+						label="Original Algorithm",
+						required=True)}
+				</table>
+			</td>
+			<td class="field_col">
+				<table>
+					${c.process_form.field('right_config_id', 'dropdown',
+						label="Test Algorithm",
+						required=True)}
+				</table>
+			</td>
+		</tr>
+	</table>
+	<%include file="/metrics/compare/metric_range.html" args="inline_compare=False" />
+	<table class="gridfield">
+		<tr>
+			<td>
+			<input class="btn primary" type="submit" value="Compare" />
+			</td>
+		</tr>
+	</table>
+</form>

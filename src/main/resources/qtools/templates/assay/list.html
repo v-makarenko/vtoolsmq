@@ -1,0 +1,107 @@
+<%inherit file="/assay/base.html"/>
+<%namespace file="/components/autocomplete.html" name="auto" import="*" />
+
+<%def name="pagetitle()">Assay List</%def>
+<%def name="selected_page()">assaylist</%def>
+<%def name="css()">
+	${auto.css()}
+	${parent.css()}
+	<style type="text/css" media="screen">
+		th.col_name, td.col_name {
+			width: 25%;
+		}
+		
+		th.col_owner, td.col_owner {
+			width: 12%;
+		}
+		
+		th.col_date, td.col_date {
+			width: 12%;
+		}
+		
+		th.col_probe, td.col_probe {
+			width: 7%;
+		}
+		
+		table.datagrid th.col_actions, table.datagrid td.col_actions {
+			width: 50%;
+			text-align: right;
+		}
+
+		#toggle_assay_id {
+			display: none;
+		}
+
+		#assay_type_blank {
+			margin-left: 50px;
+		}
+	</style>
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${auto.js()}
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('#assay_select').submit(function(evt) {
+			var val = $('#assay_id').val()
+			window.location.href = "${url(controller='assay', action='view')}"+'/'+val;
+			return false;
+		});
+	});
+	</script>
+</%def>
+
+<p>Note: to delete an assay, click on the assay name and then press the 'Delete' button on the ensuing page.</p>
+<form id="assay_select">
+<table class="gridfield">
+	<tr>
+		<td class="field_col">
+			<table>
+				${c.assay_form.field('assay_id', 'dropdown',
+				    label="Goto Assay",
+				    attributes=dict([('class','autoselect_text'),
+				                     ('id','assay_id')])
+				)}
+			</table>
+		</td>
+		<td class="field_col">
+			<input type="submit" value="Go" />
+		</td>
+		<td class="field_col">
+			<a id="assay_type_blank" href="${url(controller='assay', action='list', blank='1')}">Show Invalid Assays</a>
+		</td>
+	</tr>
+</table>
+</form>
+<table class="datagrid" id="assays">
+	<thead>
+		<tr>
+			<th class="col_name">Assay Name</th>
+			<th class="col_owner">Entered By</th>
+			<th class="col_date">Date</th>
+			<th class="col_probe">Dye</th>
+			<th class="col_probe">Quencher</th>
+			<th class="col_actions">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+% for idx, a in enumerate(c.assays):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name"><a href="${url(controller='assay', action='view', id=a.id)}">${a.name}</a></td>
+		<td class="col_owner">${a.owner.name_code if a.owner else h.literal('&nbsp;')}</td>
+		<td class="col_date">${h.ymd(a.added)}</td>
+		<td class="col_probe">${a.dye}</td>
+		<td class="col_probe">${a.quencher}</td>
+		<td class="col_actions"><a href="${url(controller='cutter', action='index', assay=a.id)}">View Restriction Sites</a>&nbsp;|&nbsp;
+			                    <a href="${url(controller='cutter', action='pick', assay=a.id)}">Find Digests</a></td>
+	</tr>
+% endfor
+	</tbody>
+</table>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	${auto.detect_autoselect('#assay_select')}
+</%def>
+	

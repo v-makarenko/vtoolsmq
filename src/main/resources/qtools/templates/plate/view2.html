@@ -1,0 +1,112 @@
+<%inherit file="/plate/grid.html"/>
+
+<%def name="pagetitle()">View Plate</%def>
+
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		.famvic .plate .grid_left .cell_content {
+			line-height: 124px;
+			height: 124px;
+		}
+
+		.famvic .plate .grid_main .cell_content {
+			height: 128px;
+		}
+
+		#dialog-form {
+			font-size: 13px;
+		}
+	</style>
+</%def>
+
+<%def name="cell_content(row, col)">
+	% if c.wells.get(row,{}).get(col):
+		<% well = c.wells.get(row).get(col) %>
+		${h.literal(h.qlb_thumbnail(c.plate.qlbplate.id, '%s%s' % (row, col), 0))}<br/>
+		${h.literal(h.qlb_thumbnail(c.plate.qlbplate.id, '%s%s' % (row, col), 1))}
+		<script type="text/javascript">
+			$("#${row}${col}").data({
+				sample: '${well.sample_name}',
+				fam_target: '${well.channels[0].target}',
+				vic_target: '${well.channels[1].target}'
+			})
+		</script>
+	% else:
+		No Data
+	% endif
+</%def>
+
+<%def name="pregrid()">
+<p>
+<strong>Plate:</strong>&nbsp;${c.plate.name}&nbsp;|&nbsp;<a href="${url(controller='plate', action='view', id=c.plate.id)}">Return to Original Plate View</a>
+</p>
+</%def>
+
+<%def name="grid()">
+	<div class="famvic">
+		${parent.grid()}
+	</div>
+</%def>
+
+<%def name="dialog()">
+	<div class="container_12">
+		<div class="grid_8 alpha omega">
+			<p>
+				<strong>Selected Well(s):</strong>&nbsp;<span id="well_list"></span>
+			</p>
+			<p>
+				<form id="amplitude" method="post" action="${url(controller='plate', action='amplitude_csv', id=c.plate.id)}">
+					<input id="form_wells" type="hidden" name="wells" value="" />
+					<input name="reprocess_config_id" type="hidden" value="${c.reprocess_config_id or ''}" />
+					<input name="analysis_group_id" type="hidden" value="${c.analysis_group_id or ''}" />
+					<input type="submit" value="Get Amplitude CSVs" />
+				</form>
+				<form id="amplitude" method="post" action="${url(controller='plate', action='amplitude_csv', id=c.plate.id)}">
+					<input id="form_wells" type="hidden" name="wells" value="" />
+					<input name="reprocess_config_id" type="hidden" value="${c.reprocess_config_id or ''}" />
+					<input name="analysis_group_id" type="hidden" value="${c.analysis_group_id or ''}" />
+					<input type="hidden" name="with_well_names" value="1" />
+					<input type="submit" value="Get Amplitude CSVs w/well names" />
+				</form>
+			</p>
+		</div>
+		<div class="grid_4 omega">
+			<p>
+				<strong>Sample:</strong>&nbsp;<span id="sample"></span>
+			</p>
+		</div>
+	</div>
+</%def>
+
+<%def name="pagescript()">
+	${parent.pagescript()}
+	<script type="text/javascript">
+		$('#plate').bind('gridselectablechanged', function() {
+			var els = $(SelectableUtils.selectedElements(plateGrid.grid))
+			var ids = $.map(els, function(e) { return e.id })
+			var idStr = ids.join(',')
+			var idDisp = ids.join(', ')
+			$('#dialog-form').find('#well_list').text(idDisp)
+			if(ids.length == 0) {
+				$('#dialog-form').find('#sample').text('')
+				$('#dialog-form').find('#form_wells').val('')
+			}
+			else if(ids.length == 1) {
+				$('#dialog-form').find('#sample').text($('#'+ids[0]).data('sample'));
+				$('#dialog-form').find('#form_wells').val(idStr);
+			}
+			else {
+				$('#dialog-form').find('#sample').text('Multiple');
+				$('#dialog-form').find('#form_wells').val(idStr);
+			}
+		});
+
+		$('#amplitude').submit(function() {
+			var val = $('#form_wells').val()
+			if(!val) {
+				return false;
+			}
+		});
+	</script>
+</%def>

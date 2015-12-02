@@ -1,0 +1,185 @@
+<%inherit file="/qcCharts/base.html" />
+<%namespace file="/components/flot.html" name="flot" import="*" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">Control Charts Results</%def>
+
+<%def name="explanation()">
+    <p>${c.explanation}</p>
+</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    <style type="text/css">
+        #plot table {
+            width: inherit;
+            border-spacing: inherit;
+            padding: inherit;
+        }
+
+        #plot table td {
+            border-top: inherit;
+            padding: 3px 2px 2px;
+            vertical-align: middle;
+            line-height: inherit;
+            margin: inherit;
+        }
+    </style>
+</%def>
+
+<%def name="js()">
+    ${parent.js()}
+    ${flot.js()}
+</%def>
+
+<table>
+    <tr>
+        <td><div class="text-rotate" style="">${c.y_label}</div></td>
+        <td><div id="plot" style="width: 720px; height: 400px"></div></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><div style="text-align:center">${c.x_label}</div></td>
+    </tr>
+</table>
+
+<form action="${c.back_url}" method="get">
+<div class="actions">
+        <input type="hidden" name="metric" value="" />
+        <input type="hidden" name="channel_num" value="" />
+        <input type="hidden" name="start_date" value="" />
+        <input type="hidden" name="end_date" value="" />
+        <input type="hidden" name="group_by_plate" value="" />
+        <input type="hidden" name="outlier_operator" value="" />
+        <input type="hidden" name="outlier_value" value="" />
+        <input type="hidden" name="reader" value="" />
+        <input type="hidden" name="reader_category" value="" />
+        <input type="hidden" name="sample_category" value="" />
+        <input type="hidden" name="assay_category" value="" />
+        <input type="hidden" name="plate_name" value="" />
+        <input type="hidden" name="sample_name" value="" />
+        <input type="hidden" name="assay_name" value="" />
+        <input type="hidden" name="plate_type" value="" />
+
+        ${boot.submit('Change Criteria')}
+</div>
+</form>
+
+<%def name="pagescript()">
+${parent.pagescript()}
+<script type="text/javascript">
+    var time_points = ${c.stats};
+    var mean_val = ${c.mean_value};
+    var ucl = ${c.ucl};
+    var lcl = ${c.lcl};
+
+    var showTooltip = function(x, y, name, value) {
+        $('<div id="plot_tip">'+name+'<br/><strong>'+value+'</strong></div>').css({
+            position: 'absolute',
+            display: 'none',
+            top: y+5,
+            left: x+5,
+            border: '1px solid #fdd',
+            padding: '2px',
+            'background-color': '#fee',
+            'font-size': '11px',
+            opacity: 0.80
+        }).appendTo("body").fadeIn(200);
+    }
+
+    var previousPoint = null;
+    var MV_LABEL  = "${c.mv_label}";
+    var UCL_LABEL = "${c.ucl_label}";
+    var LCL_LABEL = "${c.lcl_label}";
+
+    $(function() {
+        if($.isEmptyObject(time_points)) {
+            $('#plot').append($('<div class="well">No matching data found.</div>'))
+            return;
+        }
+        var plot_lines = [
+            {
+                data: time_points,
+                lines: {show: true},
+                points: {show: true},
+                label: "${c.yaxis_title}"
+            },
+            {
+                data: mean_val,
+                label: MV_LABEL
+            },
+            {
+                data: ucl,
+                lines: {dashPattern: [20,5] },
+                label: UCL_LABEL
+            },
+            {
+                data: lcl,
+                lines: {dashPattern: [20,5] },
+                label: LCL_LABEL
+            }
+        ]
+
+        var upper_spec = ${c.upper_spec};
+        if ( 'null' != upper_spec ){
+            plot_lines.push( {
+                data: ${c.upper_spec},
+                label: "${c.upper_spec_label}"
+            })
+        }
+        
+        var lower_spec = ${c.lower_spec};
+        if ( 'null' != lower_spec ){
+            plot_lines.push( {
+                data: ${c.lower_spec},
+                label: "${c.lower_spec_label}"
+            })
+        }
+
+        $.plot('#plot', plot_lines,
+            {grid: {clickable: true,
+                   hoverable: true},
+            xaxes: [{show:true,
+                     ticks: TickData,
+                     autoscaleMargin:0.07,
+                     rotateTicks:45}],
+            yaxes: [{min: ${c.min_y_axis},
+                     max: ${c.max_y_axis},
+                     autoscaleMargin:0.05,
+                     alignTicksWithAxis: 1,
+                     position: 'left',
+                     labelAngle: -90}]});
+
+        $("#plot").bind('plotclick', function(event, pos, item) {
+            if(item) {
+                window.location.href = urls[item.dataIndex];
+            }
+        });
+
+        $('#plot').bind('plothover', function(event, pos, item) {
+            if(item) {
+                if(previousPoint != item.dataIndex) {
+                    previousPoint = item.dataIndex;
+                    $('#plot_tip').remove();
+                    var value = item.datapoint[1].toFixed(2);
+                    if(item.series.label == MV_LABEL) { // better way to detect?
+                        var name = $.plot.formatDate(new Date(item.datapoint[0]), '%m/%d/%y');
+                    }
+                    else {
+                        var name = names[item.dataIndex];
+                    }
+                    showTooltip(item.pageX, item.pageY, name, value);
+                }
+            }
+            else {
+                $('#plot_tip').remove();
+                previousPoint = null;
+            }
+        })
+    });
+
+    var TickData = ${c.TickData};
+    var urls = ${c.urls};
+    var names = ${c.names};
+</script>
+</%def>

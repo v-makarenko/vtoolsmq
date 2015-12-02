@@ -1,0 +1,43 @@
+<%inherit file="/reagents/base.html" />
+<%namespace file="/components/tw_bootstrap.html" name="boot" import="*" />
+
+<%def name="pagetitle()">${c.part.name}: Make Template</%def>
+
+<%def name="explanation()">
+    <p>Generate a test plate layout for this product by selecting the lots that will
+       serve as tests and controls.  Clicking 'Make Template' will generate a QLT
+       which will be downloaded to your machine.  This QLT will have a predefined
+       name, and the lot numbers will be the sample names of the wells to be run.</p>
+</%def>
+
+<h3>Template: ${c.part.current_spec.test_template.name}</h3>
+<form action="${url(controller='reagents', action='make_template', id=c.part.id)}" method="post" id="template_form">
+    ${boot.text('name', label='Experiment Name', help_block='Optional name for this plate run')}
+    <table>
+        <thead>
+        <tr>
+            <th>Component</th>
+            <th>Lot Number</th>
+        </tr>
+        </thead>
+        <tbody>
+            % for idx, (neg, pos) in c.controls:
+            <tr>
+                <td>Control #${idx+1} ('${neg}','${pos}')</td>
+                <td>${boot.select('controls-%s.lot_number' % idx, c.lot_numbers, klass="span3", inline=True)}</td>
+            </tr>
+            % endfor
+            % for idx, (neg, pos) in c.tests:
+            <tr>
+                <td>Test #${idx+1} ('${neg}','${pos}'}</td>
+                <td>${boot.select('tests-%s.lot_number' % idx, c.lot_numbers, klass="span3", inline=True)}</td>
+            </tr>
+            % endfor
+        </tbody>
+    </table>
+    <div class="actions">
+        ${boot.submit('Make Template')}
+        <a href="${url(controller='reagents', action='spec', id=c.part.current_spec.id, tab='spec')}" class="btn">View Spec</a>
+        <a href="${url(controller='reagents', action='parts', id=c.part.product_line_id)}" class="btn">Back to Parts</a>
+    </div>
+</form>

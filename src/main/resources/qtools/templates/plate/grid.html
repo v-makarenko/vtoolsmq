@@ -1,0 +1,109 @@
+<%inherit file="/base/onecol.html"/>
+<%namespace file="/base/includes.html" name="incl" import="*" />
+
+<%def name="css()">
+	${parent.css()}
+	${incl.jqueryui_css()}
+	<link rel="stylesheet" href="${url('/css/qlt.css')}" type="text/css">
+</%def>
+
+<%def name="js()">
+	${parent.js()}
+	${incl.jqueryui_js()}
+	<script type="text/javascript" src="${url('/js/gridSelectable.js')}"></script>
+	<script type="text/javascript" src="${url('/js/selectable_utils.js')}"></script>
+	<script type="text/javascript" src="${url('/js/uitools.js')}"></script>
+	<script type="text/javascript" src="${url('/js/qlt.js')}"></script>
+</%def>
+
+<%def name="pregrid()"></%def>
+${self.pregrid()}
+<%def name="grid()">
+<div id="plate" class="plate">
+	<table class="grid_top">
+		<tr>
+			<th class="top_corner"><div class="cell_content">*</div></th>
+			% for col in ('01','02','03','04','05','06','07','08','09','10','11','12'):
+			<th><div class="cell_content">${col}</div></th>
+			% endfor
+		</tr>
+	</table>
+	<table class="grid_bottom">
+		<tr>
+			<td class="plate_section plate_left">
+				<table class="grid_left">
+					% for row in ('A','B','C','D','E','F','G','H'):
+					<tr>
+						<th><div class="cell_content">${row}</div></th>
+					</tr>
+					% endfor
+				</table>
+			</td>
+			<td class="plate_section">
+				<table class="grid_main">
+					% for i, row in enumerate(('A','B','C','D','E','F','G','H')):
+					<tr class="row">
+						% for j, col in enumerate(('01','02','03','04','05','06','07','08','09','10','11','12')):
+						<%
+						    cell = (c.wells.get("%s%s" % (row, col), None)) if hasattr(c, 'wells') else None
+						    cell_num = 12*i+j
+						%>
+						<td class="cell">
+							<div id="${row}${col}" class="cell_content ${c.class_decorator(cell)}">
+								${next.cell_content(row,col)}
+							</div>
+						</td>
+						% endfor
+					</tr>
+					% endfor
+				</table>
+			</td>
+		</tr>
+	</table>
+</div>
+</%def>
+<%def name="dialog()"></%def>
+<%def name="postgrid()">
+	<div id="dialog-form">
+	${self.dialog()}
+	</div>
+</%def>
+${self.postgrid()}
+
+
+
+<%def name="dialog_init()">
+	<script type="text/javascript">
+		$(function() {
+			$('#dialog-form').dialog({autoOpen: false,
+	          position: 'top',
+	          show: 'fade',
+	          hide: 'fade',
+	          height: 150,
+	          title: 'Well Information',
+	          width: 940}
+	    )});
+	</script>
+</%def>
+
+<%def name="pagescript()">
+	<script type="text/javascript">
+		$(function() {
+			// global, I know.
+			plateGrid = $('#plate').gridSelectable({filter: '.cell_content'})
+
+			SelectableUtils.bindElementSelected(plateGrid.grid, function() {
+				$('#dialog-form').dialog('open');
+			});
+			SelectableUtils.bindElementSelected(plateGrid.leftBar, function() {
+				$('#dialog-form').dialog('open');
+			});
+			SelectableUtils.bindElementSelected(plateGrid.topBar, function() {
+				$('#dialog-form').dialog('open');
+			});
+		});
+	</script>
+	${self.dialog_init()}	
+</%def>
+
+${self.grid()}

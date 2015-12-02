@@ -1,0 +1,51 @@
+<%inherit file="/base/onecol.html"/>
+
+<%def name="pagetitle()">Manufacturing Tools Quick Links</%def>
+<%def name="selected_page()">welcome</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		.container_12 div.link_section {
+			border: 1px solid #ccc;
+			width: 297px;
+		}
+
+		.grid_12 h1 {
+			margin-bottom: 0px;
+		}
+
+		.grid_12 {
+			margin-bottom: 20px;
+		}
+
+		.link_section div.content {
+			padding: 10px;
+		}
+	</style>
+</%def>
+
+<div class="grid_12">
+	<div class="link_section grid_4 alpha">
+		<div class="content">
+			<h5>Validation</h5>
+			<ul>
+				<li><a href="${url(controller='product', action='batch_list')}">Manufacturing Batches</a></li>
+				<li><a href="${url(controller='admin', action='prod')}">Production Reader List</a></li>
+				<li><a href="${url(controller='admin', action='register', id='reader')}">Register New Reader</a></li>
+				<li><a href="${url(controller='admin', action='register', id='module')}">Register New Fluidics Module</a></li>
+                <li><a href="${url(controller='admin', action='register', id='detector')}">Register New Detector Module</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="link_section grid_4">
+		<div class="content">
+			<h5>Plates</h5>
+			<ul>
+				<li><a href="${url(controller='plate', action='list')}">Latest Plate List/Plate Search</a></li>
+				<li><a href="${url(controller='plate', action='search', id='plate_name')}">Search for Plates by Name</a></li>
+				<li><a href="${url(controller='plate', action='search', id='dr_time')}">Search for Plates by Date/Time</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="cf"></div>
+</div>

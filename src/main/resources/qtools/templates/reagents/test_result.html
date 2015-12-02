@@ -1,0 +1,92 @@
+<%inherit file="/reagents/base.html" />
+
+<%def name="pagetitle()">Test Results: ${c.test.lot_number.number}</%def>
+
+<%def name="css()">
+    ${parent.css()}
+    <style type="text/css">
+    #datagrid td.pass {
+        color: #090;
+    }
+
+    #datagrid td.fail {
+        color: #c00;
+    }
+
+    #datagrid tr.average_row td {
+        font-weight: bold;
+    }
+
+    #datagrid tr.well_row {
+        display: none;
+    }
+
+    #datagrid a.expand_link {
+        font-size: 85%;
+        font-weight: normal;
+    }
+    </style>
+</%def>
+
+<p>
+    <strong>Plate:</strong> <a href="${url(controller='plate', action='view', id=c.test.plate_id)}">${c.test.plate.name}</a>
+</p>
+
+<table id="datagrid" class="condensed-table zebra-striped">
+    <thead>
+        <tr>
+            <th>Sample</th>
+            <th>Well</th>
+            % for metric, criteria in zip(c.metric_displays, c.criteria_displays):
+            <th>${metric}<br><span style="font-size: 85%; font-weight: normal;">${criteria}</span></th>
+            % endfor
+        </tr>
+    </thead>
+    <tbody>
+        % for sidx, (sample_name, well_names) in enumerate(c.test_results):
+        <tr id="${'row_anchor_%s' % sidx}" class="average_row">
+            <td rowspan="1">${sample_name}<br/>
+                <a href="#" class="expand_link" rel="${len(well_names)}">Show Wells</a>
+            </td>
+            % for idx, (well_name, results) in enumerate(well_names):
+            <td>${well_name}</td>
+            % for s, w, val, passed in results:
+            <td class="${'pass' if passed else ('' if passed is None else 'fail')}">${h.sig2(val)}</td>
+            % endfor
+            % if idx < len(well_names)-1:
+        </tr>
+        <tr class="well_row ${'well_row_%s' % sidx}">
+            % endif
+            % endfor
+        </tr>
+        % endfor
+    </tbody>
+</table>
+<div class="actions">
+    <a class="btn" href="${url(controller='reagents', action='lot_tests', id=c.test.lot_id)}">Back to Lot</a>
+    <a class="btn" href="${url(controller='reagents', action='spec', id=c.test.spec_id, tab='plates')}">${c.test.spec.name} Tests</a>
+</div>
+
+<%def name="pagescript()">
+    <script type="text/javascript">
+        $(function() {
+            $('.expand_link').click(function() {
+                var td = $(this).parents('td');
+                var tr = $(this).parents('tr');
+                var trid = tr.attr('id')
+                var rowid = trid.substring(trid.lastIndexOf('_')+1)
+                if($(this).is('.expanded')) {
+                    $(td).attr('rowspan',1)
+                    $('.well_row_'+rowid).css('display', 'none');
+                    $(this).removeClass('expanded').text('Show Wells');
+                }
+                else {
+                    $(td).attr('rowspan', $(this).attr('rel'));
+                    $('.well_row_'+rowid).css('display','table-row');
+                    $(this).addClass('expanded').text('Hide Wells');
+                }
+                return false;
+            })
+        })
+    </script>
+</%def>

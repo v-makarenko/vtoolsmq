@@ -1,0 +1,99 @@
+<%inherit file="/product/base.html"/>
+<%namespace file="/metrics/helpers.html" name="mh" import="*" />
+
+<%def name="pagetitle()">Compare Algorithms: ${c.group.name}</%def>
+<%def name="selected_page()">compare</%def>
+<%def name="css()">
+	${parent.css()}
+	<style type="text/css">
+		.datagrid {
+			font-size: 11px;
+		}
+	</style>
+</%def>
+
+<%def name="explanation()">
+<p>
+	<strong>Original Algorithm:</strong>&nbsp;${c.left_config_name}<br/>
+	<strong>Test Algorithm:</strong>&nbsp;${c.right_config_name}<br/>
+	<a href="${url(controller='metrics', action='compare', id=c.group.id)}">&lt;&lt; Select Other Algorithms</a>
+</p>
+</%def>
+
+<% import operator %>
+<h2>Plate Metrics</h2>
+% for attr, doc in c.plate_compares:
+	<% cmpfn = c.pm_comparator(attr) %>
+	<h5>${doc}</h5>
+	<table class="datagrid">
+		<thead>
+			<tr>
+				<th>Plate Links</th>
+				<th>Reader</th>
+				<th>Date</th>
+				<th>Plate Type</th>
+				<th>Original Value</th>
+				<th>Test Value</th>
+				<th>Diff</th>
+			</tr>
+		</thead>
+		<tbody>
+	% for idx, result in enumerate(sorted([(oldnew, cmpfn(oldnew)) for oldnew in c.plate_metrics], key=operator.itemgetter(1))):
+		<% (oldp, newp), cmpval = result %>
+		<tr class="${idx % 2 and 'odd' or 'even'}">
+			<td><a href="${url(controller='plate', action='view', id=oldp.plate_id, analysis_group_id=c.group.id, reprocess_config_id=c.left_config_id)}" title="${oldp.plate.name}">Original</a>&nbsp;|&nbsp;<a href="${url(controller='plate', action='view', id=newp.plate_id, analysis_group_id=c.group.id, reprocess_config_id=c.right_config_id)}" title="${newp.plate.name}">Test</a></td>
+			<td>${oldp.plate.box2.name}</td>
+			<td>${h.ymd(oldp.plate.run_time)}</td>
+			<td>${oldp.plate.plate_type.name if oldp.plate.plate_type else ''}</td>
+			<td>${getattr(oldp, attr, None)}</td>
+			<td>${getattr(newp, attr, None)}</td>
+			<td><strong>${cmpval}</strong></td>
+		</tr>
+	% endfor
+		</tbody>
+	</table>
+% endfor
+
+<h2>Well Metrics</h2>
+% for attr, doc in c.well_compares:
+	<% cmpfn = c.wm_comparator(attr) %>
+	<h5>${doc}</h5>
+	<table class="datagrid">
+		<thead>
+		<tr>
+			<th>Plate Links</th>
+			<th>Well Links</th>
+			<th>Reader</th>
+			<th>Date</th>
+			<th>Plate Type</th>
+			<th>Sample</th>
+			<th>Well</th>
+			<th>Original Value</th>
+			<th>Test Value</th>
+			<th>Diff</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% 
+			results = sorted([(oldnew, cmpfn(oldnew)) for oldnew in c.well_metrics], key=operator.itemgetter(1))
+		%>
+		% for idx, result in enumerate(results):
+			<%
+			   (oldw, neww), cmpval = result
+			%>
+			<tr class="${idx % 2 and 'odd' or 'even'}">
+				<td><a href="${url(controller='plate', action='view', id=oldw.plate_metric.plate_id, analysis_group_id=c.group.id, reprocess_config_id=c.left_config_id)}" title="${oldw.plate_metric.plate.name}">Original</a>&nbsp;|&nbsp;<a href="${url(controller='plate', action='view', id=neww.plate_metric.plate_id, analysis_group_id=c.group.id, reprocess_config_id=c.right_config_id)}" title="${neww.plate_metric.plate.name}">Test</a></td>
+				<td><a href="${url(controller='well', action='view', id=oldw.well_id, analysis_group_id=c.group.id, reprocess_config_id=c.left_config_id)}">Original</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='view', id=neww.well_id, analysis_group_id=c.group.id, reprocess_config_id=c.right_config_id)}">Test</a></td>
+				<td>${oldw.plate_metric.plate.box2.name}</td>
+				<td>${h.ymd(oldw.plate_metric.plate.run_time)}</td>
+				<td>${oldw.plate_metric.plate.plate_type.name if oldw.plate_metric.plate.plate_type else ''}</td>
+				<td>${oldw.well.sample_name}</td>
+				<td>${oldw.well_name}</td>
+				<td>${getattr(oldw, attr, None)}</td>
+				<td>${getattr(neww, attr, None)}</td>
+				<td><strong>${cmpval}</strong></td>
+			</tr>
+		% endfor
+		</tbody>
+	</table>
+% endfor

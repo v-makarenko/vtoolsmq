@@ -1,0 +1,8 @@
+<%inherit file="/metrics/stats/base.html" />
+<%namespace file="/metrics/stats_tables.html" name="st" import="*" />
+
+<h5>Extracluster Stats</h5>
+${st.extracluster_table()}
+
+<h5>EvaGreen DNA Load Stats (RNaseP target)</h5>
+${st.eva_dnaload_table()}

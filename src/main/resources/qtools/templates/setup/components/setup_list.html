@@ -1,0 +1,108 @@
+<%def name="setup_list_css()">
+	<style type="text/css" media="screen">
+		th.col_name, td.col_name {
+			width: 25%;
+		}
+		
+		th.col_project, td.col_project,
+		th.col_droplet_maker, td.col_droplet_maker {
+			width: 15%;
+		}
+		
+		th.col_operator, td.col_operator {
+			width: 15%;
+		}
+		
+		th.col_date, td.col_date {
+			white-space: nowrap;
+			width: 15%;
+		}
+
+		th.col_complete, td.col_complete {
+			width: 5%
+		}
+
+		th.col_locked, td.col_locked,
+		th.col_stage, td.col_stage {
+			width: 5%;
+			white-space: nowrap;
+		}
+		
+		table.datagrid th.col_actions, table.datagrid td.col_actions {
+			width: 20%;
+			text-align: right;
+			white-space: nowrap;
+		}
+
+		.done_form {
+			display: inline;
+			margin-left: 0.5em;
+		}
+	</style>
+</%def>
+
+<%def name="beta_list_table(paginator, pager_kwargs=None)">
+% if len(paginator):
+<p>${paginator.pager('$link_first $link_previous Setups $first_item to $last_item of $item_count $link_next $link_last', **(pager_kwargs or dict()))}</p>
+<table class="datagrid" id="setup_list">
+	<thead>
+		<tr>
+			<th class="col_name">Plate</th>
+			<th class="col_operator">Reader Operator</th>
+			<th class="col_actions">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+% for idx, setup in enumerate(paginator):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name"><a href="${url(controller='setup', action='plan', id=setup.id, beta=c.beta)}">${setup.name}</a></td>
+		<td class="col_operator">${setup.author.name_code if setup.author else h.literal('&nbsp;')}</td>
+		<td class="col_actions"><a href="${url(controller='setup', action='name', id=setup.id, beta=True)}">Edit Operator</a>
+			<form class="done_form" action="${url(controller='setup', action='done', id=setup.id, beta=True)}" method="post">
+				<a href="#">Mark as Done</a>
+			</form>
+		</td>
+	</tr>
+% endfor
+	</tbody>
+</table>
+<p>${paginator.pager('Go to page: ~3~', **(pager_kwargs or dict()	))}</p>
+% else:
+<p>No results found.</p>
+% endif
+</%def>
+
+<%def name="setup_list_table(paginator, pager_kwargs=None)">
+% if len(paginator):
+<p>${paginator.pager('$link_first $link_previous Setups $first_item to $last_item of $item_count $link_next $link_last', **(pager_kwargs or dict()))}</p>
+<table class="datagrid" id="setup_list">
+	<thead>
+		<tr>
+			<th class="col_name">Plate Setup Name</th>
+			<th class="col_project">Project</th>
+			<th class="col_author">Author</th>
+			<th class="col_completed">Completed?</th>
+			<th class="col_locked">Locked?</th>
+			<th class="col_date">Last Updated</th>
+			<th class="col_actions">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+% for idx, setup in enumerate(paginator):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="col_name"><a href="${url(controller='setup', action='consumable', id=setup.id, beta=c.beta)}">${setup.name}</a></td>
+		<td class="col_project">${setup.project.name if setup.project else h.literal('&nbsp;')}</td>
+		<td class="col_operator">${setup.author.name_code if setup.author else h.literal('&nbsp;')}</td>
+		<td class="col_completed">${h.yesno(setup.completed)}</td>
+		<td class="col_locked">${h.yesno(setup.locked)}</td>
+		<td class="col_date">${h.ymd(setup.time_updated)}</td>
+		<td class="col_actions"><a href="${url(controller='setup', action='consumable', id=setup.id)}">Edit</a></td>
+	</tr>
+% endfor
+	</tbody>
+</table>
+<p>${paginator.pager('Go to page: ~3~', **(pager_kwargs or dict()	))}</p>
+% else:
+<p>No results found.</p>
+% endif
+</%def>

@@ -1,0 +1,106 @@
+table.amplicon_container {
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+}
+
+table.amplicon_container td {
+    margin: 5px 0px;
+    border: none;
+    border-collapse: collapse;
+}
+
+tr.amplicon_header td div {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+tr.amplicon_header td.amplicon_prefix {
+    color: #f00;
+}
+
+tr.amplicon_header td.amplicon_suffix {
+    color: #00f;
+}
+
+tr.amplicon_header td.amplicon {
+    color: #060;
+}
+
+tr.amplicon_bar td {
+    height: 20px;
+}
+
+tr.amplicon_bar td.amplicon_prefix,
+.window_prefix {
+    background: #fcc;
+}
+
+tr.amplicon_bar td.amplicon_suffix,
+.window_suffix {
+    background: #ccf;
+}
+
+tr.amplicon_bar td.amplicon,
+.window_amplicon {
+    background: #cfc;
+}
+
+#cut_bar {
+    position: relative;
+    height: 20px;
+    margin: 20px 0px;
+}
+
+.cut_mark {
+    z-index: 2;
+    position: absolute;
+    top: 0px;
+    background: #000;
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+    height: 20px;
+    font-size: 1pt;
+}
+
+.baseWindow .cut_mark_pos,
+.baseWindow .cut_mark_neg {
+    top: 0px;
+    height: 20px;
+}
+
+.baseWindow .cut_mark_meg {
+    top: -10px;
+}
+
+.baseWindowPane {
+    width: 96px;
+    height: 16px;
+    overflow: hidden;
+    z-index: 4;
+    position: absolute;
+    border: 1px solid #000;
+    display: none;
+    font-family: "Courier New", courier, monospace;
+}
+
+.sliceWindow {
+    height: 18px;
+    border: 1px solid #f00;
+    position: absolute;
+    display: none;
+    z-index: 3;
+    font-size: 1px;
+    top: 0px;
+}
+
+.baseWindowPositive {
+    top: -20px;
+}
+
+.baseWindow {
+    position: relative;
+    float: left;
+    left: 0px;
+    font-family: "Courier New", courier, monospace;
+}

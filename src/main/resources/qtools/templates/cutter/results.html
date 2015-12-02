@@ -1,0 +1,124 @@
+<%inherit file="/cutter/base.html"/>
+<%namespace file="/cutter/partials.html" name="part" import="*" />
+
+<%def name="pagetitle()">Enzyme Picker: ${c.assay.name}</%def>
+<%def name="selected_page()">picker</%def>
+<%def name="js()">
+${parent.js()}
+<script src="${url('/js/bases.js')}"></script>
+</%def>
+
+<%def name="css()">
+${parent.css()}
+% if h.wowo('show_enzyme_price_bins'):
+${part.bin_display_css()}
+% endif
+<link rel="stylesheet" href="${url('/css/bases.css')}" type="text/css" media="screen">
+
+<style type="text/css" media="screen">
+	
+</style>
+</%def>
+
+<p>
+	<a href="${url(controller='cutter', action='sequence', left_padding=c.left_padding, right_padding=c.right_padding, assay=c.assay_id, enzymes=c.enzymes, allow_methylation=c.allow_methylation)}">Visualize Restriction Sites</a>
+</p>
+<p><strong>Assay:</strong>&nbsp;${h.assay_link(getattr(c,'assay',None))}<br /></p>
+
+% if c.found_sequence:
+% for idx, (pcr_seq, results) in enumerate(c.cut_results):
+
+<p>
+<strong><u>Sequence #${idx+1}:</u></strong><br/>
+<strong style="color: #060">Amplicon Length:</strong>&nbsp; ${len(pcr_seq.amplicon)}bp<br/>
+<strong style="color: #900">Prefix Length:</strong>&nbsp; ${len(pcr_seq.left_padding or [])}bp<br/>
+<strong style="color: #009">Suffix Length:</strong>&nbsp; ${len(pcr_seq.right_padding or [])}bp<br/>
+</p>
+
+<h2>Single Digests</h2>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th># Cuts</th>
+			% if h.wowo('show_enzyme_price_bins'):
+			<th>Cost Tier</th>
+			% else:
+			<th>Cost/100 units</th>
+			% endif
+			<th>Min Fragment Length</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, cutter in enumerate(results['around_cutters']):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="cutter_name">${cutter['name']}</td>
+		<td class="cutter_cuts">${cutter['cuts']}</td>
+		% if h.wowo('show_enzyme_price_bins'):
+		<td class="cutter_cost">${part.bin_display(cutter['cost_bin'])}</td>
+		% else:
+		<td class="cutter_cost">${h.format_currency(cutter['cost'])}</td>
+		% endif
+		<td class="cutter_frag">${cutter['max_leftmost_right']-cutter['min_rightmost_left']}</td>
+	</tr>
+	% endfor
+	</tbody>
+</table>
+
+<h2>Double Digests</h2>
+<table class="datagrid">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th># Cuts</th>
+			% if h.wowo('show_enzyme_price_bins'):
+			<th>Cost Tier</th>
+			% else:
+			<th>Cost/100 units (combined)</th>
+			% endif
+			% if h.wowo('show_dd_enzyme_buffer'):
+			<th>Common Buffer</th>
+			% endif
+			<th>Min Fragment Length</th>
+		</tr>
+	</thead>
+	<tbody>
+	% for idx, dd in enumerate(results['double_digests']):
+	<tr class="${idx % 2 and 'odd' or 'even'}">
+		<td class="cutter_name">${dd['pair'][0]}+${dd['pair'][1]}</td>
+		<td class="cutter_cuts">${dd['cuts']}</td>
+		% if h.wowo('show_enzyme_price_bins'):
+		<td class="cutter_cost">${part.bin_display(dd['cost_bin'])}
+		% else:
+		<td class="cutter_cost">${h.format_currency(dd['cost'])}</td>
+		% endif
+		% if h.wowo('show_dd_enzyme_buffer'):
+		<td class="cutter_buffer">${dd['buffer']}</td>
+		% endif
+		<td class="cutter_frag">${dd['max_leftmost_right']-dd['min_rightmost_left']}</td>
+	</tr>
+	% endfor
+	</tbody>
+</table>
+
+<h2 style="color:red">Amplicon Cutters</h2>
+<p>
+${', '.join(results['amplicon_cutters'])}
+</p>
+
+<h2>Left Cutters</h2>
+<p>
+${', '.join(results['left_cutters'])}
+</p>
+
+<h2>Right Cutters</h2>
+<p>
+${', '.join(results['right_cutters'])}
+</p>
+
+% endfor
+% else:
+<p>
+<strong>The sequence for this assay is unknown.</strong>
+</p>
+% endif

@@ -1,0 +1,11 @@
+<p>
+% if c.mode == 'group':
+<a href="${url(controller='metrics', action='overview', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code)}">&lt;&lt; Back to ${c.name} Overview</a>
+% elif c.mode == 'dr':
+<a href="${url(controller='metrics', action='certification', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code)}">&lt;&lt; Back to ${c.name} Overview</a>
+% elif c.mode == 'plate':
+<a href="${url(controller='metrics', action='per_plate', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code)}">&lt;&lt; Back to ${c.name} Overview</a>
+% elif c.mode == 'plate_non_cert':
+<a href="${url(controller='metrics', action='stats', id=c.id, mode=c.mode, reprocess_config_id=c.rp_code)}">&lt;&lt; Back to ${c.name} Metrics</a>
+% endif
+</p>

@@ -1,0 +1,38 @@
+JOB_ID_PROCESS_ASSAY                 = 101
+JOB_ID_PROCESS_TAQMAN_AMPLICON       = 102
+JOB_ID_PROCESS_LOCATION_AMPLICON     = 103
+JOB_ID_PROCESS_SNP_AMPLICON          = 104
+JOB_ID_PROCESS_SNPS                  = 105
+JOB_ID_PROCESS_SNP_RSID              = 106
+JOB_ID_PROCESS_GEX_TAQMAN_TRANSCRIPT = 107
+JOB_ID_PROCESS_GEX_SNPS              = 108
+JOB_ID_REPROCESS_PLATE               = 109 #master (DO we need?)
+JOB_ID_REPROCESS_QLTESTER            = 110
+JOB_ID_REPROCESS_LOAD_QTOOLS         = 111
+
+
+JOB_TYPE_DISPLAY_DICT = {
+	JOB_ID_PROCESS_ASSAY: "Process Assay",
+	JOB_ID_PROCESS_TAQMAN_AMPLICON: "Process Genomic Region",
+	JOB_ID_PROCESS_LOCATION_AMPLICON: "Process Genomic Region",
+	JOB_ID_PROCESS_SNP_AMPLICON: "Process Genomic Region",
+	JOB_ID_PROCESS_SNPS: "Lookup SNPs in Region",
+	JOB_ID_PROCESS_SNP_RSID: "Lookup SNP Location",
+	JOB_ID_PROCESS_GEX_TAQMAN_TRANSCRIPT: "Process Genomic/Transcript Region",
+	JOB_ID_PROCESS_GEX_SNPS: "Lookup SNPs in Region",
+    JOB_ID_REPROCESS_PLATE: "Signal need to reprocss plate",
+    JOB_ID_REPROCESS_QLTESTER: "Run reprocess on QLtester",
+    JOB_ID_REPROCESS_LOAD_QTOOLS: "Load reprocessed group from QLtester"
+}
+
+JOB_STATUS_NOT_DONE    = 0
+JOB_STATUS_IN_PROGRESS = 1
+JOB_STATUS_DONE        = 2
+JOB_STATUS_ABORTED     = -1
+
+JOB_STATUS_DISPLAY_DICT = {
+	JOB_STATUS_NOT_DONE: "Pending",
+	JOB_STATUS_IN_PROGRESS: "In Progress",
+	JOB_STATUS_DONE: "Completed",
+	JOB_STATUS_ABORTED: "Aborted"
+}

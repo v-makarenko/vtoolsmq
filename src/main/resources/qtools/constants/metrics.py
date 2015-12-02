@@ -1,0 +1,4 @@
+# TODO add more metric-related constants here
+
+NTC_FAM_POSITIVE_THRESHOLD = 5000
+NTC_VIC_POSITIVE_THRESHOLD = 3000

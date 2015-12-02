@@ -1,0 +1,60 @@
+<%inherit file="/metrics/compare/metric.html"/>
+
+<h5>${c.attr_name}</h5>
+<table class="datagrid">
+	<thead>
+	<tr>
+		<th>Plate Links</th>
+		<th>Well Links</th>
+		<th>Reader</th>
+		<th>Date</th>
+		<th>Plate Type</th>
+		<th>Sample</th>
+		<th>FAM</th>
+		<th>VIC</th>
+		<th>Well</th>
+		<th>#Events<br/>(Ori/Test)</th>
+		<th>Original Value</th>
+		<th>Test Value</th>
+		<th>Diff</th>
+		% for level in c.additional_field_hierarchy:
+			% for attr, colname in level:
+			<th>Original ${colname}</th>
+			<th>Test ${colname}</th>
+			% endfor
+		% endfor
+	</tr>
+	</thead>
+	<tbody>
+	% for idx, result in enumerate(c.results):
+		<%
+		   (oldw, neww), cmpval = result
+		%>
+		<tr class="${idx % 2 and 'odd' or 'even'}${' divider' if c.divider_row and idx == c.divider_row-1 else ''}">
+			<td><a href="${url(controller='plate', action='view', id=oldw.plate_metric.plate_id, analysis_group_id=c.group.id, reprocess_config_id=c.left_config_id)}" title="${oldw.plate_metric.plate.name}">Original</a>&nbsp;|&nbsp;<a href="${url(controller='plate', action='view', id=neww.plate_metric.plate_id, analysis_group_id=c.group.id, reprocess_config_id=c.right_config_id)}" title="${neww.plate_metric.plate.name}">Test</a></td>
+			<td><a href="${url(controller='well', action='view', id=oldw.well_id, analysis_group_id=c.group.id, reprocess_config_id=c.left_config_id)}">Original</a>&nbsp;|&nbsp;<a href="${url(controller='well', action='view', id=neww.well_id, analysis_group_id=c.group.id, reprocess_config_id=c.right_config_id)}">Test</a></td>
+			<td class="nowrap">${oldw.plate_metric.plate.box2.name}</td>
+			<td class="nowrap">${h.ymd(oldw.plate_metric.plate.run_time)}</td>
+			<td>${oldw.plate_metric.plate.plate_type.name if oldw.plate_metric.plate.plate_type else ''}</td>
+			<td>${oldw.well.sample_name}</td>
+			<td>${oldw.well_channel_metrics[0].well_channel.target}</td>
+			<td>${oldw.well_channel_metrics[1].well_channel.target}</td>
+			<td>${oldw.well_name}</td>
+			<td>${oldw.accepted_event_count}<br/>${neww.accepted_event_count}</td>
+			<td>${getattr(oldw, c.attr, None)}</td>
+			<td>${getattr(neww, c.attr, None)}</td>
+			<td class="nowrap"><strong>${c.cmp_display(cmpval)}</strong></td>
+			<% well_level = c.additional_field_hierarchy[0] %>
+			% for attr, colname in well_level:
+			<td>${getattr(oldw, attr, None)}</td>
+			<td>${getattr(neww, attr, None)}</td>
+			% endfor
+			<% plate_level = c.additional_field_hierarchy[1] %>
+			% for attr, colname in plate_level:
+			<td>${getattr(oldw.plate_metric, attr, None)}</td>
+			<td>${getattr(neww.plate_metric, attr, None)}</td>
+			% endfor
+		</tr>
+	% endfor
+	</tbody>
+</table>

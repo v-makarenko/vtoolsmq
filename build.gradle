@@ -35,7 +35,7 @@ springBoot {
 
 bootRun {
     addResources = false
-}
+    jvmArgs = ['-Djava.library.path=C:\\Python27\\Lib\\site-packages\\jep']}
 
 
 test {

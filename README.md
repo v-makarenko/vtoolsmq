@@ -3,8 +3,9 @@
 1. install python 2.7
 2. install rabbit mq from the official site
 3. pip install pika
-4. run resources/qtools/start.py
-5. run gradlew
+4. start rabbitmq
+5. run resources/qtools/start.py
+6. run gradlew
 
 POST localhost:8080/api/test/jep to test jep
 
